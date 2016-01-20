@@ -11,6 +11,8 @@ class KontsevichGraph
 
     public:
     KontsevichGraph(size_t internal, size_t external, std::vector< std::pair<size_t, size_t> > targets);
+    std::vector<size_t> internal_vertices() const;
+    std::pair<size_t, size_t> targets(size_t internal_vertex) const;
 
     private:
     friend std::ostream& operator<<(std::ostream &os, const KontsevichGraph& g);
