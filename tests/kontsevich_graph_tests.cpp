@@ -10,6 +10,6 @@ int main()
     for (size_t v : g.internal_vertices())
     {
         std::pair<size_t, size_t> targets = g.targets(v);
-        cout << v << ": " << std::get<0>(targets) << " " << std::get<1>(targets) << "\n";
+        cout << v << ": " << targets.first << " " << targets.second << "\n";
     }
 }
