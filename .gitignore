@@ -1,0 +1,2 @@
+*.o
+tests/kontsevich_graph_tests
