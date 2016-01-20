@@ -14,4 +14,7 @@ int main()
         cout << "(" << v << ", " << targets.second<< ", 'R') ";
     }
     cout << "\n";
+    cout << "Sign: " << g.sign() << "\n";
+    KontsevichGraph g2(2, 2, { {1, 0}, {2, 0} });
+    cout << "Equality testing " << (g == g2 ? "works" : "fails") << ".\n";
 }
