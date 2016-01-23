@@ -20,4 +20,6 @@ int main()
 
     KontsevichGraphSum<int> gs({ {3, g}, {2, g2} });
     cout << gs << "\n";
+    gs.reduce();
+    cout << gs << "\n";
 }

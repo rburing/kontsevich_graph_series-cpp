@@ -12,6 +12,27 @@ size_t KontsevichGraphSum<T>::size() const
 }
 
 template <class T>
+void KontsevichGraphSum<T>::reduce()
+{
+    auto current_term = d_terms.begin();
+    while (current_term < d_terms.end())
+    {
+        auto subsequent_term = current_term + 1;
+        while (subsequent_term < d_terms.end())
+        {
+            if (subsequent_term->second == current_term->second)
+            {
+                current_term->first += subsequent_term->first;
+                subsequent_term = d_terms.erase(subsequent_term);
+            }
+            else
+                subsequent_term++;
+        }
+        current_term++;
+    }
+}
+
+template <class T>
 std::ostream& operator<<(std::ostream& os, const KontsevichGraphSum<T>& gs)
 {
     if (gs.size() == 0)

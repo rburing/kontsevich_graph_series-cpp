@@ -14,6 +14,7 @@ class KontsevichGraphSum
     public:
     KontsevichGraphSum(std::vector< std::pair<T, KontsevichGraph> > terms);
     size_t size() const;
+    void reduce();
 
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>& gs);
 };
