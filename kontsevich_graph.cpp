@@ -42,7 +42,7 @@ int KontsevichGraph::sign() const
 
 bool operator==(const KontsevichGraph &lhs, const KontsevichGraph &rhs)
 {
-    return (lhs.d_sign == rhs.d_sign) && (lhs.d_targets_normalized == rhs.d_targets_normalized);
+    return (lhs.d_external == rhs.d_external) && (lhs.d_sign == rhs.d_sign) && (lhs.d_targets_normalized == rhs.d_targets_normalized);
 }
 
 bool operator!=(const KontsevichGraph &lhs, const KontsevichGraph &rhs)
