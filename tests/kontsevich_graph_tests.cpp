@@ -15,10 +15,10 @@ int main()
     }
     cout << "\n";
     cout << "Sign: " << g.sign() << "\n";
-    KontsevichGraph g2(2, 2, { {1, 0}, {2, 0} });
-    cout << "Equality testing " << (g == g2 ? "works" : "fails") << ".\n";
+    KontsevichGraph g2(2, 2, { {1, 0}, {1, 0} });
+    cout << "Equality testing " << (g == g2 ? "fails" : "works") << ".\n";
 
-    KontsevichGraphSum<int> gs({ {3, g}, {2, g2} });
+    KontsevichGraphSum<int> gs({ {3, g}, {2, g2}, {1, g2}, {-1, g} });
     cout << gs << "\n";
     gs.reduce();
     cout << gs << "\n";
