@@ -1,4 +1,4 @@
-#include <kontsevich_graph.hpp>
+#include <kontsevich_graph_sum.hpp>
 #include <iostream>
 using namespace std;
 
@@ -17,4 +17,7 @@ int main()
     cout << "Sign: " << g.sign() << "\n";
     KontsevichGraph g2(2, 2, { {1, 0}, {2, 0} });
     cout << "Equality testing " << (g == g2 ? "works" : "fails") << ".\n";
+
+    KontsevichGraphSum<int> gs({ {3, g}, {2, g2} });
+    cout << gs << "\n";
 }

@@ -6,12 +6,15 @@ all: tests/kontsevich_graph_tests
 kontsevich_graph.o:
 	$(CC) $(CFLAGS) -c kontsevich_graph.cpp
 
+kontsevich_graph_sum.o:
+	$(CC) $(CFLAGS) -I. -c kontsevich_graph_sum.cpp
+
 tests/kontsevich_graph_tests.o:
 	$(CC) $(CFLAGS) -I. -c tests/kontsevich_graph_tests.cpp -o tests/kontsevich_graph_tests.o
 
-tests/kontsevich_graph_tests: tests/kontsevich_graph_tests.o kontsevich_graph.o
-	$(CC) -o tests/kontsevich_graph_tests tests/kontsevich_graph_tests.o kontsevich_graph.o
+tests/kontsevich_graph_tests: tests/kontsevich_graph_tests.o kontsevich_graph.o kontsevich_graph_sum.o
+	$(CC) -o tests/kontsevich_graph_tests tests/kontsevich_graph_tests.o kontsevich_graph.o kontsevich_graph_sum.o
 
 clean:
-	rm -f kontsevich_graph.o tests/kontsevich_graph_tests.o
+	rm -f kontsevich_graph.o kontsevich_graph_sum.o tests/kontsevich_graph_tests.o
 	rm -f tests/kontsevich_graph_tests
