@@ -18,7 +18,9 @@ int main()
     KontsevichGraph g2(2, 2, { {1, 0}, {1, 0} });
     cout << "Equality testing " << (g == g2 ? "fails" : "works") << ".\n";
 
-    KontsevichGraphSum<int> gs({ {3, g}, {2, g2}, {1, g2}, {-1, g} });
+    KontsevichGraph g3(2, 2, { {1, 0}, {0, 2} });
+
+    KontsevichGraphSum<int> gs({ {3, g}, {2, g2}, {1, g2}, {-1, g}, {5, g3} });
     cout << gs << "\n";
     gs.reduce();
     cout << gs << "\n";
