@@ -8,7 +8,6 @@ class KontsevichGraph
     size_t d_internal;
     size_t d_external;
     std::vector< std::pair<size_t, size_t> > d_targets;
-    std::vector< std::pair<size_t, size_t> > d_targets_normalized;
     int d_sign;
 
     public:

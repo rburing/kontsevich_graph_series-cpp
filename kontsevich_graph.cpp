@@ -7,10 +7,10 @@ inline std::pair<size_t, size_t> exchange_pair(std::pair<size_t, size_t> p)
 }
 
 KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector< std::pair<size_t, size_t> > targets)
-: d_internal(internal), d_external(external), d_targets(targets), d_targets_normalized(targets)
+: d_internal(internal), d_external(external), d_targets(targets)
 {
     size_t exchanges = 0;
-    for (auto target = d_targets_normalized.begin(); target != d_targets_normalized.end(); target++)
+    for (auto target = d_targets.begin(); target != d_targets.end(); target++)
     {
         std::pair<size_t, size_t> exchanged = exchange_pair(*target);
         if (exchanged < *target)
@@ -19,7 +19,7 @@ KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector< 
             exchanges++;
         }
     }
-    sort(d_targets_normalized.begin(), d_targets_normalized.end());
+    sort(d_targets.begin(), d_targets.end());
     d_sign = (exchanges % 2 == 0) ? 1 : -1;
 }
 
@@ -42,7 +42,7 @@ int KontsevichGraph::sign() const
 
 bool operator==(const KontsevichGraph &lhs, const KontsevichGraph &rhs)
 {
-    return (lhs.d_external == rhs.d_external) && (lhs.d_sign == rhs.d_sign) && (lhs.d_targets_normalized == rhs.d_targets_normalized);
+    return (lhs.d_external == rhs.d_external) && (lhs.d_sign == rhs.d_sign) && (lhs.d_targets == rhs.d_targets);
 }
 
 bool operator!=(const KontsevichGraph &lhs, const KontsevichGraph &rhs)
