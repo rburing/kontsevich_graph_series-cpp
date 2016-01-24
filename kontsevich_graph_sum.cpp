@@ -15,14 +15,16 @@ template <class T>
 void KontsevichGraphSum<T>::reduce()
 {
     auto current_term = d_terms.begin();
+    current_term->first *= current_term->second.sign();
+    current_term->second.sign(1);
     while (current_term < d_terms.end())
     {
         auto subsequent_term = current_term + 1;
         while (subsequent_term < d_terms.end())
         {
-            if (subsequent_term->second == current_term->second)
+            if (subsequent_term->second.abs() == current_term->second.abs())
             {
-                current_term->first += subsequent_term->first;
+                current_term->first += subsequent_term->first * subsequent_term->second.sign();
                 subsequent_term = d_terms.erase(subsequent_term);
             }
             else

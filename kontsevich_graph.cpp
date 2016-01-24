@@ -40,6 +40,16 @@ int KontsevichGraph::sign() const
     return d_sign;
 }
 
+int KontsevichGraph::sign(int new_sign)
+{
+    return d_sign = new_sign;
+}
+
+std::pair< size_t, std::vector< std::pair<size_t, size_t> > > KontsevichGraph::abs() const
+{
+    return { d_external, d_targets };
+}
+
 bool operator==(const KontsevichGraph &lhs, const KontsevichGraph &rhs)
 {
     return (lhs.d_external == rhs.d_external) && (lhs.d_sign == rhs.d_sign) && (lhs.d_targets == rhs.d_targets);
