@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-std=c++11 -Wall -Werror
+CFLAGS=-std=c++11 -pedantic -Wall -Wextra -Werror -O3
 
 all: tests/kontsevich_graph_tests
 
