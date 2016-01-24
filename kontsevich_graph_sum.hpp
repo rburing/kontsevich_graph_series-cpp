@@ -1,3 +1,6 @@
+#ifndef INCLUDED_KONTSEVICH_GRAPH_SUM_H_
+#define INCLUDED_KONTSEVICH_GRAPH_SUM_H_
+
 #include <vector>
 #include <utility>
 #include <ostream>
@@ -18,3 +21,5 @@ class KontsevichGraphSum
 
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>& gs);
 };
+
+#endif

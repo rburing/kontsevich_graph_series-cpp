@@ -1,3 +1,6 @@
+#ifndef INCLUDED_KONTSEVICH_GRAPH_H_
+#define INCLUDED_KONTSEVICH_GRAPH_H_
+
 #include <vector>
 #include <utility>
 #include <cstddef>
@@ -23,3 +26,5 @@ class KontsevichGraph
     friend bool operator==(const KontsevichGraph &lhs, const KontsevichGraph& rhs);
     friend bool operator!=(const KontsevichGraph &lhs, const KontsevichGraph& rhs);
 };
+
+#endif
