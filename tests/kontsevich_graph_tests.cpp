@@ -1,4 +1,4 @@
-#include <kontsevich_graph_sum.hpp>
+#include <kontsevich_graph_series.hpp>
 #include <iostream>
 using namespace std;
 
@@ -24,4 +24,7 @@ int main()
     cout << gs << "\n";
     gs.reduce();
     cout << gs << "\n";
+
+    KontsevichGraphSeries<int> star({{0, gs}, {1, gs}});
+    cout << star << "\n";
 }
