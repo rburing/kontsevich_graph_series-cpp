@@ -1,6 +1,10 @@
 #include <kontsevich_graph_sum.hpp>
 
 template<class T>
+KontsevichGraphSum<T>::KontsevichGraphSum()
+{}
+
+template<class T>
 KontsevichGraphSum<T>::KontsevichGraphSum(std::vector< std::pair<T, KontsevichGraph> > terms)
 : d_terms(terms)
 {}

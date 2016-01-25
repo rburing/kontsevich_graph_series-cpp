@@ -15,6 +15,7 @@ class KontsevichGraphSum
     std::vector< std::pair<T, KontsevichGraph> > d_terms;
 
     public:
+    KontsevichGraphSum();
     KontsevichGraphSum(std::vector< std::pair<T, KontsevichGraph> > terms);
     size_t size() const;
     void reduce();
