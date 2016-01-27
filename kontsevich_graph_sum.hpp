@@ -10,14 +10,10 @@ template<class T> class KontsevichGraphSum;
 template<class T> std::ostream& operator<<(std::ostream&, const KontsevichGraphSum<T>&);
 
 template<class T>
-class KontsevichGraphSum
+class KontsevichGraphSum : public std::vector< std::pair<T, KontsevichGraph> >
 {
-    std::vector< std::pair<T, KontsevichGraph> > d_terms;
-
+    using std::vector< std::pair<T, KontsevichGraph> >::vector; // inherit constructors
     public:
-    KontsevichGraphSum();
-    KontsevichGraphSum(std::vector< std::pair<T, KontsevichGraph> > terms);
-    size_t size() const;
     void reduce();
 
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>& gs);
