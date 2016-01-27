@@ -6,21 +6,26 @@ inline std::pair<size_t, size_t> exchange_pair(std::pair<size_t, size_t> p)
     return { p.second, p.first };
 }
 
-KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector< std::pair<size_t, size_t> > targets)
+KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector< std::pair<size_t, size_t> > targets, bool normalized)
 : d_internal(internal), d_external(external), d_targets(targets)
 {
-    size_t exchanges = 0;
-    for (auto target = d_targets.begin(); target != d_targets.end(); target++)
+    if (!normalized)
     {
-        std::pair<size_t, size_t> exchanged = exchange_pair(*target);
-        if (exchanged < *target)
+        size_t exchanges = 0;
+        for (auto target = d_targets.begin(); target != d_targets.end(); target++)
         {
-            *target = exchanged;
-            exchanges++;
+            std::pair<size_t, size_t> exchanged = exchange_pair(*target);
+            if (exchanged < *target)
+            {
+                *target = exchanged;
+                exchanges++;
+            }
         }
+        sort(d_targets.begin(), d_targets.end());
+        d_sign = (exchanges % 2 == 0) ? 1 : -1;
     }
-    sort(d_targets.begin(), d_targets.end());
-    d_sign = (exchanges % 2 == 0) ? 1 : -1;
+    else
+        d_sign = 1;
 }
 
 std::vector<size_t> KontsevichGraph::internal_vertices() const
