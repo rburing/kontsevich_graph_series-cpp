@@ -14,6 +14,12 @@ int main()
         cout << "(" << v << ", " << targets.second<< ", 'R') ";
     }
     cout << "\n";
+    cout << "In-degrees of external vertices: ";
+    for (size_t d : g.in_degrees())
+    {
+        cout << d << " ";
+    }
+    cout << "\n";
     cout << "Sign: " << g.sign() << "\n";
     KontsevichGraph g2(2, 2, { {1, 0}, {1, 0} });
     cout << "Equality testing " << (g == g2 ? "fails" : "works") << ".\n";

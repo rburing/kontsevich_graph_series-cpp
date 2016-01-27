@@ -65,6 +65,19 @@ size_t KontsevichGraph::external() const
     return d_external;
 }
 
+std::vector<size_t> KontsevichGraph::in_degrees() const
+{
+    std::vector<size_t> indegrees(d_external);
+    for (auto& target_pair : d_targets)
+    {
+        if (target_pair.first < d_external)
+            indegrees[target_pair.first]++;
+        if (target_pair.second < d_external)
+            indegrees[target_pair.second]++;
+    }
+    return indegrees;
+}
+
 bool operator==(const KontsevichGraph &lhs, const KontsevichGraph &rhs)
 {
     return (lhs.d_external == rhs.d_external) && (lhs.d_sign == rhs.d_sign) && (lhs.d_targets == rhs.d_targets);

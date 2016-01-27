@@ -22,6 +22,7 @@ class KontsevichGraph
     std::pair< size_t, std::vector< std::pair<size_t, size_t> > > abs() const;
     size_t internal() const;
     size_t external() const;
+    std::vector<size_t> in_degrees() const;
 
     private:
     friend std::ostream& operator<<(std::ostream &os, const KontsevichGraph& g);
