@@ -78,6 +78,17 @@ std::vector<size_t> KontsevichGraph::in_degrees() const
     return indegrees;
 }
 
+std::vector<size_t> KontsevichGraph::neighbors_in(size_t vertex) const
+{
+    std::vector<size_t> neighbors;
+    for (size_t idx = 0; idx < d_internal; ++idx)
+    {
+        if (d_targets[idx].first == vertex || d_targets[idx].second == vertex)
+            neighbors.push_back(d_external + idx);
+    }
+    return neighbors;
+}
+
 bool operator==(const KontsevichGraph &lhs, const KontsevichGraph &rhs)
 {
     return (lhs.d_external == rhs.d_external) && (lhs.d_sign == rhs.d_sign) && (lhs.d_targets == rhs.d_targets);

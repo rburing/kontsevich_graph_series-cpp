@@ -20,6 +20,16 @@ int main()
         cout << d << " ";
     }
     cout << "\n";
+    cout << "Incoming neighbors of external vertices:\n";
+    for (size_t i = 0; i < g.external(); ++i)
+    {
+        cout << i << ": ";
+        for (size_t n : g.neighbors_in(i))
+        {
+            cout << n << " ";
+        }
+        cout << "\n";
+    }
     cout << "Sign: " << g.sign() << "\n";
     KontsevichGraph g2(2, 2, { {1, 0}, {1, 0} });
     cout << "Equality testing " << (g == g2 ? "fails" : "works") << ".\n";
