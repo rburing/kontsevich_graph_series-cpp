@@ -20,6 +20,8 @@ class KontsevichGraph
     int sign() const;
     int sign(int new_sign);
     std::pair< size_t, std::vector< std::pair<size_t, size_t> > > abs() const;
+    size_t internal() const;
+    size_t external() const;
 
     private:
     friend std::ostream& operator<<(std::ostream &os, const KontsevichGraph& g);

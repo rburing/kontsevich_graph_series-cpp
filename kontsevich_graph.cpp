@@ -50,6 +50,16 @@ std::pair< size_t, std::vector< std::pair<size_t, size_t> > > KontsevichGraph::a
     return { d_external, d_targets };
 }
 
+size_t KontsevichGraph::internal() const
+{
+    return d_internal;
+}
+
+size_t KontsevichGraph::external() const
+{
+    return d_external;
+}
+
 bool operator==(const KontsevichGraph &lhs, const KontsevichGraph &rhs)
 {
     return (lhs.d_external == rhs.d_external) && (lhs.d_sign == rhs.d_sign) && (lhs.d_targets == rhs.d_targets);
