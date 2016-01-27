@@ -1,4 +1,4 @@
-#ifndef INCLUDED_KONTSEVICH_GRAPH_SERIEs_H_
+#ifndef INCLUDED_KONTSEVICH_GRAPH_SERIES_H_
 #define INCLUDED_KONTSEVICH_GRAPH_SERIES_H_
 
 #include <kontsevich_graph_sum.hpp>
