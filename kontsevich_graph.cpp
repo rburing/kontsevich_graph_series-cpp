@@ -35,6 +35,11 @@ std::vector<size_t> KontsevichGraph::internal_vertices() const
     return vertices;
 }
 
+std::vector< std::pair<size_t, size_t> > KontsevichGraph::targets() const
+{
+    return d_targets;
+}
+
 std::pair<size_t, size_t> KontsevichGraph::targets(size_t internal_vertex) const
 {
     return d_targets[internal_vertex - d_external];
