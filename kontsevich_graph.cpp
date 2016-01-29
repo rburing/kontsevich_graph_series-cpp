@@ -57,6 +57,11 @@ size_t KontsevichGraph::external() const
     return d_external;
 }
 
+size_t KontsevichGraph::vertices() const
+{
+    return d_internal + d_external;
+}
+
 std::vector<size_t> KontsevichGraph::in_degrees() const
 {
     std::vector<size_t> indegrees(d_external);

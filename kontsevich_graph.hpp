@@ -23,6 +23,7 @@ class KontsevichGraph
     std::pair< size_t, std::vector< std::pair<size_t, size_t> > > abs() const;
     size_t internal() const;
     size_t external() const;
+    size_t vertices() const;
     std::vector<size_t> in_degrees() const;
     std::vector<size_t> neighbors_in(size_t vertex) const;
 
