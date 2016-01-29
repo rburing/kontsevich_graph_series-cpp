@@ -1,26 +1,13 @@
 #include "kontsevich_graph.hpp"
+#include "util/sort_pairs.hpp"
 #include <algorithm>
-
-inline std::pair<size_t, size_t> exchange_pair(std::pair<size_t, size_t> p)
-{
-    return { p.second, p.first };
-}
 
 KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector< std::pair<size_t, size_t> > targets, int sign, bool normalized)
 : d_internal(internal), d_external(external), d_targets(targets)
 {
     if (!normalized)
     {
-        size_t exchanges = 0;
-        for (auto target = d_targets.begin(); target != d_targets.end(); target++)
-        {
-            std::pair<size_t, size_t> exchanged = exchange_pair(*target);
-            if (exchanged < *target)
-            {
-                *target = exchanged;
-                exchanges++;
-            }
-        }
+        size_t exchanges = sort_pairs(d_targets);
         sort(d_targets.begin(), d_targets.end());
         d_sign = sign * (exchanges % 2 == 0) ? 1 : -1;
     }
