@@ -1,13 +1,13 @@
-#include <kontsevich_graph_sum.hpp>
+#include "kontsevich_graph_sum.hpp"
 
 template <class T>
 void KontsevichGraphSum<T>::reduce()
 {
     auto current_term = this->begin();
-    current_term->first *= current_term->second.sign();
-    current_term->second.sign(1);
     while (current_term < this->end())
     {
+        current_term->first *= current_term->second.sign();
+        current_term->second.sign(1);
         auto subsequent_term = current_term + 1;
         while (subsequent_term < this->end())
         {
