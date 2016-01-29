@@ -7,7 +7,7 @@ KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector< 
 {
     if (!normalized)
     {
-        size_t exchanges = sort_pairs(d_targets);
+        size_t exchanges = sort_pairs(d_targets.begin(), d_targets.end());
         sort(d_targets.begin(), d_targets.end());
         d_sign = sign * (exchanges % 2 == 0) ? 1 : -1;
     }
