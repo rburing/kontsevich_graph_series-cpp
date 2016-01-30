@@ -1,7 +1,7 @@
 #ifndef INCLUDED_KONTSEVICH_GRAPH_SERIES_H_
 #define INCLUDED_KONTSEVICH_GRAPH_SERIES_H_
 
-#include <kontsevich_graph_sum.hpp>
+#include "kontsevich_graph_sum.hpp"
 #include <ostream>
 #include <map>
 

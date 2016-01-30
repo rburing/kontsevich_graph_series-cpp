@@ -1,4 +1,4 @@
-#include <kontsevich_graph_series.hpp>
+#include "kontsevich_graph_series.hpp"
 
 template<class T>
 KontsevichGraphSeries<T>::KontsevichGraphSeries(std::map< size_t, KontsevichGraphSum<T> > terms)
