@@ -3,7 +3,7 @@
 #include <algorithm>
 
 KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector< std::pair<size_t, size_t> > targets, int sign, bool normalized)
-: d_internal(internal), d_external(external), d_targets(targets)
+: d_internal(internal), d_external(external), d_targets(targets), d_sign(sign)
 {
     if (!normalized)
     {
@@ -30,10 +30,8 @@ KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector< 
             }
         }
         d_targets = global_minimum;
-        d_sign = sign * (exchanges % 2 == 0) ? 1 : -1;
+        d_sign *= (exchanges % 2 == 0) ? 1 : -1;
     }
-    else
-        d_sign = sign;
 }
 
 std::vector<size_t> KontsevichGraph::internal_vertices() const
