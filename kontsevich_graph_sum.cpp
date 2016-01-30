@@ -22,7 +22,10 @@ void KontsevichGraphSum<T>::reduce()
             else
                 subsequent_term++;
         }
-        current_term++;
+        if (current_term->first == 0)
+            current_term = this->erase(current_term);
+        else
+            current_term++;
     }
 }
 
