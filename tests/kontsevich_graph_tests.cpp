@@ -43,4 +43,23 @@ int main()
 
     KontsevichGraphSeries<int> star({{0, gs}, {1, gs}});
     cout << star << "\n";
+
+    cout << "Composition:\n";
+    KontsevichGraph p(1, 2, { {0, 1} });
+    KontsevichGraphSum<int> sum({ { 1, p } });
+    KontsevichGraphSum<int> composition = sum({ sum, sum });
+    composition.reduce();
+    cout << composition << "\n";
+    cout << composition.size() << "\n";
+    for (auto& term : composition)
+    {
+        cout << term.first * term.second.sign() << "\t";
+        for (size_t v : term.second.internal_vertices())
+        {
+            std::pair<size_t, size_t> targets = term.second.targets(v);
+            cout << "(" << v << ", " << targets.first << ", 'L'), ";
+            cout << "(" << v << ", " << targets.second<< ", 'R'), ";
+        }
+        cout << "\n";
+    }
 }

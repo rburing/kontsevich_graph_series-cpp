@@ -15,8 +15,10 @@ class KontsevichGraphSum : public std::vector< std::pair<T, KontsevichGraph> >
 {
     typedef std::pair<T, KontsevichGraph> Term;
     using std::vector<Term>::vector; // inherit constructors
+
     public:
     void reduce();
+    KontsevichGraphSum<T> operator()(std::vector< KontsevichGraphSum<T> > arguments);
 
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>& gs);
 };
