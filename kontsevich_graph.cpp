@@ -7,8 +7,29 @@ KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector< 
 {
     if (!normalized)
     {
-        size_t exchanges = sort_pairs(d_targets.begin(), d_targets.end());
-        sort(d_targets.begin(), d_targets.end());
+        std::vector< std::pair<size_t, size_t> > global_minimum = d_targets;
+        std::vector<size_t> vertices(d_external + d_internal);
+        std::iota(vertices.begin(), vertices.end(), 0);
+        size_t exchanges = 0;
+        while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
+        {
+            std::vector< std::pair<size_t, size_t> > local_minimum = d_targets;
+            // Relabel elements of target pairs
+            for (size_t i = 0; i != d_internal; ++i) {
+                local_minimum[i].first = vertices[local_minimum[i].first];
+                local_minimum[i].second = vertices[local_minimum[i].second];
+            }
+            // Reorder target pairs
+            for (size_t i = 0; i != d_internal; ++i) {
+                std::swap(local_minimum[i], local_minimum[vertices[d_external + i] - d_external]);
+            }
+            size_t local_exchanges = sort_pairs(local_minimum.begin(), local_minimum.end());
+            if (local_minimum < global_minimum) {
+                global_minimum = local_minimum;
+                exchanges = local_exchanges;
+            }
+        }
+        d_targets = global_minimum;
         d_sign = sign * (exchanges % 2 == 0) ? 1 : -1;
     }
     else
