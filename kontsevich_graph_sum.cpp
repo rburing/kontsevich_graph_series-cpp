@@ -30,7 +30,7 @@ std::ostream& operator<<(std::ostream& os, const KontsevichGraphSum<T>& gs)
         return os << "0";
     for (auto &term : gs)
     {
-        os << term.first << "*(" << term.second << ")";
+        os << term.first * term.second.sign() << "*(" << term.second << ")";
         if (&term != &gs.back())
             os << " + ";
     }
