@@ -129,10 +129,11 @@ std::istream& operator>>(std::istream& is, KontsevichGraph& g)
     is >> g.d_external;
     is >> g.d_internal;
     is >> g.d_sign;
+    g.d_targets.clear();
     std::string line;
     std::pair<size_t, size_t> target_pair;
     size_t pair_count = 0;
-    while (is >> target_pair.first >> target_pair.second && pair_count++ < g.d_internal)
+    while (pair_count++ < g.d_internal && is >> target_pair.first >> target_pair.second)
         g.d_targets.push_back(target_pair);
     g.d_internal = g.d_targets.size();
     return is;
