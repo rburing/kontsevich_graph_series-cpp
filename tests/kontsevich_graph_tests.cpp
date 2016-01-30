@@ -1,5 +1,6 @@
 #include "../kontsevich_graph_series.hpp"
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 int main()
@@ -62,4 +63,10 @@ int main()
         }
         cout << "\n";
     }
+    stringstream ss;
+    ss << "2 2 1 0 1 0 2" << std::endl;
+    KontsevichGraph g_read;
+    ss >> g_read;
+    cout << g_read << "\n";
+    cout << "Reading in graphs " << (g_read == g ? "works" : "fails") << "\n";
 }

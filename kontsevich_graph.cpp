@@ -123,3 +123,17 @@ std::ostream& operator<<(std::ostream &os, const KontsevichGraph& g)
 {
     return os << "Kontsevich graph with " << g.d_internal << " vertices on " << g.d_external << " ground vertices";
 }
+
+std::istream& operator>>(std::istream& is, KontsevichGraph& g)
+{
+    is >> g.d_external;
+    is >> g.d_internal;
+    is >> g.d_sign;
+    std::string line;
+    std::pair<size_t, size_t> target_pair;
+    size_t pair_count = 0;
+    while (is >> target_pair.first >> target_pair.second && pair_count++ < g.d_internal)
+        g.d_targets.push_back(target_pair);
+    g.d_internal = g.d_targets.size();
+    return is;
+}

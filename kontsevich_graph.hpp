@@ -4,7 +4,7 @@
 #include <vector>
 #include <utility>
 #include <cstddef>
-#include <ostream>
+#include <iostream>
 
 class KontsevichGraph
 {
@@ -30,6 +30,7 @@ class KontsevichGraph
 
     private:
     friend std::ostream& operator<<(std::ostream &os, const KontsevichGraph& g);
+    friend std::istream& operator>>(std::istream& is, KontsevichGraph& g);
     friend bool operator==(const KontsevichGraph &lhs, const KontsevichGraph& rhs);
     friend bool operator!=(const KontsevichGraph &lhs, const KontsevichGraph& rhs);
 };
