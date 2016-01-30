@@ -2,6 +2,10 @@
 #include "util/sort_pairs.hpp"
 #include <algorithm>
 
+KontsevichGraph::KontsevichGraph()
+: d_sign(1)
+{}
+
 KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector< std::pair<size_t, size_t> > targets, int sign, bool normalized)
 : d_internal(internal), d_external(external), d_targets(targets), d_sign(sign)
 {
@@ -119,4 +123,3 @@ std::ostream& operator<<(std::ostream &os, const KontsevichGraph& g)
 {
     return os << "Kontsevich graph with " << g.d_internal << " vertices on " << g.d_external << " ground vertices";
 }
-
