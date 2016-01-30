@@ -27,13 +27,20 @@ void KontsevichGraphSum<T>::reduce()
 }
 
 template <class T>
+std::ostream& operator<<(std::ostream& os, const std::pair<T, KontsevichGraph>& term)
+{
+    os << term.first * term.second.sign() << "*(" << term.second << ")";
+    return os;
+}
+
+template <class T>
 std::ostream& operator<<(std::ostream& os, const KontsevichGraphSum<T>& gs)
 {
     if (gs.size() == 0)
         return os << "0";
-    for (auto &term : gs)
+    for (auto& term : gs)
     {
-        os << term.first * term.second.sign() << "*(" << term.second << ")";
+        os << term;
         if (&term != &gs.back())
             os << " + ";
     }
