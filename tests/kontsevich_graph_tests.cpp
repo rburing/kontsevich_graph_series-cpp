@@ -44,8 +44,10 @@ int main()
 
     cout << "Series: ";
     KontsevichGraphSeries<int> star({{0, gs}, {1, gs}});
+    star.precision(1);
     star.reduce();
     cout << star << "\n";
+    cout << "Series precision: " << star.precision() << "\n";
 
     cout << "Composition:\n";
     KontsevichGraph p(1, 2, { {0, 1} });

@@ -1,6 +1,18 @@
 #include "kontsevich_graph_series.hpp"
 
 template <class T>
+size_t KontsevichGraphSeries<T>::precision() const
+{
+    return d_precision;
+}
+
+template <class T>
+size_t KontsevichGraphSeries<T>::precision(size_t new_precision)
+{
+    return d_precision = new_precision;
+}
+
+template <class T>
 void KontsevichGraphSeries<T>::reduce()
 {
     auto current_term = this->begin();
