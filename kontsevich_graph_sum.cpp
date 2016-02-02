@@ -51,6 +51,16 @@ std::ostream& operator<<(std::ostream& os, const KontsevichGraphSum<T>& gs)
 }
 
 template <class T>
+std::istream& operator>>(std::istream& is, KontsevichGraphSum<T>& sum)
+{
+    typename KontsevichGraphSum<T>::Term term;
+    while (is >> term.first >> term.second) {
+        sum.push_back(term);
+    }
+    return is;
+}
+
+template <class T>
 bool KontsevichGraphSum<T>::operator==(const KontsevichGraphSum<T> &other)
 {
     KontsevichGraphSum<T> difference = *this - other;
@@ -198,3 +208,4 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichG
 
 template class KontsevichGraphSum<int>;
 template std::ostream& operator<<(std::ostream& os, const KontsevichGraphSum<int>& gs);
+template std::istream& operator>>(std::istream& is, KontsevichGraphSum<int>& sum);

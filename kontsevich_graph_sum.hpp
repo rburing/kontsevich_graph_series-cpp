@@ -3,12 +3,13 @@
 
 #include <vector>
 #include <utility>
-#include <ostream>
+#include <iostream>
 #include "kontsevich_graph.hpp"
 
 template<class T> class KontsevichGraphSum;
 template<class T> std::ostream& operator<<(std::ostream&, const std::pair<T, KontsevichGraph>&);
 template<class T> std::ostream& operator<<(std::ostream&, const KontsevichGraphSum<T>&);
+template<class T> std::istream& operator>>(std::istream&, KontsevichGraphSum<T>&);
 
 template<class T>
 class KontsevichGraphSum : public std::vector< std::pair<T, KontsevichGraph> >
@@ -26,6 +27,7 @@ class KontsevichGraphSum : public std::vector< std::pair<T, KontsevichGraph> >
 
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>::Term& term);
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>& gs);
+    friend std::istream& operator>> <>(std::istream& is, KontsevichGraphSum<T>& sum);
 };
 
 #endif
