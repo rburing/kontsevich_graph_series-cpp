@@ -42,7 +42,9 @@ int main()
     gs.reduce();
     cout << gs << "\n";
 
+    cout << "Series: ";
     KontsevichGraphSeries<int> star({{0, gs}, {1, gs}});
+    star.reduce();
     cout << star << "\n";
 
     cout << "Composition:\n";

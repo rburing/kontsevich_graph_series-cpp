@@ -1,6 +1,20 @@
 #include "kontsevich_graph_series.hpp"
 
 template <class T>
+void KontsevichGraphSeries<T>::reduce()
+{
+    auto current_term = this->begin();
+    while (current_term != this->end())
+    {
+        current_term->second.reduce();
+        if (current_term->second.size() == 0)
+            current_term = this->erase(current_term);
+        else
+            ++current_term;
+    }
+}
+
+template <class T>
 std::ostream& operator<<(std::ostream& os, const KontsevichGraphSeries<T>& series)
 {
     if (series.size() == 0)
