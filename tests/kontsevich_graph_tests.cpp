@@ -69,4 +69,27 @@ int main()
     ss >> g_read;
     cout << g_read << "\n";
     cout << "Reading in graphs " << (g_read == g ? "works" : "fails") << "\n";
+
+    // Compare with composition from SAGE.
+    KontsevichGraphSum<int> total;
+    KontsevichGraphSum<int>::Term term;
+    ss << "1 	4 3 1 	5 6	0 1	2 3 "
+       << "1 	4 3 1 	5 2	0 1	2 3 "
+       << "1 	4 3 1 	5 3	0 1	2 3 "
+       << "1 	4 3 1 	0 6	0 1	2 3 "
+       << "1 	4 3 1 	0 2	0 1	2 3 "
+       << "1 	4 3 1 	0 3	0 1	2 3 "
+       << "1 	4 3 1 	1 6	0 1	2 3 "
+       << "1 	4 3 1 	1 2	0 1	2 3 "
+       << "1 	4 3 1 	1 3	0 1	2 3 " << std::endl;
+    while (ss >> term.first >> term.second) {
+        total.push_back(term);
+    }
+    cout << "Total: " << total << "\n";
+    cout << "Total size: " << total.size() << "\n";
+    cout << "Do we agree with SAGE? " << (total == composition ? "Yes" : "No") << "\n";
+    KontsevichGraphSum<int> difference = composition - total;
+    difference.reduce();
+    cout << "Difference: " << difference << "\n";
+    cout << "Difference size: " << difference.size() << "\n";
 }
