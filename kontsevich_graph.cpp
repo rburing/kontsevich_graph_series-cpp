@@ -27,10 +27,14 @@ void KontsevichGraph::normalize()
             local_minimum[i].first = vertices[local_minimum[i].first];
             local_minimum[i].second = vertices[local_minimum[i].second];
         }
-        // Reorder target pairs
-        for (size_t i = 0; i != d_internal; ++i) {
-            std::swap(local_minimum[i], local_minimum[vertices[d_external + i] - d_external]);
+        // Apply permutation to list of target pairs
+        std::vector< std::pair<size_t, size_t> > permuted(d_internal);
+        for (size_t i = 0; i != d_internal; ++i)
+        {
+            permuted[vertices[d_external + i] - d_external] = local_minimum[i];
         }
+        local_minimum.swap(permuted);
+        // Sort elements of target pairs
         size_t local_exchanges = sort_pairs(local_minimum.begin(), local_minimum.end());
         if (local_minimum < global_minimum) {
             global_minimum = local_minimum;
