@@ -51,6 +51,40 @@ std::ostream& operator<<(std::ostream& os, const KontsevichGraphSum<T>& gs)
 }
 
 template <class T>
+bool KontsevichGraphSum<T>::operator==(const KontsevichGraphSum<T> &other)
+{
+    KontsevichGraphSum<T> difference = *this - other;
+    difference.reduce();
+    return difference.size() == 0;
+}
+
+template <class T>
+bool KontsevichGraphSum<T>::operator!=(const KontsevichGraphSum<T> &other)
+{
+    return !(*this == other);
+}
+
+template <class T>
+KontsevichGraphSum<T> KontsevichGraphSum<T>::operator+(const KontsevichGraphSum<T> &other)
+{
+    KontsevichGraphSum<T> sum = *this;
+    sum.reserve(sum.size() + other.size());
+    sum.insert(sum.end(), other.begin(), other.end());
+    return sum;
+}
+
+template <class T>
+KontsevichGraphSum<T> KontsevichGraphSum<T>::operator-(const KontsevichGraphSum<T> &other)
+{
+    // Add the lists of terms
+    KontsevichGraphSum<T> difference = *this + other;
+    // Flip the appropriate signs
+    for (auto it = difference.begin() + this->size(); it != difference.end(); ++it)
+        it->first = -it->first;
+    return difference;
+}
+
+template <class T>
 KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichGraphSum<T> > arguments)
 {
     KontsevichGraphSum<T> total; // TODO: pre-compute size?
