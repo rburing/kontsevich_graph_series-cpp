@@ -9,13 +9,11 @@ template<class T> class KontsevichGraphSeries;
 template<class T> std::ostream& operator<<(std::ostream&, const KontsevichGraphSeries<T>&);
 
 template<class T>
-class KontsevichGraphSeries
+class KontsevichGraphSeries : public std::map< size_t, KontsevichGraphSum<T> >
 {
-    std::map< size_t, KontsevichGraphSum<T> > d_terms;
-    
+    using std::map< size_t, KontsevichGraphSum<T> >::map; // inherit constructors
+
     public:
-    KontsevichGraphSeries(std::map< size_t, KontsevichGraphSum<T> > terms);
-    KontsevichGraphSum<T>& operator[](size_t order);
 
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSeries<T>& series);
 };
