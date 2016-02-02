@@ -16,6 +16,7 @@ class KontsevichGraph
     public:
     KontsevichGraph();
     KontsevichGraph(size_t internal, size_t external, std::vector< std::pair<size_t, size_t> > targets, int sign = 1, bool normalized = false);
+    void normalize();
     std::vector<size_t> internal_vertices() const;
     std::vector< std::pair<size_t, size_t> > targets() const;
     std::pair<size_t, size_t> targets(size_t internal_vertex) const;
