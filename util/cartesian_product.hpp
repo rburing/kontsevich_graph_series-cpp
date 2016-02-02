@@ -1,3 +1,6 @@
+#ifndef INCLUDED_CARTESIAN_PRODUCT_H_
+#define INCLUDED_CARTESIAN_PRODUCT_H_
+
 #include <vector>
 #include <algorithm>
 
@@ -62,3 +65,5 @@ class CartesianProduct : public std::iterator<std::input_iterator_tag, std::vect
         return u;
     }
 };
+
+#endif
