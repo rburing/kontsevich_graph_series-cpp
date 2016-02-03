@@ -169,7 +169,21 @@ bool KontsevichGraph::is_prime() const
     return vertex_count == d_internal;
 }
 
-std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t external, bool modulo_signs)
+KontsevichGraph KontsevichGraph::mirror_image() const
+{
+    std::vector< std::pair<size_t, size_t> > targets = d_targets;
+    // Reverse the ground vertices
+    for (auto& target_pair : targets)
+    {
+        if (target_pair.first < d_external)
+            target_pair.first = d_external - 1 - target_pair.first;
+        if (target_pair.second < d_external)
+            target_pair.second = d_external - 1 - target_pair.second;
+    }
+    return KontsevichGraph(d_internal, d_external, targets);
+}
+
+std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t external, bool modulo_signs, bool modulo_mirror_images)
 {
     std::set<KontsevichGraph> result;
     std::vector<size_t> ends(2*internal);
@@ -198,6 +212,12 @@ std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t extern
             KontsevichGraph graph(internal, external, targets);
             if (modulo_signs)
                 graph.sign(1);
+            if (modulo_mirror_images)
+            {
+                KontsevichGraph mirror = graph.mirror_image();
+                if (mirror < graph)
+                    graph = mirror;
+            }
             result.insert(graph);
         }
     }
