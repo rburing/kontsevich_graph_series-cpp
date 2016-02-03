@@ -75,23 +75,37 @@ bool KontsevichGraphSum<T>::operator!=(const KontsevichGraphSum<T> &other)
 }
 
 template <class T>
-KontsevichGraphSum<T> KontsevichGraphSum<T>::operator+(const KontsevichGraphSum<T> &other)
+KontsevichGraphSum<T>& KontsevichGraphSum<T>::operator+=(const KontsevichGraphSum<T>& rhs)
 {
-    KontsevichGraphSum<T> sum = *this;
-    sum.reserve(sum.size() + other.size());
-    sum.insert(sum.end(), other.begin(), other.end());
-    return sum;
+    this->reserve(this->size() + rhs.size());
+    this->insert(this->end(), rhs.begin(), rhs.end());
+    return *this;
 }
 
 template <class T>
-KontsevichGraphSum<T> KontsevichGraphSum<T>::operator-(const KontsevichGraphSum<T> &other)
+KontsevichGraphSum<T> operator+(KontsevichGraphSum<T> lhs, const KontsevichGraphSum<T> &rhs)
 {
+    lhs += rhs;
+    return lhs;
+}
+
+template <class T>
+KontsevichGraphSum<T>& KontsevichGraphSum<T>::operator-=(const KontsevichGraphSum<T>& rhs)
+{
+    size_t my_size = this->size();
     // Add the lists of terms
-    KontsevichGraphSum<T> difference = *this + other;
+    *this += rhs;
     // Flip the appropriate signs
-    for (auto it = difference.begin() + this->size(); it != difference.end(); ++it)
+    for (auto it = this->begin() + my_size; it != this->end(); ++it)
         it->first = -it->first;
-    return difference;
+    return *this;
+}
+
+template <class T>
+KontsevichGraphSum<T> operator-(KontsevichGraphSum<T> lhs, const KontsevichGraphSum<T>& rhs)
+{
+    lhs -= rhs;
+    return lhs;
 }
 
 template <class T>
@@ -209,3 +223,5 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichG
 template class KontsevichGraphSum<int>;
 template std::ostream& operator<<(std::ostream& os, const KontsevichGraphSum<int>& gs);
 template std::istream& operator>>(std::istream& is, KontsevichGraphSum<int>& sum);
+template KontsevichGraphSum<int> operator-(KontsevichGraphSum<int> lhs, const KontsevichGraphSum<int>& rhs);
+template KontsevichGraphSum<int> operator+(KontsevichGraphSum<int> lhs, const KontsevichGraphSum<int>& rhs);

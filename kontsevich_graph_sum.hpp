@@ -22,12 +22,17 @@ class KontsevichGraphSum : public std::vector< std::pair<T, KontsevichGraph> >
     KontsevichGraphSum<T> operator()(std::vector< KontsevichGraphSum<T> > arguments);
     bool operator==(const KontsevichGraphSum<T>& other);
     bool operator!=(const KontsevichGraphSum<T>& other);
-    KontsevichGraphSum<T> operator+(const KontsevichGraphSum<T>& other);
-    KontsevichGraphSum<T> operator-(const KontsevichGraphSum<T>& other);
+    KontsevichGraphSum<T>& operator+=(const KontsevichGraphSum<T>& rhs);
+    KontsevichGraphSum<T>& operator-=(const KontsevichGraphSum<T>& rhs);
 
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>::Term& term);
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>& gs);
     friend std::istream& operator>> <>(std::istream& is, KontsevichGraphSum<T>& sum);
 };
+
+template <class T>
+KontsevichGraphSum<T> operator+(KontsevichGraphSum<T> lhs, const KontsevichGraphSum<T>& rhs);
+template <class T>
+KontsevichGraphSum<T> operator-(KontsevichGraphSum<T> lhs, const KontsevichGraphSum<T>& rhs);
 
 #endif
