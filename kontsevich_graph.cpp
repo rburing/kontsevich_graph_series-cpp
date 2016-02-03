@@ -1,6 +1,7 @@
 #include "kontsevich_graph.hpp"
 #include "util/sort_pairs.hpp"
 #include <algorithm>
+#include <tuple>
 
 KontsevichGraph::KontsevichGraph()
 : d_sign(1)
@@ -114,6 +115,11 @@ std::vector<size_t> KontsevichGraph::neighbors_in(size_t vertex) const
             neighbors.push_back(d_external + idx);
     }
     return neighbors;
+}
+
+bool KontsevichGraph::operator<(const KontsevichGraph& rhs) const
+{
+    return std::tie(this->d_external, this->d_internal, this->d_targets, this->d_sign) < std::tie(rhs.d_external, rhs.d_internal, rhs.d_targets, rhs.d_sign);
 }
 
 bool operator==(const KontsevichGraph &lhs, const KontsevichGraph &rhs)

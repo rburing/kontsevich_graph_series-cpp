@@ -28,6 +28,7 @@ class KontsevichGraph
     size_t vertices() const;
     std::vector<size_t> in_degrees() const;
     std::vector<size_t> neighbors_in(size_t vertex) const;
+    bool operator<(const KontsevichGraph& rhs) const;
 
     private:
     friend std::ostream& operator<<(std::ostream &os, const KontsevichGraph& g);
