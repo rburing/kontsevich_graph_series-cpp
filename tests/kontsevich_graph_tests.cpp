@@ -105,13 +105,15 @@ int main()
     cout << "\n";
 
     cout << "Generating graphs:\n";
-    std::set<KontsevichGraph> graphs = KontsevichGraph::graphs(2, 2, true);
+    std::set<KontsevichGraph> graphs = KontsevichGraph::graphs(3, 2, true);
     for (auto& g : graphs)
     {
         std::vector< std::pair<size_t, size_t> > targets = g.abs().second;
         cout << "graph: ";
         for (size_t i = 0; i != targets.size(); ++i)
             cout << targets[i].first << " " << targets[i].second << "\t";
-        cout << " (sign " << g.sign() << ")\n";
+        cout << " (sign " << g.sign() << ", ";
+        cout << (g.is_prime() ? "" : "not ") << "prime)";
+        cout << "\n";
     }
 }

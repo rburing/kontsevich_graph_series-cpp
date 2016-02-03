@@ -30,6 +30,7 @@ class KontsevichGraph
     std::vector<size_t> in_degrees() const;
     std::vector<size_t> neighbors_in(size_t vertex) const;
     bool operator<(const KontsevichGraph& rhs) const;
+    bool is_prime() const;
 
     static std::set<KontsevichGraph> graphs(size_t internal, size_t external = 2, bool modulo_signs = false);
 

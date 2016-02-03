@@ -3,6 +3,7 @@
 #include "util/cartesian_product.hpp"
 #include <algorithm>
 #include <tuple>
+#include <stack>
 
 KontsevichGraph::KontsevichGraph()
 : d_sign(1)
@@ -121,6 +122,51 @@ std::vector<size_t> KontsevichGraph::neighbors_in(size_t vertex) const
 bool KontsevichGraph::operator<(const KontsevichGraph& rhs) const
 {
     return std::tie(this->d_external, this->d_internal, this->d_targets, this->d_sign) < std::tie(rhs.d_external, rhs.d_internal, rhs.d_targets, rhs.d_sign);
+}
+
+bool KontsevichGraph::is_prime() const
+{
+    size_t vertex_count = 0;
+    std::set<size_t> seen;
+    // Choose a vertex connected to the ground, if possible
+    size_t start = 0;
+    for (size_t i = 0; i != d_internal; ++i)
+    {
+        if (d_targets[i].first < d_external || d_targets[i].second < d_external)
+        {
+            start = d_external + i;
+            break;
+        }
+    }
+    // Otherwise, choose the first internal vertex
+    if (start == 0)
+        start = d_external;
+    // Breadth-first search
+    std::stack< std::pair<size_t, size_t> > vertex_stack;
+    vertex_stack.push({ start, 0 });
+    while (vertex_stack.size() > 0)
+    {
+        std::pair<size_t, size_t> vertex = vertex_stack.top();
+        vertex_stack.pop();
+        if (seen.find(vertex.first) == seen.end())
+        {
+            ++vertex_count;
+            seen.insert(vertex.first);
+            // Outgoing neighbors
+            std::pair<size_t, size_t> target_pair = d_targets[vertex.first - d_external];
+            if (target_pair.first >= d_external)
+                if (seen.find(target_pair.first) == seen.end())
+                    vertex_stack.push({ target_pair.first, vertex.second + 1});
+            if (target_pair.second >= d_external)
+                if (seen.find(target_pair.second) == seen.end())
+                    vertex_stack.push({ target_pair.second, vertex.second + 1});
+            // Incoming neighbors
+            for (auto neighbor : this->neighbors_in(vertex.first))
+                if (seen.find(neighbor) == seen.end())
+                    vertex_stack.push({ neighbor, vertex.second + 1});
+        }
+    }
+    return vertex_count == d_internal;
 }
 
 std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t external, bool modulo_signs)
