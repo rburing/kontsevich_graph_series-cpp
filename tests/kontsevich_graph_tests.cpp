@@ -93,4 +93,14 @@ int main()
     difference.reduce();
     cout << "Difference: " << difference << "\n";
     cout << "Difference size: " << difference.size() << "\n";
+
+    cout << "Series composition: ";
+    KontsevichGraph one(0, 2, {});
+    KontsevichGraphSum<int> onesum({ {1, one} });
+    KontsevichGraphSeries<int> oneseries({ {0, onesum} });
+    KontsevichGraphSeries<int> pseries({ {0, sum} });
+    KontsevichGraphSeries<int> result = pseries ({ oneseries, oneseries });
+    result.reduce();
+    cout << result;
+    cout << "\n";
 }

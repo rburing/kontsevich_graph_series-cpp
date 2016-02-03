@@ -1,4 +1,5 @@
 #include "kontsevich_graph_series.hpp"
+#include "util/cartesian_product.hpp"
 
 template <class T>
 size_t KontsevichGraphSeries<T>::precision() const
@@ -24,6 +25,49 @@ void KontsevichGraphSeries<T>::reduce()
         else
             ++current_term;
     }
+}
+
+template <class T>
+KontsevichGraphSeries<T> KontsevichGraphSeries<T>::operator()(std::vector< KontsevichGraphSeries<T> > arguments)
+{
+    KontsevichGraphSeries<T> result;
+    // Theoretical precision of the result (may be the theoretical maximum):
+    size_t new_precision = precision();
+    for (auto& argument : arguments)
+        new_precision = std::min(new_precision, argument.precision());
+    result.precision(new_precision);
+    // Return zero if the series itself or any of its arguments are zero:
+    if (this->empty())
+        return result;
+    for (auto& argument : arguments)
+        if (argument.empty())
+            return result;
+    // Practical precision (actually considering the data available):
+    size_t practical_precision = this->rbegin()->first;
+    std::vector<size_t> argument_sizes(arguments.size());
+    for (size_t i = 0; i != arguments.size(); ++i)
+    {
+        argument_sizes[i] = arguments[i].rbegin()->first + 1;
+        practical_precision = std::min(new_precision, argument_sizes[i] - 1);
+    }
+    // Actual composition:
+    for (size_t n = 0; n <= practical_precision; ++n)
+    {
+        CartesianProduct multilinearity_indices(argument_sizes);
+        for (auto arg_indices = multilinearity_indices.begin(); arg_indices != multilinearity_indices.end(); ++arg_indices) // Multi-linearity
+        {
+            size_t total_order = n;
+            for (size_t i = 0; i != arguments.size(); ++i)
+                total_order += (*arg_indices)[i];
+            if (total_order > new_precision)
+                continue;
+            std::vector< KontsevichGraphSum<T> > args(arguments.size());
+            for (size_t i = 0; i != arguments.size(); ++i)
+                args[i] = arguments[i][(*arg_indices)[i]];
+            result[total_order] += (*this)[n](args);
+        }
+    }
+    return result;
 }
 
 template <class T>

@@ -20,6 +20,7 @@ class KontsevichGraphSeries : public std::map< size_t, KontsevichGraphSum<T> >
     size_t precision() const;
     size_t precision(size_t new_precision);
     void reduce();
+    KontsevichGraphSeries<T> operator()(std::vector< KontsevichGraphSeries<T> > arguments);
 
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSeries<T>& series);
 };
