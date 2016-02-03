@@ -24,6 +24,7 @@ class KontsevichGraphSum : public std::vector< std::pair<T, KontsevichGraph> >
     bool operator!=(const KontsevichGraphSum<T>& other);
     KontsevichGraphSum<T>& operator+=(const KontsevichGraphSum<T>& rhs);
     KontsevichGraphSum<T>& operator-=(const KontsevichGraphSum<T>& rhs);
+    KontsevichGraphSum<T>& operator=(const KontsevichGraphSum<T>& rhs) = default;
 
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>::Term& term);
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>& gs);
