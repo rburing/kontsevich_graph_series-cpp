@@ -123,7 +123,7 @@ bool KontsevichGraph::operator<(const KontsevichGraph& rhs) const
     return std::tie(this->d_external, this->d_internal, this->d_targets, this->d_sign) < std::tie(rhs.d_external, rhs.d_internal, rhs.d_targets, rhs.d_sign);
 }
 
-std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t external)
+std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t external, bool modulo_signs)
 {
     std::set<KontsevichGraph> result;
     std::vector<size_t> ends(2*internal);
@@ -150,6 +150,8 @@ std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t extern
         if (!skip)
         {
             KontsevichGraph graph(internal, external, targets);
+            if (modulo_signs)
+                graph.sign(1);
             result.insert(graph);
         }
     }

@@ -105,7 +105,7 @@ int main()
     cout << "\n";
 
     cout << "Generating graphs:\n";
-    std::set<KontsevichGraph> graphs = KontsevichGraph::graphs(2, 2);
+    std::set<KontsevichGraph> graphs = KontsevichGraph::graphs(2, 2, true);
     for (auto& g : graphs)
     {
         std::vector< std::pair<size_t, size_t> > targets = g.abs().second;
