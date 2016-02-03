@@ -1,5 +1,6 @@
 #include "kontsevich_graph.hpp"
 #include "util/sort_pairs.hpp"
+#include "util/cartesian_product.hpp"
 #include <algorithm>
 #include <tuple>
 
@@ -120,6 +121,39 @@ std::vector<size_t> KontsevichGraph::neighbors_in(size_t vertex) const
 bool KontsevichGraph::operator<(const KontsevichGraph& rhs) const
 {
     return std::tie(this->d_external, this->d_internal, this->d_targets, this->d_sign) < std::tie(rhs.d_external, rhs.d_internal, rhs.d_targets, rhs.d_sign);
+}
+
+std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t external)
+{
+    std::set<KontsevichGraph> result;
+    std::vector<size_t> ends(2*internal);
+    for (size_t i = 0; i != 2*internal; ++i)
+    {
+        ends[i] = internal + external;
+    }
+    CartesianProduct graph_encodings(ends);
+    std::vector< std::pair <size_t, size_t> > targets(internal);
+    for (auto graph_encoding = graph_encodings.begin(); graph_encoding != graph_encodings.end(); ++graph_encoding)
+    {
+        bool skip = false;
+        for (size_t i = 0; i != internal; ++i)
+        {
+            std::pair<size_t, size_t> target_pair = { (*graph_encoding)[2*i], (*graph_encoding)[2*i + 1] };
+            // Avoid double edges and tadpoles:
+            if (target_pair.first == target_pair.second || target_pair.first == external + i || target_pair.second == external + i)
+            {
+                skip = true;
+                break;
+            }
+            targets[i] = target_pair;
+        }
+        if (!skip)
+        {
+            KontsevichGraph graph(internal, external, targets);
+            result.insert(graph);
+        }
+    }
+    return result;
 }
 
 bool operator==(const KontsevichGraph &lhs, const KontsevichGraph &rhs)

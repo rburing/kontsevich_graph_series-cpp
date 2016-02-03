@@ -5,6 +5,7 @@
 #include <utility>
 #include <cstddef>
 #include <iostream>
+#include <set>
 
 class KontsevichGraph
 {
@@ -29,6 +30,8 @@ class KontsevichGraph
     std::vector<size_t> in_degrees() const;
     std::vector<size_t> neighbors_in(size_t vertex) const;
     bool operator<(const KontsevichGraph& rhs) const;
+
+    static std::set<KontsevichGraph> graphs(size_t internal, size_t external = 2);
 
     private:
     friend std::ostream& operator<<(std::ostream &os, const KontsevichGraph& g);
