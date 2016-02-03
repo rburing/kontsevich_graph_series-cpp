@@ -180,7 +180,7 @@ KontsevichGraph KontsevichGraph::mirror_image() const
         if (target_pair.second < d_external)
             target_pair.second = d_external - 1 - target_pair.second;
     }
-    return KontsevichGraph(d_internal, d_external, targets);
+    return KontsevichGraph(d_internal, d_external, targets, d_sign);
 }
 
 std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t external, bool modulo_signs, bool modulo_mirror_images)
