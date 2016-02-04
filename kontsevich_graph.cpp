@@ -210,14 +210,14 @@ std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t extern
         if (!skip)
         {
             KontsevichGraph graph(internal, external, targets);
-            if (modulo_signs)
-                graph.sign(1);
             if (modulo_mirror_images)
             {
                 KontsevichGraph mirror = graph.mirror_image();
                 if (mirror < graph)
                     graph = mirror;
             }
+            if (modulo_signs)
+                graph.sign(1);
             result.insert(graph);
         }
     }
