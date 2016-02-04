@@ -183,6 +183,19 @@ KontsevichGraph KontsevichGraph::mirror_image() const
     return KontsevichGraph(d_internal, d_external, targets, d_sign);
 }
 
+bool KontsevichGraph::positive_differential_order() const
+{
+    std::set<size_t> seen;
+    for (auto& target_pair : d_targets)
+    {
+        if (target_pair.first < d_external)
+            seen.insert(target_pair.first);
+        if (target_pair.second < d_external)
+            seen.insert(target_pair.second);
+    }
+    return seen.size() == d_external;
+}
+
 std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t external, bool modulo_signs, bool modulo_mirror_images, std::function<bool(KontsevichGraph)> const& filter)
 {
     std::set<KontsevichGraph> result;

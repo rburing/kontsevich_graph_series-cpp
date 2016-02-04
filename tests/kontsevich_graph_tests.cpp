@@ -105,7 +105,7 @@ int main()
     cout << "\n";
 
     cout << "Generating graphs:\n";
-    std::set<KontsevichGraph> graphs = KontsevichGraph::graphs(3, 2, true, true, [](KontsevichGraph g) -> bool { return g.is_prime(); });
+    std::set<KontsevichGraph> graphs = KontsevichGraph::graphs(3, 2, true, true, [](KontsevichGraph g) -> bool { return g.positive_differential_order() && g.is_prime(); });
     for (auto& g : graphs)
     {
         std::vector< std::pair<size_t, size_t> > targets = g.abs().second;
