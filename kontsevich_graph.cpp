@@ -124,6 +124,32 @@ bool KontsevichGraph::operator<(const KontsevichGraph& rhs) const
     return std::tie(this->d_external, this->d_internal, this->d_targets, this->d_sign) < std::tie(rhs.d_external, rhs.d_internal, rhs.d_targets, rhs.d_sign);
 }
 
+KontsevichGraph& KontsevichGraph::operator*=(const KontsevichGraph& rhs)
+{
+    // TODO: maybe check if d_external == rhs.d_external
+    d_targets.reserve(d_targets.size() + rhs.d_targets.size());
+    // Concatenate lists of targets
+    d_targets.insert(d_targets.end(), rhs.d_targets.begin(), rhs.d_targets.end());
+    // Add offsets to RHS' internal targets
+    for (size_t i = 0; i != rhs.d_internal; ++i)
+    {
+        if (d_targets[d_internal + i].first >= d_external)
+            d_targets[d_internal + i].first += d_internal;
+        if (d_targets[d_internal + i].second >= d_external)
+            d_targets[d_internal + i].second += d_internal;
+    }
+    d_internal += rhs.d_internal;
+    d_sign *= rhs.d_sign;
+    normalize();
+    return *this;
+}
+
+KontsevichGraph operator*(KontsevichGraph lhs, const KontsevichGraph& rhs)
+{
+    lhs *= rhs;
+    return lhs;
+}
+
 bool KontsevichGraph::is_prime() const
 {
     size_t vertex_count = 0;

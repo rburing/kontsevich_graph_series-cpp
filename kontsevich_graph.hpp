@@ -31,6 +31,7 @@ class KontsevichGraph
     std::vector<size_t> in_degrees() const;
     std::vector<size_t> neighbors_in(size_t vertex) const;
     bool operator<(const KontsevichGraph& rhs) const;
+    KontsevichGraph& operator*=(const KontsevichGraph& rhs);
     bool is_prime() const;
     KontsevichGraph mirror_image() const;
     bool positive_differential_order() const;
@@ -43,5 +44,7 @@ class KontsevichGraph
     friend bool operator==(const KontsevichGraph &lhs, const KontsevichGraph& rhs);
     friend bool operator!=(const KontsevichGraph &lhs, const KontsevichGraph& rhs);
 };
+
+KontsevichGraph operator*(KontsevichGraph lhs, const KontsevichGraph& rhs);
 
 #endif
