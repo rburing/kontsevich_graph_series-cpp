@@ -183,7 +183,7 @@ KontsevichGraph KontsevichGraph::mirror_image() const
     return KontsevichGraph(d_internal, d_external, targets, d_sign);
 }
 
-std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t external, bool modulo_signs, bool modulo_mirror_images)
+std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t external, bool modulo_signs, bool modulo_mirror_images, std::function<bool(KontsevichGraph)> const& filter)
 {
     std::set<KontsevichGraph> result;
     std::vector<size_t> ends(2*internal);
@@ -210,6 +210,8 @@ std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t extern
         if (!skip)
         {
             KontsevichGraph graph(internal, external, targets);
+            if (filter && !filter(graph))
+                continue;
             if (modulo_mirror_images)
             {
                 KontsevichGraph mirror = graph.mirror_image();
