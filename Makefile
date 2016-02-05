@@ -1,4 +1,4 @@
-CC=g++
+CC=clang++
 CFLAGS=-std=c++11 -pedantic -Wall -Wextra -Werror -O3
 
 all: tests/kontsevich_graph_tests tests/star_product_associativity
