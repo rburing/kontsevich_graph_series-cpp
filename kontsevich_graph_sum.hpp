@@ -36,4 +36,6 @@ KontsevichGraphSum<T> operator+(KontsevichGraphSum<T> lhs, const KontsevichGraph
 template <class T>
 KontsevichGraphSum<T> operator-(KontsevichGraphSum<T> lhs, const KontsevichGraphSum<T>& rhs);
 
+#include "kontsevich_graph_sum.tpp"
+
 #endif

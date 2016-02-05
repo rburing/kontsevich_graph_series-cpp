@@ -88,6 +88,3 @@ std::ostream& operator<<(std::ostream& os, const KontsevichGraphSeries<T>& serie
     }
     return os;
 }
-
-template class KontsevichGraphSeries<int>;
-template std::ostream& operator<<(std::ostream& os, const KontsevichGraphSeries<int>& gs);

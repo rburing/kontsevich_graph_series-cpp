@@ -25,4 +25,6 @@ class KontsevichGraphSeries : public std::map< size_t, KontsevichGraphSum<T> >
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSeries<T>& series);
 };
 
+#include "kontsevich_graph_series.tpp"
+
 #endif

@@ -219,9 +219,3 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichG
     }
     return total;
 }
-
-template class KontsevichGraphSum<int>;
-template std::ostream& operator<<(std::ostream& os, const KontsevichGraphSum<int>& gs);
-template std::istream& operator>>(std::istream& is, KontsevichGraphSum<int>& sum);
-template KontsevichGraphSum<int> operator-(KontsevichGraphSum<int> lhs, const KontsevichGraphSum<int>& rhs);
-template KontsevichGraphSum<int> operator+(KontsevichGraphSum<int> lhs, const KontsevichGraphSum<int>& rhs);
