@@ -25,7 +25,7 @@ int main()
     {
         for (KontsevichGraph g : primes[n])
         {
-            weights[g] = symbol("w_" + weight_count++);
+            weights[g] = symbol("w_" + to_string(weight_count++));
         }
     }
     KontsevichGraphSeries<symbol> star_product;
