@@ -71,6 +71,48 @@ KontsevichGraphSeries<T> KontsevichGraphSeries<T>::operator()(std::vector< Konts
 }
 
 template <class T>
+KontsevichGraphSeries<T>& KontsevichGraphSeries<T>::operator+=(const KontsevichGraphSeries<T>& rhs)
+{
+    size_t practical_precision = this->rbegin()->first;
+    for (size_t n = 0; n <= practical_precision; ++n)
+    {
+        try {
+            (*this)[n] += rhs.at(n);
+        }
+        catch (std::out_of_range) {}
+    }
+    return *this;
+}
+
+template <class T>
+KontsevichGraphSeries<T> operator+(KontsevichGraphSeries<T> lhs, const KontsevichGraphSeries<T> &rhs)
+{
+    lhs += rhs;
+    return lhs;
+}
+
+template <class T>
+KontsevichGraphSeries<T>& KontsevichGraphSeries<T>::operator-=(const KontsevichGraphSeries<T>& rhs)
+{
+    size_t practical_precision = this->rbegin()->first;
+    for (size_t n = 0; n <= practical_precision; ++n)
+    {
+        try {
+            (*this)[n] -= rhs.at(n);
+        }
+        catch (std::out_of_range) { }
+    }
+    return *this;
+}
+
+template <class T>
+KontsevichGraphSeries<T> operator-(KontsevichGraphSeries<T> lhs, const KontsevichGraphSeries<T>& rhs)
+{
+    lhs -= rhs;
+    return lhs;
+}
+
+template <class T>
 std::ostream& operator<<(std::ostream& os, const KontsevichGraphSeries<T>& series)
 {
     if (series.size() == 0)
