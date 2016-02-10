@@ -43,12 +43,11 @@ KontsevichGraphSeries<T> KontsevichGraphSeries<T>::operator()(std::vector< Konts
         if (argument.empty())
             return result;
     // Practical precision (actually considering the data available):
-    size_t practical_precision = this->rbegin()->first;
+    size_t practical_precision = std::min(this->rbegin()->first, new_precision);
     std::vector<size_t> argument_sizes(arguments.size());
     for (size_t i = 0; i != arguments.size(); ++i)
     {
         argument_sizes[i] = arguments[i].rbegin()->first + 1;
-        practical_precision = std::min(new_precision, argument_sizes[i] - 1);
     }
     // Actual composition:
     for (size_t n = 0; n <= practical_precision; ++n)
