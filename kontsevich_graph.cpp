@@ -1,6 +1,7 @@
 #include "kontsevich_graph.hpp"
 #include "util/sort_pairs.hpp"
 #include "util/cartesian_product.hpp"
+#include "util/factorial.hpp"
 #include <algorithm>
 #include <tuple>
 #include <stack>
@@ -16,6 +17,24 @@ KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector< 
         normalize();
 }
 
+inline size_t apply_permutation(size_t internal, size_t external, std::vector< std::pair<size_t, size_t> >& targets, std::vector<size_t>& permutation)
+{
+    // Relabel elements of target pairs
+    for (size_t i = 0; i != internal; ++i) {
+        targets[i].first = permutation[targets[i].first];
+        targets[i].second = permutation[targets[i].second];
+    }
+    // Apply permutation to list of target pairs
+    std::vector< std::pair<size_t, size_t> > permuted(targets.size());
+    for (size_t i = 0; i != internal; ++i)
+    {
+        permuted[permutation[external + i] - external] = targets[i];
+    }
+    targets.swap(permuted);
+    // Sort elements of target pairs
+    return sort_pairs(targets.begin(), targets.end());
+}
+
 void KontsevichGraph::normalize()
 {
     std::vector< std::pair<size_t, size_t> > global_minimum = d_targets;
@@ -25,20 +44,7 @@ void KontsevichGraph::normalize()
     while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
     {
         std::vector< std::pair<size_t, size_t> > local_minimum = d_targets;
-        // Relabel elements of target pairs
-        for (size_t i = 0; i != d_internal; ++i) {
-            local_minimum[i].first = vertices[local_minimum[i].first];
-            local_minimum[i].second = vertices[local_minimum[i].second];
-        }
-        // Apply permutation to list of target pairs
-        std::vector< std::pair<size_t, size_t> > permuted(d_internal);
-        for (size_t i = 0; i != d_internal; ++i)
-        {
-            permuted[vertices[d_external + i] - d_external] = local_minimum[i];
-        }
-        local_minimum.swap(permuted);
-        // Sort elements of target pairs
-        size_t local_exchanges = sort_pairs(local_minimum.begin(), local_minimum.end());
+        size_t local_exchanges = apply_permutation(d_internal, d_external, local_minimum, vertices);
         if (local_minimum < global_minimum) {
             global_minimum = local_minimum;
             exchanges = local_exchanges;
@@ -93,6 +99,23 @@ size_t KontsevichGraph::external() const
 size_t KontsevichGraph::vertices() const
 {
     return d_internal + d_external;
+}
+
+size_t KontsevichGraph::multiplicity() const
+{
+    size_t multiplicity = 1;
+    std::vector<size_t> vertices(d_external + d_internal);
+    std::iota(vertices.begin(), vertices.end(), 0);
+    while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
+    {
+        std::vector< std::pair<size_t, size_t> > permuted = d_targets;
+        apply_permutation(d_internal, d_external, permuted, vertices);
+        if (permuted == d_targets)
+            ++multiplicity;
+    }
+    multiplicity = factorial(d_internal) / multiplicity;
+    multiplicity *= pow(2, d_internal);
+    return multiplicity;
 }
 
 std::vector<size_t> KontsevichGraph::in_degrees() const
