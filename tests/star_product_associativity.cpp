@@ -92,8 +92,16 @@ int main()
     cout.flush();
     assoc.reduce();
     cout << endl;
-    cout << "Number of terms in associator: ";
+    cout << "Number of terms in associator:\n";
     for (size_t n = 0; n <= order; ++n)
-        cout << assoc[n].size() << " ";
-    cout << "\n";
+    {
+        cout << "h^" << n << ":\n";
+        cout << assoc[n].size() << " total\n";
+        for (std::vector<size_t> indegrees : assoc[n].in_degrees())
+        {
+            for (size_t j = 0; j != indegrees.size(); ++j)
+                cout << indegrees[j] << " ";
+            cout << "\n";
+        }
+    }
 }

@@ -109,6 +109,17 @@ KontsevichGraphSum<T> operator-(KontsevichGraphSum<T> lhs, const KontsevichGraph
 }
 
 template <class T>
+std::set< std::vector<size_t> > KontsevichGraphSum<T>::in_degrees() const
+{
+    std::set< std::vector<size_t> > indegrees;
+    for (auto& term : *this)
+    {
+        indegrees.insert(term.second.in_degrees());
+    }
+    return indegrees;
+}
+
+template <class T>
 KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichGraphSum<T> > arguments)
 {
     KontsevichGraphSum<T> total; // TODO: pre-compute size?
