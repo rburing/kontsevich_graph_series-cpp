@@ -15,6 +15,7 @@ template<class T>
 class KontsevichGraphSum : public std::vector< std::pair<T, KontsevichGraph> >
 {
     using std::vector< std::pair<T, KontsevichGraph> >::vector; // inherit constructors
+    using std::vector< std::pair<T, KontsevichGraph> >::operator[]; // inherit subscript operator
 
     public:
     typedef std::pair<T, KontsevichGraph> Term;
@@ -26,6 +27,7 @@ class KontsevichGraphSum : public std::vector< std::pair<T, KontsevichGraph> >
     KontsevichGraphSum<T>& operator-=(const KontsevichGraphSum<T>& rhs);
     KontsevichGraphSum<T>& operator=(const KontsevichGraphSum<T>&) = default;
     std::set< std::vector<size_t> > in_degrees() const;
+    KontsevichGraphSum<T> operator[](std::vector<size_t> indegrees) const;
 
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>::Term& term);
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>& gs);

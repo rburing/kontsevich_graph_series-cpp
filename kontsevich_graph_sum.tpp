@@ -120,6 +120,20 @@ std::set< std::vector<size_t> > KontsevichGraphSum<T>::in_degrees() const
 }
 
 template <class T>
+KontsevichGraphSum<T> KontsevichGraphSum<T>::operator[](std::vector<size_t> indegrees) const
+{
+    // TODO: write a custom iterator instead?
+    KontsevichGraphSum<T> filtered(this->size());
+    auto it = std::copy_if(this->begin(), this->end(), filtered.begin(),
+                 [indegrees](KontsevichGraphSum<T>::Term term)
+                 {
+                    return term.second.in_degrees() == indegrees;
+                 });
+    filtered.resize(std::distance(filtered.begin(), it));
+    return filtered;
+}
+
+template <class T>
 KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichGraphSum<T> > arguments)
 {
     KontsevichGraphSum<T> total; // TODO: pre-compute size?

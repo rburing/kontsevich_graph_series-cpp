@@ -101,7 +101,7 @@ int main()
         {
             for (size_t j = 0; j != indegrees.size(); ++j)
                 cout << indegrees[j] << " ";
-            cout << "\n";
+            cout << ": " << assoc[n][indegrees].size() << "\n";
         }
     }
 }
