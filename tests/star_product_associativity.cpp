@@ -5,6 +5,8 @@
 #include <ginac/ginac.h>
 #include <iostream>
 #include <vector>
+#include <fstream>
+#include <limits>
 using namespace std;
 using namespace GiNaC;
 
@@ -12,29 +14,39 @@ size_t order = 3;
 
 int main()
 {
-    cout << "Listing relevant graphs (prime, positive differential order, modulo mirror images) at order";
     map< size_t, set<KontsevichGraph> > relevants;
-    for (size_t n = 1; n <= order; ++n)
-    {
-        cout << " " << n << ",";
-        cout.flush();
-        relevants[n] = KontsevichGraph::graphs(n, 2, true, true,
-                        [](KontsevichGraph g) -> bool
-                        {
-                            return g.positive_differential_order() && g.is_prime();
-                        });
-    }
-    map< size_t, vector<KontsevichGraph> > primes;
-    cout << " done." << endl;
-    cout << "Making a table of primes and symbolic weights...";
     map<KontsevichGraph, ex> weights;
+    cout << "Reading in known graphs and their weights...";
+    ifstream weights_file("data/known_weights.txt");
+    weights_file.ignore(numeric_limits<streamsize>::max(), '\n'); // ignore first line with column headers
+    KontsevichGraph graph;
+    int numerator, denominator;
+    char slash;
+    while (weights_file >> graph >> numerator >> slash >> denominator)
+    {
+        ex weight = numerator/(ex)denominator;
+        weights[graph] = weight;
+        relevants[graph.internal()].insert(graph);
+    }
+    cout << " done." << endl;
+    cout << "Listing relevant graphs (prime, positive differential order, modulo mirror images) at order " << order << "...";
+    cout.flush();
+    relevants[order] = KontsevichGraph::graphs(order, 2, true, true,
+                    [](KontsevichGraph g) -> bool
+                    {
+                        return g.positive_differential_order() && g.is_prime();
+                    });
+    cout << " done." << endl;
+    cout << "Making a table of primes and weights...";
+    map< size_t, vector<KontsevichGraph> > primes;
     size_t weight_count = 0;
     for (size_t n = 1; n <= order; ++n)
     {
         primes[n].reserve(2*relevants[n].size());
         for (KontsevichGraph g : relevants[n])
         {
-            weights[g] = symbol("w_" + to_string(weight_count++));
+            if (n == order)
+                weights[g] = symbol("w_" + to_string(weight_count++));
             primes[n].push_back(g);
             KontsevichGraph mirror = g.mirror_image();
             if (g.abs() != mirror.abs())
@@ -106,9 +118,10 @@ int main()
             symbol x("x");
             symbol y("y");
             symbol z("z");
+            ex h = 1/4 * pow(x,5)*pow(y,3)*pow(z,4) + pow(y,5)*z*x + pow(z,5)*pow(x,2);
             std::vector<symbol> coords { x, y, z };
-            PoissonStructure poisson { coords, { {0, x*y, -x*z}, {-x*y, 0, y*z }, { x*z, -y*z, 0 } } };
-            cout << evaluate(assoc[n][indegrees], poisson, { x*y*z*z*z, x*x*x * y*y * z, x*y*y*y*z }) << "\n";
+            PoissonStructure poisson { coords, { {0, h.diff(z), -h.diff(y)}, {-h.diff(z), 0, h.diff(x) }, { h.diff(y), -h.diff(x), 0 } } };
+            cout << evaluate(assoc[n][indegrees], poisson, { pow(x,3)*z*pow(y,2), pow(y,3) + y*pow(x,10), pow(z,4) * y * pow(x,2) }) << "\n";
         }
     }
 }
