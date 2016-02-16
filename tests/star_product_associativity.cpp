@@ -1,4 +1,5 @@
 #include "../kontsevich_graph_series.hpp"
+#include "../kontsevich_graph_operator.hpp"
 #include "../util/partitions.hpp"
 #include "../util/factorial.hpp"
 #include <ginac/ginac.h>
@@ -102,6 +103,12 @@ int main()
             for (size_t j = 0; j != indegrees.size(); ++j)
                 cout << indegrees[j] << " ";
             cout << ": " << assoc[n][indegrees].size() << "\n";
+            symbol x("x");
+            symbol y("y");
+            symbol z("z");
+            std::vector<symbol> coords { x, y, z };
+            PoissonStructure poisson { coords, { {0, x*y, -x*z}, {-x*y, 0, y*z }, { x*z, -y*z, 0 } } };
+            cout << evaluate(assoc[n][indegrees], poisson, { x*y*z*z*z, x*x*x * y*y * z, x*y*y*y*z }) << "\n";
         }
     }
 }
