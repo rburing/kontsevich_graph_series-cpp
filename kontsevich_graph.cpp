@@ -6,10 +6,6 @@
 #include <tuple>
 #include <stack>
 
-KontsevichGraph::KontsevichGraph()
-: d_sign(1)
-{}
-
 KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector<KontsevichGraph::VertexPair> targets, int sign, bool normalized)
 : d_internal(internal), d_external(external), d_targets(targets), d_sign(sign)
 {

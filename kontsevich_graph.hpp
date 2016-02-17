@@ -10,16 +10,16 @@
 
 class KontsevichGraph
 {
-    size_t d_internal;
-    size_t d_external;
+    size_t d_internal = 0;
+    size_t d_external = 0;
     std::vector< std::pair<char, char> > d_targets;
-    int d_sign;
+    int d_sign = 1;
 
     public:
     typedef char Vertex;
     typedef std::pair<Vertex, Vertex> VertexPair;
 
-    KontsevichGraph();
+    KontsevichGraph() = default;
     KontsevichGraph(size_t internal, size_t external, std::vector<VertexPair> targets, int sign = 1, bool normalized = false);
     void normalize();
     std::vector<Vertex> internal_vertices() const;
