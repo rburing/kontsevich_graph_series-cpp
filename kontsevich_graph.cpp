@@ -10,14 +10,14 @@ KontsevichGraph::KontsevichGraph()
 : d_sign(1)
 {}
 
-KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector< std::pair<size_t, size_t> > targets, int sign, bool normalized)
+KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector<KontsevichGraph::VertexPair> targets, int sign, bool normalized)
 : d_internal(internal), d_external(external), d_targets(targets), d_sign(sign)
 {
     if (!normalized)
         normalize();
 }
 
-inline size_t apply_permutation(size_t internal, size_t external, std::vector< std::pair<size_t, size_t> >& targets, std::vector<size_t>& permutation)
+inline size_t apply_permutation(size_t internal, size_t external, std::vector<KontsevichGraph::VertexPair>& targets, std::vector<KontsevichGraph::Vertex>& permutation)
 {
     // Relabel elements of target pairs
     for (size_t i = 0; i != internal; ++i) {
@@ -25,7 +25,7 @@ inline size_t apply_permutation(size_t internal, size_t external, std::vector< s
         targets[i].second = permutation[targets[i].second];
     }
     // Apply permutation to list of target pairs
-    std::vector< std::pair<size_t, size_t> > permuted(targets.size());
+    std::vector<KontsevichGraph::VertexPair> permuted(targets.size());
     for (size_t i = 0; i != internal; ++i)
     {
         permuted[permutation[external + i] - external] = targets[i];
@@ -37,13 +37,13 @@ inline size_t apply_permutation(size_t internal, size_t external, std::vector< s
 
 void KontsevichGraph::normalize()
 {
-    std::vector< std::pair<size_t, size_t> > global_minimum = d_targets;
+    std::vector<KontsevichGraph::VertexPair> global_minimum = d_targets;
     size_t exchanges = sort_pairs(global_minimum.begin(), global_minimum.end());
-    std::vector<size_t> vertices(d_external + d_internal);
+    std::vector<KontsevichGraph::Vertex> vertices(d_external + d_internal);
     std::iota(vertices.begin(), vertices.end(), 0);
     while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
     {
-        std::vector< std::pair<size_t, size_t> > local_minimum = d_targets;
+        std::vector<KontsevichGraph::VertexPair> local_minimum = d_targets;
         size_t local_exchanges = apply_permutation(d_internal, d_external, local_minimum, vertices);
         if (local_minimum < global_minimum) {
             global_minimum = local_minimum;
@@ -54,19 +54,19 @@ void KontsevichGraph::normalize()
     d_sign *= (exchanges % 2 == 0) ? 1 : -1;
 }
 
-std::vector<size_t> KontsevichGraph::internal_vertices() const
+std::vector<KontsevichGraph::Vertex> KontsevichGraph::internal_vertices() const
 {
-    std::vector<size_t> vertices(d_internal);
+    std::vector<KontsevichGraph::Vertex> vertices(d_internal);
     std::iota(vertices.begin(), vertices.end(), d_external);
     return vertices;
 }
 
-std::vector< std::pair<size_t, size_t> > KontsevichGraph::targets() const
+std::vector<KontsevichGraph::VertexPair> KontsevichGraph::targets() const
 {
     return d_targets;
 }
 
-std::pair<size_t, size_t> KontsevichGraph::targets(size_t internal_vertex) const
+KontsevichGraph::VertexPair KontsevichGraph::targets(KontsevichGraph::Vertex internal_vertex) const
 {
     return d_targets[internal_vertex - d_external];
 }
@@ -81,7 +81,7 @@ int KontsevichGraph::sign(int new_sign)
     return d_sign = new_sign;
 }
 
-std::pair< size_t, std::vector< std::pair<size_t, size_t> > > KontsevichGraph::abs() const
+std::pair< size_t, std::vector<KontsevichGraph::VertexPair> > KontsevichGraph::abs() const
 {
     return { d_external, d_targets };
 }
@@ -104,11 +104,11 @@ size_t KontsevichGraph::vertices() const
 size_t KontsevichGraph::multiplicity() const
 {
     size_t multiplicity = 1;
-    std::vector<size_t> vertices(d_external + d_internal);
+    std::vector<KontsevichGraph::Vertex> vertices(d_external + d_internal);
     std::iota(vertices.begin(), vertices.end(), 0);
     while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
     {
-        std::vector< std::pair<size_t, size_t> > permuted = d_targets;
+        std::vector<KontsevichGraph::VertexPair> permuted = d_targets;
         apply_permutation(d_internal, d_external, permuted, vertices);
         if (permuted == d_targets)
             ++multiplicity;
@@ -123,17 +123,17 @@ std::vector<size_t> KontsevichGraph::in_degrees() const
     std::vector<size_t> indegrees(d_external);
     for (auto& target_pair : d_targets)
     {
-        if (target_pair.first < d_external)
+        if ((size_t)target_pair.first < d_external)
             indegrees[target_pair.first]++;
-        if (target_pair.second < d_external)
+        if ((size_t)target_pair.second < d_external)
             indegrees[target_pair.second]++;
     }
     return indegrees;
 }
 
-std::vector<size_t> KontsevichGraph::neighbors_in(size_t vertex) const
+std::vector<KontsevichGraph::Vertex> KontsevichGraph::neighbors_in(KontsevichGraph::Vertex vertex) const
 {
-    std::vector<size_t> neighbors;
+    std::vector<KontsevichGraph::Vertex> neighbors;
     for (size_t idx = 0; idx < d_internal; ++idx)
     {
         if (d_targets[idx].first == vertex || d_targets[idx].second == vertex)
@@ -156,9 +156,9 @@ KontsevichGraph& KontsevichGraph::operator*=(const KontsevichGraph& rhs)
     // Add offsets to RHS' internal targets
     for (size_t i = 0; i != rhs.d_internal; ++i)
     {
-        if (d_targets[d_internal + i].first >= d_external)
+        if ((size_t)d_targets[d_internal + i].first >= d_external)
             d_targets[d_internal + i].first += d_internal;
-        if (d_targets[d_internal + i].second >= d_external)
+        if ((size_t)d_targets[d_internal + i].second >= d_external)
             d_targets[d_internal + i].second += d_internal;
     }
     d_internal += rhs.d_internal;
@@ -176,12 +176,12 @@ KontsevichGraph operator*(KontsevichGraph lhs, const KontsevichGraph& rhs)
 bool KontsevichGraph::is_prime() const
 {
     size_t vertex_count = 0;
-    std::set<size_t> seen;
+    std::set<KontsevichGraph::Vertex> seen;
     // Choose a vertex connected to the ground, if possible
-    size_t start = 0;
+    KontsevichGraph::Vertex start = 0;
     for (size_t i = 0; i != d_internal; ++i)
     {
-        if (d_targets[i].first < d_external || d_targets[i].second < d_external)
+        if ((size_t)d_targets[i].first < d_external || (size_t)d_targets[i].second < d_external)
         {
             start = d_external + i;
             break;
@@ -191,22 +191,22 @@ bool KontsevichGraph::is_prime() const
     if (start == 0)
         start = d_external;
     // Breadth-first search
-    std::stack< std::pair<size_t, size_t> > vertex_stack;
+    std::stack< std::pair<KontsevichGraph::Vertex, int> > vertex_stack;
     vertex_stack.push({ start, 0 });
     while (vertex_stack.size() > 0)
     {
-        std::pair<size_t, size_t> vertex = vertex_stack.top();
+        std::pair<KontsevichGraph::Vertex, int> vertex = vertex_stack.top();
         vertex_stack.pop();
         if (seen.find(vertex.first) == seen.end())
         {
             ++vertex_count;
             seen.insert(vertex.first);
             // Outgoing neighbors
-            std::pair<size_t, size_t> target_pair = d_targets[vertex.first - d_external];
-            if (target_pair.first >= d_external)
+            KontsevichGraph::VertexPair target_pair = d_targets[vertex.first - d_external];
+            if ((size_t)target_pair.first >= d_external)
                 if (seen.find(target_pair.first) == seen.end())
                     vertex_stack.push({ target_pair.first, vertex.second + 1});
-            if (target_pair.second >= d_external)
+            if ((size_t)target_pair.second >= d_external)
                 if (seen.find(target_pair.second) == seen.end())
                     vertex_stack.push({ target_pair.second, vertex.second + 1});
             // Incoming neighbors
@@ -220,13 +220,13 @@ bool KontsevichGraph::is_prime() const
 
 KontsevichGraph KontsevichGraph::mirror_image() const
 {
-    std::vector< std::pair<size_t, size_t> > targets = d_targets;
+    std::vector<KontsevichGraph::VertexPair> targets = d_targets;
     // Reverse the ground vertices
     for (auto& target_pair : targets)
     {
-        if (target_pair.first < d_external)
+        if ((size_t)target_pair.first < d_external)
             target_pair.first = d_external - 1 - target_pair.first;
-        if (target_pair.second < d_external)
+        if ((size_t)target_pair.second < d_external)
             target_pair.second = d_external - 1 - target_pair.second;
     }
     return KontsevichGraph(d_internal, d_external, targets, d_sign);
@@ -234,12 +234,12 @@ KontsevichGraph KontsevichGraph::mirror_image() const
 
 bool KontsevichGraph::positive_differential_order() const
 {
-    std::set<size_t> seen;
+    std::set<KontsevichGraph::Vertex> seen;
     for (auto& target_pair : d_targets)
     {
-        if (target_pair.first < d_external)
+        if ((size_t)target_pair.first < d_external)
             seen.insert(target_pair.first);
-        if (target_pair.second < d_external)
+        if ((size_t)target_pair.second < d_external)
             seen.insert(target_pair.second);
     }
     return seen.size() == d_external;
@@ -254,15 +254,15 @@ std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t extern
         ends[i] = internal + external;
     }
     CartesianProduct graph_encodings(ends);
-    std::vector< std::pair <size_t, size_t> > targets(internal);
+    std::vector<KontsevichGraph::VertexPair> targets(internal);
     for (auto graph_encoding = graph_encodings.begin(); graph_encoding != graph_encodings.end(); ++graph_encoding)
     {
         bool skip = false;
         for (size_t i = 0; i != internal; ++i)
         {
-            std::pair<size_t, size_t> target_pair = { (*graph_encoding)[2*i], (*graph_encoding)[2*i + 1] };
+            KontsevichGraph::VertexPair target_pair = { (*graph_encoding)[2*i], (*graph_encoding)[2*i + 1] };
             // Avoid double edges and tadpoles:
-            if (target_pair.first == target_pair.second || target_pair.first == external + i || target_pair.second == external + i)
+            if (target_pair.first == target_pair.second || (size_t)target_pair.first == external + i || (size_t)target_pair.second == external + i)
             {
                 skip = true;
                 break;
@@ -317,4 +317,9 @@ std::istream& operator>>(std::istream& is, KontsevichGraph& g)
     g.d_internal = g.d_targets.size();
     g.normalize();
     return is;
+}
+
+std::ostream& operator<<(std::ostream &os, const KontsevichGraph::Vertex v)
+{
+    return os << (size_t)v;
 }

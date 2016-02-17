@@ -10,9 +10,9 @@ int main()
     cout << "Edges: ";
     for (size_t v : g.internal_vertices())
     {
-        std::pair<size_t, size_t> targets = g.targets(v);
-        cout << "(" << v << ", " << targets.first << ", 'L') ";
-        cout << "(" << v << ", " << targets.second<< ", 'R') ";
+        KontsevichGraph::VertexPair targets = g.targets(v);
+        cout << "(" << v << ", " << (size_t)targets.first << ", 'L') ";
+        cout << "(" << v << ", " << (size_t)targets.second<< ", 'R') ";
     }
     cout << "\n";
     cout << "In-degrees of external vertices: ";
@@ -61,7 +61,7 @@ int main()
         cout << term.first * term.second.sign() << "\t";
         for (size_t v : term.second.internal_vertices())
         {
-            std::pair<size_t, size_t> targets = term.second.targets(v);
+            KontsevichGraph::VertexPair targets = term.second.targets(v);
             cout << "(" << v << ", " << targets.first << ", 'L'), ";
             cout << "(" << v << ", " << targets.second<< ", 'R'), ";
         }
@@ -108,7 +108,7 @@ int main()
     std::set<KontsevichGraph> graphs = KontsevichGraph::graphs(3, 2, true, true, [](KontsevichGraph g) -> bool { return g.positive_differential_order() && g.is_prime(); });
     for (auto& g : graphs)
     {
-        std::vector< std::pair<size_t, size_t> > targets = g.abs().second;
+        std::vector<KontsevichGraph::VertexPair> targets = g.abs().second;
         cout << "graph: ";
         for (size_t i = 0; i != targets.size(); ++i)
             cout << targets[i].first << " " << targets[i].second << "\t";

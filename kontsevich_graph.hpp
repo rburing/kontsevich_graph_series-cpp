@@ -12,25 +12,28 @@ class KontsevichGraph
 {
     size_t d_internal;
     size_t d_external;
-    std::vector< std::pair<size_t, size_t> > d_targets;
+    std::vector< std::pair<char, char> > d_targets;
     int d_sign;
 
     public:
+    typedef char Vertex;
+    typedef std::pair<Vertex, Vertex> VertexPair;
+
     KontsevichGraph();
-    KontsevichGraph(size_t internal, size_t external, std::vector< std::pair<size_t, size_t> > targets, int sign = 1, bool normalized = false);
+    KontsevichGraph(size_t internal, size_t external, std::vector<VertexPair> targets, int sign = 1, bool normalized = false);
     void normalize();
-    std::vector<size_t> internal_vertices() const;
-    std::vector< std::pair<size_t, size_t> > targets() const;
-    std::pair<size_t, size_t> targets(size_t internal_vertex) const;
+    std::vector<Vertex> internal_vertices() const;
+    std::vector<VertexPair> targets() const;
+    VertexPair targets(Vertex internal_vertex) const;
     int sign() const;
     int sign(int new_sign);
-    std::pair< size_t, std::vector< std::pair<size_t, size_t> > > abs() const;
+    std::pair< size_t, std::vector<VertexPair> > abs() const;
     size_t internal() const;
     size_t external() const;
     size_t vertices() const;
     size_t multiplicity() const;
     std::vector<size_t> in_degrees() const;
-    std::vector<size_t> neighbors_in(size_t vertex) const;
+    std::vector<Vertex> neighbors_in(Vertex vertex) const;
     bool operator<(const KontsevichGraph& rhs) const;
     KontsevichGraph& operator*=(const KontsevichGraph& rhs);
     bool is_prime() const;
@@ -47,5 +50,7 @@ class KontsevichGraph
 };
 
 KontsevichGraph operator*(KontsevichGraph lhs, const KontsevichGraph& rhs);
+
+std::ostream& operator<<(std::ostream &os, const KontsevichGraph::Vertex v);
 
 #endif

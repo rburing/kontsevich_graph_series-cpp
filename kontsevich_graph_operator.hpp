@@ -31,7 +31,7 @@ GiNaC::ex operator_from_graph(KontsevichGraph graph, PoissonStructure poisson, s
                 factor = poisson.bivector[(*indices)[2*(n-graph.external())]][(*indices)[2*(n-graph.external()) + 1]];
             for (size_t j : graph.neighbors_in(n))
             {
-                size_t incoming_index = (graph.targets(j).first == n) ? (*indices)[2*(j-graph.external())] : (*indices)[2*(j-graph.external()) + 1];
+                size_t incoming_index = ((size_t)graph.targets(j).first == n) ? (*indices)[2*(j-graph.external())] : (*indices)[2*(j-graph.external()) + 1];
                 factor = diff(factor, poisson.coordinates[incoming_index]);
             }
             summand *= factor;

@@ -162,7 +162,7 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichG
                 sign *= graph->sign();
             }
             // Prepare to concatenate targets
-            std::vector< std::pair<size_t, size_t> > new_targets(internal);
+            std::vector<KontsevichGraph::VertexPair> new_targets(internal);
             auto new_targets_it = new_targets.begin();
             // Relabel argument targets and copy them
             size_t start_internal = external;
@@ -172,7 +172,7 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichG
             for (size_t i = 0; i != arguments.size(); ++i)
             {
                 KontsevichGraphSum<T>::Term arg_term = arguments[i][(*arg_indices)[i]];
-                std::vector< std::pair<size_t, size_t> > arg_targets = arg_term.second.targets();
+                std::vector<KontsevichGraph::VertexPair> arg_targets = arg_term.second.targets();
                 std::vector<size_t> offsets(arg_term.second.vertices());
                 std::fill(offsets.begin(), offsets.begin() + arg_term.second.external(), start_external); 
                 std::fill(offsets.begin() + arg_term.second.external(), offsets.begin() + arg_term.second.vertices(), start_internal - arg_term.second.external());
@@ -189,11 +189,11 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichG
                 new_targets_it += arg_targets.size();
             }
             // Relabel main_term internal targets, but not the external ones
-            std::vector< std::pair<size_t, size_t> > main_targets = main_term.second.targets();
+            std::vector<KontsevichGraph::VertexPair> main_targets = main_term.second.targets();
             for (auto& target_pair : main_targets)
             {
-                for (size_t* target : {&target_pair.first, &target_pair.second})
-                    if (*target >= main_term.second.external()) // internal
+                for (KontsevichGraph::Vertex* target : {&target_pair.first, &target_pair.second})
+                    if ((size_t)*target >= main_term.second.external()) // internal
                         *target += (start_internal - main_term.second.external());
             }
             std::copy(main_targets.begin(), main_targets.end(), new_targets_it);
@@ -204,10 +204,10 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichG
                 incoming_edges += indegrees[i];
             std::vector<size_t> leibniz_factors(incoming_edges);
             // Build list of pointers to targets that should be replaced to apply the Leibniz rule
-            std::vector< size_t* > targets(incoming_edges);
+            std::vector< KontsevichGraph::Vertex* > targets(incoming_edges);
             size_t target_idx = 0;
             size_t main_idx = new_targets.size() - main_targets.size();
-            for (size_t i = 0; i != arguments.size(); ++i)
+            for (KontsevichGraph::Vertex i = 0; (size_t)i != arguments.size(); ++i)
             {
                 for (size_t n : main_term.second.neighbors_in(i))
                 {
@@ -229,7 +229,7 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichG
                     KontsevichGraph* graph = &arguments[i][(*arg_indices)[i]].second;
                     for (size_t j = 0; j != indegrees[i]; ++j)
                     {
-                        if ((*target_indices)[target_idx] >= graph->external()) // internal
+                        if ((size_t)(*target_indices)[target_idx] >= graph->external()) // internal
                             *targets[target_idx] = start_internal_vec[i] - graph->external() + (*target_indices)[target_idx];
                         else // external
                             *targets[target_idx] = start_external_vec[i] + (*target_indices)[target_idx];
