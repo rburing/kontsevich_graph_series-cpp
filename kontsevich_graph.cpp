@@ -114,6 +114,20 @@ size_t KontsevichGraph::multiplicity() const
     return multiplicity;
 }
 
+bool KontsevichGraph::is_zero() const
+{
+    std::vector<KontsevichGraph::Vertex> vertices(d_external + d_internal);
+    std::iota(vertices.begin(), vertices.end(), 0);
+    while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
+    {
+        std::vector<KontsevichGraph::VertexPair> permuted = d_targets;
+        size_t exchanges = apply_permutation(d_internal, d_external, permuted, vertices);
+        if (permuted == d_targets && exchanges % 2 == 1)
+            return true;
+    }
+    return false;
+}
+
 std::vector<size_t> KontsevichGraph::in_degrees() const
 {
     std::vector<size_t> indegrees(d_external);

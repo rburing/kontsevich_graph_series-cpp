@@ -32,6 +32,7 @@ class KontsevichGraph
     size_t external() const;
     size_t vertices() const;
     size_t multiplicity() const;
+    bool is_zero() const;
     std::vector<size_t> in_degrees() const;
     std::vector<Vertex> neighbors_in(Vertex vertex) const;
     bool operator<(const KontsevichGraph& rhs) const;

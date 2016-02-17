@@ -10,7 +10,7 @@
 using namespace std;
 using namespace GiNaC;
 
-size_t order = 3;
+size_t order = 4;
 
 int main()
 {
@@ -29,12 +29,12 @@ int main()
         relevants[graph.internal()].insert(graph);
     }
     cout << " done." << endl;
-    cout << "Listing relevant graphs (prime, positive differential order, modulo mirror images) at order " << order << "...";
+    cout << "Listing relevant graphs (prime, positive differential order, nonzero, modulo mirror images) at order " << order << "...";
     cout.flush();
     relevants[order] = KontsevichGraph::graphs(order, 2, true, true,
                     [](KontsevichGraph g) -> bool
                     {
-                        return g.positive_differential_order() && g.is_prime();
+                        return g.positive_differential_order() && g.is_prime() && !g.is_zero();
                     });
     cout << " done." << endl;
     cout << "Making a table of primes and weights...";
@@ -93,12 +93,16 @@ int main()
             star_product[n] += KontsevichGraphSum<ex>({ { major_coeff * weights[prime] * prime.multiplicity(), prime } });
         }
     }
-    cout << " done." << endl;
-    cout << endl;
-    KontsevichGraphSeries<ex> arg = { { 0, { { 1, KontsevichGraph(0, 1, {}) } }} };
+    cout << " done:" << endl;
     cout << star_product << "\n";
+    cout << "Number of terms in star product:\n";
+    for (size_t n = 0; n <= order; ++n)
+    {
+        cout << "h^" << n << ": " << star_product[n].size() << "\n";
+    }
     cout << "Computing associator...";
     cout.flush();
+    KontsevichGraphSeries<ex> arg = { { 0, { { 1, KontsevichGraph(0, 1, {}) } }} };
     KontsevichGraphSeries<ex> assoc = star_product({ arg, star_product }) - star_product({ star_product, arg });
     cout << endl;
     cout << "Reducing associator...";
