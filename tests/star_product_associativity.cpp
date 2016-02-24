@@ -98,7 +98,13 @@ int main()
     cout << "Number of terms in star product:\n";
     for (size_t n = 0; n <= order; ++n)
     {
-        cout << "h^" << n << ": " << star_product[n].size() << "\n";
+        cout << "h^" << n << ": " << star_product[n].size() << " total\n";
+        for (std::vector<size_t> indegrees : star_product[n].in_degrees())
+        {
+            for (size_t j = 0; j != indegrees.size(); ++j)
+                cout << indegrees[j] << " ";
+            cout << ": " << star_product[n][indegrees].size() << "\n";
+        }
     }
     cout << "Computing associator...";
     cout.flush();
