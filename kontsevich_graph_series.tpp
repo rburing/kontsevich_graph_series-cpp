@@ -58,7 +58,7 @@ KontsevichGraphSeries<T> KontsevichGraphSeries<T>::operator()(std::vector< Konts
             size_t total_order = n;
             for (size_t i = 0; i != arguments.size(); ++i)
                 total_order += (*arg_indices)[i];
-            if (total_order > new_precision)
+            if (total_order > practical_precision)
                 continue;
             std::vector< KontsevichGraphSum<T> > args(arguments.size());
             for (size_t i = 0; i != arguments.size(); ++i)
