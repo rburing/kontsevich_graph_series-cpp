@@ -99,19 +99,19 @@ size_t KontsevichGraph::vertices() const
 
 size_t KontsevichGraph::multiplicity() const
 {
-    size_t multiplicity = 1;
+    std::set< std::vector<KontsevichGraph::VertexPair> > seen;
     std::vector<KontsevichGraph::Vertex> vertices(d_external + d_internal);
     std::iota(vertices.begin(), vertices.end(), 0);
-    while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
+    do
     {
         std::vector<KontsevichGraph::VertexPair> permuted = d_targets;
-        apply_permutation(d_internal, d_external, permuted, vertices);
-        if (permuted == d_targets)
-            ++multiplicity;
+        apply_permutation(d_internal, d_external, permuted, vertices); // apply internal vertex permutation
+        sort_pairs(permuted.begin(), permuted.end()); // ignore edge labeling
+        if (seen.find(permuted) == seen.end())
+            seen.insert(permuted);
     }
-    multiplicity = factorial(d_internal) / multiplicity;
-    multiplicity *= pow(2, d_internal);
-    return multiplicity;
+    while (std::next_permutation(vertices.begin() + d_external, vertices.end()));
+    return pow(2, d_internal) * seen.size();
 }
 
 bool KontsevichGraph::is_zero() const
