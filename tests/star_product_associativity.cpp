@@ -133,7 +133,7 @@ int main()
     cout << "Computing associator...";
     cout.flush();
     KontsevichGraphSeries<ex> arg = { { 0, { { 1, KontsevichGraph(0, 1, {}) } }} };
-    KontsevichGraphSeries<ex> assoc = star_product({ arg, star_product }) - star_product({ star_product, arg });
+    KontsevichGraphSeries<ex> assoc = star_product({ star_product, arg }) - star_product({ arg, star_product });
     cout << endl;
     cout << "Reducing associator...";
     cout.flush();
