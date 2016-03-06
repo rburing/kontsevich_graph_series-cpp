@@ -155,7 +155,21 @@ int main()
             ex h = 1/4 * pow(x,5)*pow(y,3)*pow(z,4) + pow(y,5)*z*x + pow(z,5)*pow(x,2);
             std::vector<symbol> coords { x, y, z };
             PoissonStructure poisson { coords, { {0, h.diff(z), -h.diff(y)}, {-h.diff(z), 0, h.diff(x) }, { h.diff(y), -h.diff(x), 0 } } };
-            cout << evaluate(assoc[n][indegrees], poisson, { pow(x,3)*z*pow(y,2), pow(y,3) + y*pow(x,10), pow(z,4) * y * pow(x,2) }) << "\n";
+            ex result = evaluate(assoc[n][indegrees], poisson, { pow(x,3)*z*pow(y,2), pow(y,3) + y*pow(x,10), pow(z,4) * y * pow(x,2) }).expand();
+            for (int i = 0; i <= result.degree(x); ++i)
+            {
+                ex result2 = result.coeff(x, i).expand();
+                for (int j = 0; j <= result2.degree(y); ++j)
+                {
+                    ex result3 = result2.coeff(y, j).expand();
+                    for (int k = 0; k <= result3.degree(z); ++k)
+                    {
+                        ex result4 = result3.coeff(z, k).expand();
+                        if (result4 != 0)
+                            cout << result4 << " == 0\n";
+                    }
+                }
+            }
         }
     }
 }
