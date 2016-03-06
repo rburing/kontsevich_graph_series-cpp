@@ -70,12 +70,36 @@ int main()
         Partitions partitions(n);
         for (auto partition = partitions.begin(); partition != partitions.end(); ++partition)
         {
+            // count multiplicities of parts
+            std::map<size_t, std::vector<size_t> > multiplicity;
+            for (size_t i = 0; i != (*partition).size(); ++i)
+                multiplicity[(*partition)[i]].push_back(i);
+            // ignore multiplicity 1
+            for (auto part : *partition)
+                if (multiplicity[part].size() == 1)
+                    multiplicity.erase(part);
+
             std::vector<size_t> prime_sizes((*partition).size());
             for (size_t i = 0; i != (*partition).size(); ++i)
                 prime_sizes[i] = primes[(*partition)[i]].size();
             CartesianProduct decompositions(prime_sizes);
             for (auto decomposition = decompositions.begin(); decomposition != decompositions.end(); ++decomposition)
             {
+                bool accept = true;
+                for (auto& part : multiplicity)
+                {
+                    size_t prev = 0;
+                    for (auto& idx : part.second) // when drawing from multiple equal sets
+                    {
+                        size_t current = (*decomposition)[idx];
+                        if (current < prev) // accept only non-decreasing indices, to avoid duplicates
+                            accept = false;
+                        prev = current;
+                    }
+                }
+                if (!accept)
+                    continue;
+
                 KontsevichGraph composite(0, 2, {});
                 ex coeff = major_coeff;
                 for (size_t i = 0; i != (*partition).size(); ++i)
