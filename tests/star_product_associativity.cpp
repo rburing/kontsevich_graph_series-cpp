@@ -40,13 +40,18 @@ int main()
     cout << "Making a table of primes and weights...";
     map< size_t, vector<KontsevichGraph> > primes;
     size_t weight_count = 0;
+    lst weight_vars;
     for (size_t n = 1; n <= order; ++n)
     {
         primes[n].reserve(2*relevants[n].size());
         for (KontsevichGraph g : relevants[n])
         {
             if (n == order)
-                weights[g] = symbol("w_" + to_string(weight_count++));
+            {
+                symbol weight("w_" + to_string(weight_count++));
+                weights[g] = weight;
+                weight_vars.append(weight);
+            }
             primes[n].push_back(g);
             KontsevichGraph mirror = g.mirror_image();
             if (g.abs() != mirror.abs())
@@ -140,6 +145,7 @@ int main()
     assoc.reduce();
     cout << endl;
     cout << "Number of terms in associator:\n";
+    lst weight_system;
     for (size_t n = 0; n <= order; ++n)
     {
         cout << "h^" << n << ":\n";
@@ -166,10 +172,14 @@ int main()
                     {
                         ex result4 = result3.coeff(z, k).expand();
                         if (result4 != 0)
-                            cout << result4 << " == 0\n";
+                            weight_system.append(result4 == 0);
                     }
                 }
             }
         }
     }
+    cout << "Got system of " << weight_system.nops() << " linear equations in " << weight_vars.nops() << " unknowns. Solving it...\n";
+    for (ex eq : lsolve(weight_system, weight_vars))
+        if (eq.lhs() != eq.rhs()) // not a tautology
+            cout << eq << endl;
 }
