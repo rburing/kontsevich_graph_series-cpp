@@ -155,30 +155,47 @@ int main()
             for (size_t j = 0; j != indegrees.size(); ++j)
                 cout << indegrees[j] << " ";
             cout << ": " << assoc[n][indegrees].size() << "\n";
-            symbol x("x");
-            symbol y("y");
-            symbol z("z");
+
+            symbol x("x"), y("y"), z("z");
             ex h = 1/4 * pow(x,5)*pow(y,3)*pow(z,4) + pow(y,5)*z*x + pow(z,5)*pow(x,2);
-            std::vector<symbol> coords { x, y, z };
-            PoissonStructure poisson { coords, { {0, h.diff(z), -h.diff(y)}, {-h.diff(z), 0, h.diff(x) }, { h.diff(y), -h.diff(x), 0 } } };
-            ex result = evaluate(assoc[n][indegrees], poisson, { pow(x,3)*z*pow(y,2), pow(y,3) + y*pow(x,10), pow(z,4) * y * pow(x,2) }).expand();
-            for (int i = 0; i <= result.degree(x); ++i)
+
+            std::vector<PoissonStructure> poisson_structures {
+                { { x, y, z }, { {0, h.diff(z), -h.diff(y)},
+                                 {-h.diff(z), 0, h.diff(x) },
+                                 { h.diff(y), -h.diff(x), 0 } } },
+            };
+            map< vector<symbol>, vector<ex> > arguments {
+                { { x, y, z }, { pow(x,3)*z*pow(y,2), pow(y,3) + y*pow(x,10), pow(z,4) * y * pow(x,2) } }
+            };
+
+            for (PoissonStructure& poisson : poisson_structures)
             {
-                ex result2 = result.coeff(x, i).expand();
-                for (int j = 0; j <= result2.degree(y); ++j)
+                ex result = evaluate(assoc[n][indegrees], poisson, arguments[poisson.coordinates]).expand();
+                vector<size_t> degrees;
+                for (symbol& variable : poisson.coordinates)
+                    degrees.push_back(result.degree(variable));
+                CartesianProduct monomialdegrees_list(degrees);
+                for (auto monomialdegrees = monomialdegrees_list.begin(); monomialdegrees != monomialdegrees_list.end(); ++monomialdegrees)
                 {
-                    ex result3 = result2.coeff(y, j).expand();
-                    for (int k = 0; k <= result3.degree(z); ++k)
+                    ex result2 = result;
+                    for (size_t i = 0; i != poisson.coordinates.size(); ++i)
                     {
-                        ex result4 = result3.coeff(z, k).expand();
-                        if (result4 != 0)
-                            weight_system.append(result4 == 0);
+                        result2 = result2.coeff(poisson.coordinates[i], (*monomialdegrees)[i]).expand();
+                    }
+                    if (result2 != 0)
+                    {
+                        weight_system.append(result2 == 0);
+                        cout << result2 << " == 0\n";
                     }
                 }
             }
         }
     }
-    cout << "Got system of " << weight_system.nops() << " linear equations in " << weight_vars.nops() << " unknowns. Solving it...\n";
+    cout << "Got system of " << weight_system.nops() << " linear equations in " << weight_vars.nops() << " unknowns:\n";
+    for (ex eq : weight_system)
+        if (eq.lhs() != eq.rhs()) // not a tautology
+            cout << eq << endl;
+    cout << "Solving it...\n";
     for (ex eq : lsolve(weight_system, weight_vars))
         if (eq.lhs() != eq.rhs()) // not a tautology
             cout << eq << endl;
