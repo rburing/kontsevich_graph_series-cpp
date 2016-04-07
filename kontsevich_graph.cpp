@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <tuple>
 #include <stack>
+#include <sstream>
 
 KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector<KontsevichGraph::VertexPair> targets, int sign, bool normalized)
 : d_internal(internal), d_external(external), d_targets(targets), d_sign(sign)
@@ -253,6 +254,22 @@ bool KontsevichGraph::positive_differential_order() const
             seen.insert(target_pair.second);
     }
     return seen.size() == d_external;
+}
+
+std::string KontsevichGraph::as_sage_expression() const
+{
+    std::stringstream ss;
+    ss << "KontsevichGraph([";
+    for (size_t v : this->internal_vertices())
+    {
+        KontsevichGraph::VertexPair targets = this->targets(v);
+        ss << "(" << v << ", " << (size_t)targets.first << ", 'L'), ";
+        ss << "(" << v << ", " << (size_t)targets.second<< ", 'R')";
+        if (v != this->vertices() - 1)
+            ss << ", ";
+    }
+    ss << "], ground_vertices=(0, 1), immutable=True).normalize_vertex_labels(inplace=False)";
+    return ss.str();
 }
 
 std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t external, bool modulo_signs, bool modulo_mirror_images, std::function<bool(KontsevichGraph)> const& filter)
