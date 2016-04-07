@@ -145,7 +145,7 @@ int main()
     assoc.reduce();
     cout << endl;
     cout << "Number of terms in associator:\n";
-    lst weight_system;
+    set<ex, ex_is_less> weight_system;
     for (size_t n = 0; n <= order; ++n)
     {
         cout << "h^" << n << ":\n";
@@ -164,39 +164,57 @@ int main()
                                  {-h.diff(z), 0, h.diff(x) },
                                  { h.diff(y), -h.diff(x), 0 } } },
             };
-            map< vector<symbol>, vector<ex> > arguments {
-                { { x, y, z }, { pow(x,3)*z*pow(y,2), pow(y,3) + y*pow(x,10), pow(z,4) * y * pow(x,2) } }
-            };
 
             for (PoissonStructure& poisson : poisson_structures)
             {
-                ex result = evaluate(assoc[n][indegrees], poisson, arguments[poisson.coordinates]).expand();
-                vector<size_t> degrees;
-                for (symbol& variable : poisson.coordinates)
-                    degrees.push_back(result.degree(variable));
-                CartesianProduct monomialdegrees_list(degrees);
-                for (auto monomialdegrees = monomialdegrees_list.begin(); monomialdegrees != monomialdegrees_list.end(); ++monomialdegrees)
+                for (auto& result_pair : evaluate_coefficients(assoc[n][indegrees], poisson))
                 {
-                    ex result2 = result;
-                    for (size_t i = 0; i != poisson.coordinates.size(); ++i)
+                    ex result = result_pair.second.expand();
+
+                    // for polynomial, equate coefficients (alternative: fill in some numbers)
+                    vector<size_t> degrees;
+                    for (symbol& variable : poisson.coordinates)
+                        degrees.push_back(result.degree(variable));
+                    CartesianProduct monomialdegrees_list(degrees);
+                    for (auto monomialdegrees = monomialdegrees_list.begin(); monomialdegrees != monomialdegrees_list.end(); ++monomialdegrees)
                     {
-                        result2 = result2.coeff(poisson.coordinates[i], (*monomialdegrees)[i]).expand();
-                    }
-                    if (result2 != 0)
-                    {
-                        weight_system.append(result2 == 0);
-                        cout << result2 << " == 0\n";
+                        // extract coefficient (not very efficiently):
+                        ex result2 = result;
+                        for (size_t i = 0; i != poisson.coordinates.size(); ++i)
+                        {
+                            result2 = result2.coeff(poisson.coordinates[i], (*monomialdegrees)[i]).expand();
+                        }
+                        // normalize the equation:
+                        for (ex var : weight_vars)
+                        {
+                            if (result2.coeff(var) != 0) // first weight variable occurring in expression
+                            {
+                                result2 /= result2.coeff(var); // divide by its coefficient
+                                break;
+                            }
+                        }
+                        if (result2 != 0)
+                        {
+                            weight_system.insert(result2 == 0);
+                            cout << result2 << " == 0\n";
+                        }
                     }
                 }
             }
         }
     }
-    cout << "Got system of " << weight_system.nops() << " linear equations in " << weight_vars.nops() << " unknowns:\n";
+    cout << "Got system of " << weight_system.size() << " linear equations in " << weight_vars.nops() << " unknowns:\n";
+    lst weight_system_lst;
     for (ex eq : weight_system)
+    {
         if (eq.lhs() != eq.rhs()) // not a tautology
+        {
             cout << eq << endl;
+            weight_system_lst.append(eq);
+        }
+    }
     cout << "Solving it...\n";
-    for (ex eq : lsolve(weight_system, weight_vars))
+    for (ex eq : lsolve(weight_system_lst, weight_vars))
         if (eq.lhs() != eq.rhs()) // not a tautology
             cout << eq << endl;
 }
