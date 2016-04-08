@@ -33,6 +33,7 @@ class KontsevichGraph
     size_t vertices() const;
     size_t multiplicity() const;
     bool is_zero() const;
+    size_t in_degree(KontsevichGraph::Vertex vertex) const;
     std::vector<size_t> in_degrees() const;
     std::vector<Vertex> neighbors_in(Vertex vertex) const;
     bool operator<(const KontsevichGraph& rhs) const;

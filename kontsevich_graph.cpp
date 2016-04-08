@@ -129,6 +129,19 @@ bool KontsevichGraph::is_zero() const
     return false;
 }
 
+size_t KontsevichGraph::in_degree(KontsevichGraph::Vertex vertex) const
+{
+    size_t count = 0;
+    for (auto& target_pair : d_targets)
+    {
+        if (target_pair.first == vertex)
+            ++count;
+        if (target_pair.second == vertex)
+            ++count;
+    }
+    return count;
+}
+
 std::vector<size_t> KontsevichGraph::in_degrees() const
 {
     std::vector<size_t> indegrees(d_external);
