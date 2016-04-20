@@ -140,6 +140,45 @@ int main()
             cout << ": " << star_product[n][indegrees].size() << "\n";
         }
     }
+    set<ex, ex_is_less> weight_system;
+    cout << "Computing cyclic linear weight relations...\n";
+    for (auto& term : star_product[order])
+    {
+        KontsevichGraph graph = term.second;
+        // coefficient = multiplicity * weight / n! => weight = n! * coefficient / multiplicity
+        ex linear_combination = (graph.external() % 2 ? 1 : -1) * star_product[order][graph] / graph.multiplicity();
+        // iterate over subsets of set of edges: 2^(2n) elements
+        vector<size_t> selector(2*graph.internal(), 2);
+        CartesianProduct edge_selector(selector);
+        for (auto edge_selection = edge_selector.begin(); edge_selection != edge_selector.end(); ++edge_selection)
+        {
+            std::vector<KontsevichGraph::VertexPair> targets = graph.targets();
+
+            // skip those where an edge is already connected to the first ground vertex
+            bool skip = false;
+            for (size_t choice = 0; choice != 2*graph.internal(); ++choice)
+                if ((*edge_selection)[choice] && ((choice % 2 == 0 && targets[choice/2].first == 0) || (choice % 2 == 1 && targets[choice/2].second == 0)))
+                    skip = true;
+            if (skip)
+                continue;
+
+            // replace edges by edges to the first ground vertex:
+            for (size_t choice = 0; choice != 2*graph.internal(); ++choice)
+            {
+                if ((*edge_selection)[choice]) // replace edge
+                {
+                    if (choice % 2 == 0)
+                        targets[choice/2].first = 0;
+                    else
+                        targets[choice/2].second = 0;
+                }
+            }
+            KontsevichGraph modified_graph(graph.internal(), graph.external(), targets, graph.sign());
+            // build linear relation
+            linear_combination -= (modified_graph.in_degree(0) % 2 ? 1 : -1) * star_product[order][modified_graph] / modified_graph.multiplicity();
+        }
+        weight_system.insert(linear_combination == 0);
+    }
     cout << "Computing associator...";
     cout.flush();
     KontsevichGraphSeries<ex> arg = { { 0, { { 1, KontsevichGraph(0, 1, {}) } }} };
@@ -150,7 +189,6 @@ int main()
     assoc.reduce();
     cout << endl;
     cout << "Number of terms in associator:\n";
-    set<ex, ex_is_less> weight_system;
     for (size_t n = 0; n <= order; ++n)
     {
         cout << "h^" << n << ":\n";
