@@ -134,6 +134,20 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::operator[](std::vector<size_t> inde
 }
 
 template <class T>
+T KontsevichGraphSum<T>::operator[](KontsevichGraph graph)
+{
+    T coefficient = 0;
+    for (auto& term : *this)
+    {
+        if (term.second.abs() == graph.abs())
+        {
+            coefficient += graph.sign() * term.second.sign() * term.first;
+        }
+    }
+    return coefficient;
+}
+
+template <class T>
 KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichGraphSum<T> > arguments)
 {
     KontsevichGraphSum<T> total; // TODO: pre-compute size?
