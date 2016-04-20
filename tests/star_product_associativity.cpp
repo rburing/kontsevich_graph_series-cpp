@@ -12,6 +12,11 @@ using namespace GiNaC;
 
 size_t order = 4;
 
+DECLARE_FUNCTION_3P(phi)
+REGISTER_FUNCTION(phi, dummy())
+DECLARE_FUNCTION_3P(u)
+REGISTER_FUNCTION(u, dummy())
+
 int main()
 {
     map< size_t, set<KontsevichGraph> > relevants;
@@ -157,34 +162,62 @@ int main()
             cout << ": " << assoc[n][indegrees].size() << "\n";
 
             symbol x("x"), y("y"), z("z");
-            ex h = 1/4 * pow(x,5)*pow(y,3)*pow(z,4) + pow(y,5)*z*x + pow(z,5)*pow(x,2);
 
             std::vector<PoissonStructure> poisson_structures {
-                { { x, y, z }, { {0, h.diff(z), -h.diff(y)},
-                                 {-h.diff(z), 0, h.diff(x) },
-                                 { h.diff(y), -h.diff(x), 0 } } },
+                { { x, y, z }, { {0, u(x,y,z)*phi(x,y,z).diff(z), -u(x,y,z)*phi(x,y,z).diff(y)},
+                                 {-u(x,y,z)*phi(x,y,z).diff(z), 0, u(x,y,z)*phi(x,y,z).diff(x) },
+                                 { u(x,y,z)*phi(x,y,z).diff(y), -u(x,y,z)*phi(x,y,z).diff(x), 0 } } },
             };
 
             for (PoissonStructure& poisson : poisson_structures)
             {
-                for (auto& result_pair : evaluate_coefficients(assoc[n][indegrees], poisson))
+                typedef std::vector< std::multiset<size_t> > multi_index;
+                map< multi_index, map<ex, ex, ex_is_less> > coefficients;
+                for (auto& term : assoc[n][indegrees])
                 {
-                    ex result = result_pair.second.expand();
+                    map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term](multi_index arg_derivatives, GiNaC::ex summand) {
+                            ex result = (term.first * summand).expand();
+                            if (result == 0)
+                                return;
+                            if (!is_a<add>(result))
+                                result = lst(result);
+                            for (auto term : result)
+                            {
+                                ex coefficient = 1;
+                                ex derivatives = 1;
+                                if (!is_a<mul>(term))
+                                    term = lst(term);
+                                for (auto factor : term)
+                                {
+                                    if  (is_a<GiNaC::function>(factor) || is_a<fderivative>(factor))
+                                        derivatives *= factor;
+                                    else if (is_a<numeric>(factor) || is_a<symbol>(factor))
+                                        coefficient *= factor;
+                                    else if (is_a<power>(factor))
+                                    {
+                                        if (is_a<GiNaC::function>(factor.op(0)) || is_a<fderivative>(factor.op(0)))
+                                            derivatives *= factor;
+                                        else if (is_a<numeric>(factor.op(0)) || is_a<symbol>(factor.op(0)))
+                                            coefficient *= factor;
+                                    }
+                                    else
+                                    {
+                                        cout << "What the hell is " << factor << "?\n";
+                                        // TODO: return 1;
+                                    }
+                                }
+                                coefficients[arg_derivatives][derivatives] += coefficient;
+                            }
+                    });
+                }
 
-                    // for polynomial, equate coefficients (alternative: fill in some numbers)
-                    vector<size_t> degrees;
-                    for (symbol& variable : poisson.coordinates)
-                        degrees.push_back(result.degree(variable));
-                    CartesianProduct monomialdegrees_list(degrees);
-                    for (auto monomialdegrees = monomialdegrees_list.begin(); monomialdegrees != monomialdegrees_list.end(); ++monomialdegrees)
+                for (auto pair : coefficients)
+                {
+                    for (auto pair2 : pair.second)
                     {
-                        // extract coefficient (not very efficiently):
-                        ex result2 = result;
-                        for (size_t i = 0; i != poisson.coordinates.size(); ++i)
-                        {
-                            result2 = result2.coeff(poisson.coordinates[i], (*monomialdegrees)[i]).expand();
-                        }
-                        // normalize the equation:
+                        ex result2 = pair2.second;
+                        if (result2 == 0)
+                            continue;
                         for (ex var : weight_vars)
                         {
                             if (result2.coeff(var) != 0) // first weight variable occurring in expression
@@ -193,11 +226,7 @@ int main()
                                 break;
                             }
                         }
-                        if (result2 != 0)
-                        {
-                            weight_system.insert(result2 == 0);
-                            cout << result2 << " == 0\n";
-                        }
+                        weight_system.insert(result2 == 0);
                     }
                 }
             }
