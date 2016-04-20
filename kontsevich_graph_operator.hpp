@@ -11,38 +11,7 @@ struct PoissonStructure
     std::vector< std::vector<GiNaC::ex> > bivector;
 };
 
-GiNaC::ex operator_from_graph(KontsevichGraph graph, PoissonStructure poisson, std::vector<GiNaC::ex> arguments)
-{
-    GiNaC::ex result = 0;
-    size_t dimension = poisson.coordinates.size();
-    // edge labels run from 1 to dimension
-    std::vector<size_t> max_index(2*graph.internal(), dimension);
-    CartesianProduct index_product(max_index);
-    for (auto indices = index_product.begin(); indices != index_product.end(); ++indices)
-    {
-        // TODO: test if graph.external() == arguments.size()
-        GiNaC::ex summand = graph.sign();
-        for (size_t n = 0; n != graph.vertices(); ++n)
-        {
-            GiNaC::ex factor;
-            if (n < graph.external())
-                factor = arguments[n];
-            else
-                factor = poisson.bivector[(*indices)[2*(n-graph.external())]][(*indices)[2*(n-graph.external()) + 1]];
-            for (size_t j : graph.neighbors_in(n))
-            {
-                size_t incoming_index = ((size_t)graph.targets(j).first == n) ? (*indices)[2*(j-graph.external())] : (*indices)[2*(j-graph.external()) + 1];
-                factor = diff(factor, poisson.coordinates[incoming_index]);
-            }
-            summand *= factor;
-        }
-        result += summand;
-    }
-    return result;
-}
-
-// TODO: refactor the code duplicated above and below
-void operator_coefficient_from_graph(KontsevichGraph graph, PoissonStructure poisson, GiNaC::ex coefficient, std::map< std::vector< std::multiset<size_t> >, GiNaC::ex >& accumulator)
+void map_operator_coefficients_from_graph(KontsevichGraph graph, PoissonStructure poisson, std::function<void(std::vector< std::multiset<size_t> >, GiNaC::ex)> fun)
 {
     std::vector< std::multiset<size_t> > external_indices_template(graph.external());
     for (size_t n = 0; n != graph.external(); ++n)
@@ -60,7 +29,7 @@ void operator_coefficient_from_graph(KontsevichGraph graph, PoissonStructure poi
             for (size_t j : external_indices_template[n])
                 external_indices[n].insert((*indices)[j]);
 
-        GiNaC::ex summand = coefficient * graph.sign();
+        GiNaC::ex summand = graph.sign();
         for (size_t n : graph.internal_vertices())
         {
             GiNaC::ex factor = poisson.bivector[(*indices)[2*(n-graph.external())]][(*indices)[2*(n-graph.external()) + 1]];
@@ -71,8 +40,33 @@ void operator_coefficient_from_graph(KontsevichGraph graph, PoissonStructure poi
             }
             summand *= factor;
         }
-        accumulator[external_indices] += summand;
+        fun(external_indices, summand);
     }
+}
+
+GiNaC::ex operator_from_graph(KontsevichGraph graph, PoissonStructure poisson, std::vector<GiNaC::ex> arguments)
+{
+    // TODO: check if graph.external() == arguments.size()
+    GiNaC::ex result = 0;
+    map_operator_coefficients_from_graph(graph, poisson, [&result, &poisson, &arguments](std::vector< std::multiset<size_t> > derivatives, GiNaC::ex summand) {
+            GiNaC::ex tail = 1;
+            for (size_t m = 0; m != arguments.size(); ++m)
+            {
+                GiNaC::ex factor = arguments[m];
+                for (size_t idx : derivatives[m])
+                    factor = factor.diff(poisson.coordinates[idx]);
+                tail *= factor;
+            }
+            result += summand * tail;
+    });
+    return result;
+}
+
+void operator_coefficient_from_graph(KontsevichGraph graph, PoissonStructure poisson, GiNaC::ex coefficient, std::map< std::vector< std::multiset<size_t> >, GiNaC::ex >& accumulator)
+{
+    map_operator_coefficients_from_graph(graph, poisson, [&coefficient, &accumulator](std::vector< std::multiset<size_t> > derivatives, GiNaC::ex summand) {
+        accumulator[derivatives] += coefficient  * summand;
+    });
 }
 
 GiNaC::ex evaluate(KontsevichGraphSum<GiNaC::ex> terms, PoissonStructure poisson, std::vector<GiNaC::ex> arguments)
