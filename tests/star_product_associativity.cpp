@@ -198,6 +198,7 @@ int main()
             for (size_t j = 0; j != indegrees.size(); ++j)
                 cout << indegrees[j] << " ";
             cout << ": " << assoc[n][indegrees].size() << "\n";
+            cout.flush();
 
             symbol x("x"), y("y"), z("z");
 
@@ -247,7 +248,10 @@ int main()
                                 coefficients[arg_derivatives][derivatives] += coefficient;
                             }
                     });
+                    cout << ".";
+                    cout.flush();
                 }
+                cout << "\n";
 
                 for (auto pair : coefficients)
                 {
