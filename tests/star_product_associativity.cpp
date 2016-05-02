@@ -146,7 +146,7 @@ int main()
     {
         KontsevichGraph graph = term.second;
         // coefficient = multiplicity * weight / n! => weight = n! * coefficient / multiplicity
-        ex linear_combination = (graph.external() % 2 ? 1 : -1) * star_product[order][graph] / graph.multiplicity();
+        ex linear_combination = (graph.internal() % 2 ? 1 : -1) * star_product[order][graph] / graph.multiplicity();
         // iterate over subsets of set of edges: 2^(2n) elements
         vector<size_t> selector(2*graph.internal(), 2);
         CartesianProduct edge_selector(selector);
