@@ -25,11 +25,11 @@ int main()
     ifstream weights_file("data/known_weights.txt");
     weights_file.ignore(numeric_limits<streamsize>::max(), '\n'); // ignore first line with column headers
     KontsevichGraph graph;
-    int numerator, denominator;
-    char slash;
-    while (weights_file >> graph >> numerator >> slash >> denominator)
+    string weight_str;
+    parser reader;
+    while (weights_file >> graph >> weight_str)
     {
-        ex weight = numerator/(ex)denominator;
+        ex weight = reader(weight_str);
         weights[graph] = weight;
         relevants[graph.internal()].insert(graph);
     }
@@ -54,8 +54,11 @@ int main()
             if (n == order)
             {
                 symbol weight("w_" + to_string(weight_count++));
-                weights[g] = weight;
-                weight_vars.append(weight);
+                if (weights.find(g) == weights.end()) // if not already known
+                {
+                    weights[g] = weight;
+                    weight_vars.append(weight);
+                }
             }
             primes[n].push_back(g);
             KontsevichGraph mirror = g.mirror_image();
@@ -127,6 +130,7 @@ int main()
             star_product[n] += KontsevichGraphSum<ex>({ { major_coeff * weights[prime] * prime.multiplicity(), prime } });
         }
     }
+    star_product.reduce();
     cout << " done:" << endl;
     cout << star_product << "\n";
     cout << "Number of terms in star product:\n";
