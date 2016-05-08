@@ -359,6 +359,19 @@ std::istream& operator>>(std::istream& is, KontsevichGraph& g)
     return is;
 }
 
+std::string KontsevichGraph::encoding() const
+{
+    std::stringstream ss;
+    ss << d_external << " " << d_internal << " " << d_sign << "   ";
+    for (auto& target_pair : d_targets)
+    {
+        ss << target_pair.first << " " << target_pair.second;
+        if (d_targets.size() > 0 && &target_pair != &d_targets[d_targets.size()-1])
+            ss << " ";
+    }
+    return ss.str();
+}
+
 std::ostream& operator<<(std::ostream &os, const KontsevichGraph::Vertex v)
 {
     return os << (size_t)v;
