@@ -2,6 +2,7 @@
 #define INCLUDED_CARTESIAN_PRODUCT_H_
 
 #include <vector>
+#include <numeric>
 #include <algorithm>
 
 class CartesianProduct : public std::iterator<std::input_iterator_tag, std::vector<size_t> >
