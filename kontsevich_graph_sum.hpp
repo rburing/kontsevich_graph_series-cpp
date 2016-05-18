@@ -26,7 +26,7 @@ class KontsevichGraphSum : public std::vector< std::pair<T, KontsevichGraph> >
     KontsevichGraphSum<T>& operator+=(const KontsevichGraphSum<T>& rhs);
     KontsevichGraphSum<T>& operator-=(const KontsevichGraphSum<T>& rhs);
     KontsevichGraphSum<T>& operator=(const KontsevichGraphSum<T>&) = default;
-    std::set< std::vector<size_t> > in_degrees() const;
+    std::vector< std::vector<size_t> > in_degrees(bool ascending = false) const;
     KontsevichGraphSum<T> operator[](std::vector<size_t> indegrees) const;
     T operator[](KontsevichGraph);
 

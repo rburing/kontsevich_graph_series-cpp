@@ -2,6 +2,7 @@
 #include "util/cartesian_product.hpp"
 #include "util/sort_pairs.hpp"
 #include <algorithm>
+#include <map>
 
 template <class T>
 void KontsevichGraphSum<T>::reduce()
@@ -109,13 +110,23 @@ KontsevichGraphSum<T> operator-(KontsevichGraphSum<T> lhs, const KontsevichGraph
 }
 
 template <class T>
-std::set< std::vector<size_t> > KontsevichGraphSum<T>::in_degrees() const
+std::vector< std::vector<size_t> > KontsevichGraphSum<T>::in_degrees(bool ascending) const
 {
-    std::set< std::vector<size_t> > indegrees;
+    std::map< std::vector<size_t>, size_t > indegree_counts;
     for (auto& term : *this)
     {
-        indegrees.insert(term.second.in_degrees());
+        indegree_counts[term.second.in_degrees()]++;
     }
+    std::vector< std::vector<size_t> > indegrees;
+    for (auto map_pair : indegree_counts)
+    {
+        indegrees.push_back(map_pair.first);
+    }
+    if (ascending)
+        sort(indegrees.begin(), indegrees.end(),
+               [&indegree_counts](std::vector<size_t>& indegree1, std::vector<size_t>& indegree2) {
+                  return indegree_counts[indegree1] < indegree_counts[indegree2];
+               });
     return indegrees;
 }
 
