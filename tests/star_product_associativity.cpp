@@ -46,6 +46,7 @@ int main()
     map< size_t, vector<KontsevichGraph> > primes;
     size_t weight_count = 0;
     lst weight_vars;
+    symtab weights_table;
     for (size_t n = 1; n <= order; ++n)
     {
         primes[n].reserve(2*relevants[n].size());
@@ -54,6 +55,7 @@ int main()
             if (n == order)
             {
                 symbol weight("w_" + to_string(weight_count++));
+                weights_table[weight.get_name()] = weight;
                 if (weights.find(g) == weights.end()) // if not already known
                 {
                     weights[g] = weight;
@@ -70,6 +72,19 @@ int main()
                 primes[n].push_back(mirror);
             }
         }
+    }
+    cout << " done." << endl;
+    cout << "Reading in known weight relations...";
+    parser weights_reader(weights_table);
+    ifstream weight_relations_file("data/weight_relations.txt");
+    lst weight_relations;
+    for (string lhs, rhs; getline(weight_relations_file, lhs, '=') && weight_relations_file.ignore(1) && getline(weight_relations_file, rhs); )
+    {
+        weight_relations.append(weights_reader(lhs) == weights_reader(rhs));
+    }
+    for (auto& some_pair: weights)
+    {
+        some_pair.second = some_pair.second.subs(weight_relations);
     }
     cout << " done." << endl;
     cout << "Constructing star product at order";
