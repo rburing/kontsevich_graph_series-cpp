@@ -1,3 +1,4 @@
 *.o
 tests/kontsevich_graph_tests
 tests/star_product_associativity
+tests/relevant_graphs
