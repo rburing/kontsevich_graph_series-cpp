@@ -3,7 +3,7 @@ CFLAGS=-std=c++11 -pedantic -Wall -Wextra -Werror -O3
 LDFLAGS=
 
 .PHONY: all
-all: tests/kontsevich_graph_tests tests/star_product_associativity tests/relevant_graphs tests/star_product
+all: tests/kontsevich_graph_tests tests/star_product_associativity tests/relevant_graphs tests/star_product tests/substitute_weight_relations
 
 kontsevich_graph.o:
 	$(CC) $(CFLAGS) -c kontsevich_graph.cpp
@@ -32,6 +32,12 @@ tests/star_product.o:
 tests/star_product: tests/star_product.o kontsevich_graph.o
 	$(CC) -o tests/star_product tests/star_product.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
+tests/substitute_weight_relations.o:
+	$(CC) $(CFLAGS) -c tests/substitute_weight_relations.cpp -o tests/substitute_weight_relations.o
+
+tests/substitute_weight_relations: tests/substitute_weight_relations.o kontsevich_graph.o
+	$(CC) -o tests/substitute_weight_relations tests/substitute_weight_relations.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+
 .PHONY: clean
 clean:
 	rm -f kontsevich_graph.o
@@ -39,3 +45,4 @@ clean:
 	rm -f tests/star_product_associativity.o tests/star_product_associativity
 	rm -f tests/relevant_graphs.o tests/relevant_graphs
 	rm -f tests/star_product.o tests/star_product
+	rm -f tests/substitute_weight_relations.o tests/substitute_weight_relations
