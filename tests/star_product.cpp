@@ -1,5 +1,4 @@
 #include "../kontsevich_graph_series.hpp"
-#include "../kontsevich_graph_operator.hpp"
 #include "../util/partitions.hpp"
 #include "../util/factorial.hpp"
 #include <ginac/ginac.h>
