@@ -14,14 +14,14 @@ int main(int argc, char* argv[])
 {
     if (argc != 2)
     {
-        cout << "Usage: " << argv[0] << " [order]\n";
+        cout << "Usage: " << argv[0] << " <graphs-and-weights-filename>\n";
         return 1;
     }
-    size_t order = stoi(argv[1]);
+    string filename(argv[1]);
     map< size_t, set<KontsevichGraph> > relevants;
     map<KontsevichGraph, ex> weights;
     // Reading in known graphs and their (possibly symbolic) weights:
-    ifstream weights_file("data/graphs_weights_table.txt");
+    ifstream weights_file(filename);
     weights_file.ignore(numeric_limits<streamsize>::max(), '\n'); // ignore first line with column headers
     KontsevichGraph graph;
     string weight_str;
@@ -33,6 +33,12 @@ int main(int argc, char* argv[])
         weights[graph] = weight;
         relevants[graph.internal()].insert(graph);
     }
+    if (relevants.empty())
+    {
+        cout << "Found no graphs with weights. Aborting mission.\n";
+        return 1;
+    }
+    size_t order = relevants.rbegin()->first;
     // Making a table of primes and weights:
     map< size_t, vector<KontsevichGraph> > primes;
     for (size_t n = 1; n <= order; ++n)
