@@ -22,7 +22,7 @@ int main()
     map< size_t, set<KontsevichGraph> > relevants;
     map<KontsevichGraph, ex> weights;
     cout << "Reading in known graphs and their weights...";
-    ifstream weights_file("data/known_weights.txt");
+    ifstream weights_file("data/graphs_weights_table.txt");
     weights_file.ignore(numeric_limits<streamsize>::max(), '\n'); // ignore first line with column headers
     KontsevichGraph graph;
     string weight_str;
