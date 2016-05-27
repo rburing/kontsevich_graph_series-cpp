@@ -14,9 +14,15 @@ int main(int argc, char* argv[])
     set<KontsevichGraph> relevants = KontsevichGraph::graphs(order, 2, true, true,
                     [](KontsevichGraph g) -> bool
                     {
-                        return g.positive_differential_order() && g.is_prime() && !g.is_zero();
+                        return g.positive_differential_order() && g.is_prime();
                     });
     size_t counter = 0;
     for (KontsevichGraph const& g : relevants)
-        cout << g.encoding() << "    w_" << order << "_" << (++counter) << "\n";
+    {
+        cout << g.encoding() << "    ";
+        if (g.is_zero())
+            cout << "0\n";
+        else
+            cout << "w_" << order << "_" << (++counter) << "\n";
+    }
 }
