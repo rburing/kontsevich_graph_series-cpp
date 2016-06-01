@@ -43,6 +43,8 @@ class KontsevichGraph
     bool positive_differential_order() const;
     std::string as_sage_expression() const;
     std::string encoding() const;
+    bool has_cycles() const;
+    bool has_tadpoles() const;
 
     static std::set<KontsevichGraph> graphs(size_t internal, size_t external = 2, bool modulo_signs = false, bool modulo_mirror_images = false, std::function<bool(KontsevichGraph)> const& filter = nullptr);
 

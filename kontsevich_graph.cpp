@@ -373,6 +373,32 @@ std::string KontsevichGraph::encoding() const
     return ss.str();
 }
 
+bool KontsevichGraph::has_cycles() const
+{
+    for (KontsevichGraph::Vertex v : this->internal_vertices())
+    {
+        VertexPair targets = this->targets(v);
+        for (KontsevichGraph::Vertex w : { targets.first, targets.second })
+        {
+            KontsevichGraph::VertexPair targets = this->targets(w);
+            if (targets.first == v || targets.second == v)
+                return true;
+        }
+    }
+    return false;
+}
+
+bool KontsevichGraph::has_tadpoles() const
+{
+    for (KontsevichGraph::Vertex v : this->internal_vertices())
+    {
+        VertexPair targets = this->targets(v);
+        if (targets.first == v || targets.second == v)
+            return true;
+    }
+    return false;
+}
+
 std::ostream& operator<<(std::ostream &os, const KontsevichGraph::Vertex v)
 {
     return os << (size_t)v;
