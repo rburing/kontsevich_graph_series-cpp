@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
 {
     if (argc != 2)
     {
-        cout << "Usage: " << argv[0] << " [order]\n";
+        cout << "Usage: " << argv[0] << " <order>\n";
         return 1;
     }
     size_t order = stoi(argv[1]);
