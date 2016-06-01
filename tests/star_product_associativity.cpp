@@ -212,7 +212,7 @@ int main()
     {
         cout << "h^" << n << ":\n";
         cout << assoc[n].size() << " total\n";
-        for (std::vector<size_t> indegrees : assoc[n].in_degrees())
+        for (std::vector<size_t> indegrees : assoc[n].in_degrees(true))
         {
             for (size_t j = 0; j != indegrees.size(); ++j)
                 cout << indegrees[j] << " ";
