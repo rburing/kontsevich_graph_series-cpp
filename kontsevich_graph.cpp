@@ -399,6 +399,14 @@ bool KontsevichGraph::has_tadpoles() const
     return false;
 }
 
+bool KontsevichGraph::has_multiple_edges() const
+{
+    for (auto const& target_pair : d_targets)
+        if (target_pair.first == target_pair.second)
+            return true;
+    return false;
+}
+
 std::ostream& operator<<(std::ostream &os, const KontsevichGraph::Vertex v)
 {
     return os << (size_t)v;
