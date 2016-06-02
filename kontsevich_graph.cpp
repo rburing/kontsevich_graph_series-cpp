@@ -282,7 +282,14 @@ std::string KontsevichGraph::as_sage_expression() const
         if (v != this->vertices() - 1)
             ss << ", ";
     }
-    ss << "], ground_vertices=(0, 1), immutable=True).normalize_vertex_labels(inplace=False)";
+    ss << "], ground_vertices=(";
+    for (size_t v = 0; v < d_external; ++v)
+    {
+        ss << v;
+        if (v != d_external-1)
+            ss << ", ";
+    }
+    ss << "), immutable=True).normalize_vertex_labels(inplace=False)";
     return ss.str();
 }
 
