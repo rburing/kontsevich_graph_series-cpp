@@ -5,3 +5,4 @@ tests/relevant_graphs
 tests/star_product
 tests/cyclic_weight_relations
 tests/substitute_weight_relations
+tests/reduce
