@@ -6,3 +6,4 @@ tests/star_product
 tests/cyclic_weight_relations
 tests/substitute_weight_relations
 tests/reduce
+tests/star_product_associator
