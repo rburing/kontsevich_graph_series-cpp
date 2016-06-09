@@ -7,21 +7,30 @@
 template <class T>
 void KontsevichGraphSum<T>::reduce()
 {
+    // fix signs
+    for (auto& term : *this)
+    {
+        term.first *= term.second.sign();
+        term.second.sign(1);
+    }
+    // sort
+    sort(this->begin(), this->end(), [](const std::pair<T, KontsevichGraph>& lhs, const std::pair<T, KontsevichGraph>& rhs) {
+                                        return lhs.second < rhs.second;
+                                     });
+    // collect
     auto current_term = this->begin();
     while (current_term < this->end())
     {
-        current_term->first *= current_term->second.sign();
-        current_term->second.sign(1);
         auto subsequent_term = current_term + 1;
         while (subsequent_term < this->end())
         {
-            if (subsequent_term->second.abs() == current_term->second.abs())
+            if (subsequent_term->second == current_term->second)
             {
-                current_term->first += subsequent_term->first * subsequent_term->second.sign();
+                current_term->first += subsequent_term->first;
                 subsequent_term = this->erase(subsequent_term);
             }
             else
-                subsequent_term++;
+                break;
         }
         if (current_term->first == 0)
             current_term = this->erase(current_term);
