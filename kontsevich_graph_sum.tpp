@@ -119,6 +119,16 @@ KontsevichGraphSum<T> operator-(KontsevichGraphSum<T> lhs, const KontsevichGraph
 }
 
 template <class T>
+KontsevichGraphSum<T> operator*(T lhs, KontsevichGraphSum<T> rhs)
+{
+    for (auto& term : rhs)
+    {
+        term.first *= lhs;
+    }
+    return rhs;
+}
+
+template <class T>
 std::vector< std::vector<size_t> > KontsevichGraphSum<T>::in_degrees(bool ascending) const
 {
     std::map< std::vector<size_t>, size_t > indegree_counts;
