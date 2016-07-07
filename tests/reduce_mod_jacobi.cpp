@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 
                         map< std::pair< vector<size_t>, vector<size_t> >, symbol > coefficients;
                         for (auto jacobi_targets_choice : std::vector< std::vector<KontsevichGraph::Vertex> >({ { targets[n-2].first, targets[n-2].second, targets[n-1].second },
-                                                                                                                { targets[n-1].second, targets[n-2].second, targets[n-2].first },
+                                                                                                                { targets[n-2].second, targets[n-1].second, targets[n-2].first },
                                                                                                                 { targets[n-1].second, targets[n-2].first, targets[n-2].second } }))
                         {
                             // Set Jacobiator targets to one of the three permutatations
