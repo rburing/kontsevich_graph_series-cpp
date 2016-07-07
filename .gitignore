@@ -7,3 +7,4 @@ tests/cyclic_weight_relations
 tests/substitute_weight_relations
 tests/reduce
 tests/star_product_associator
+tests/reduce_mod_jacobi
