@@ -35,6 +35,16 @@ inline size_t apply_permutation(size_t internal, size_t external, std::vector<Ko
 
 void KontsevichGraph::normalize()
 {
+    // check for double edges
+    for (auto& target_pair : d_targets)
+    {
+        if (target_pair.first == target_pair.second)
+        {
+            d_sign = 0;
+            break;
+        }
+    }
+    // find permutation of vertex labels such that the list of targets is minimal with respect to the defined ordering
     std::vector<KontsevichGraph::VertexPair> global_minimum = d_targets;
     size_t exchanges = sort_pairs(global_minimum.begin(), global_minimum.end());
     std::vector<KontsevichGraph::Vertex> vertices(d_external + d_internal);
