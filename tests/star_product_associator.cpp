@@ -18,32 +18,8 @@ int main(int argc, char* argv[])
     string star_product_filename(argv[1]);
     ifstream star_product_file(star_product_filename);
     parser coefficient_reader;
-    KontsevichGraphSeries<ex> star_product;
-    KontsevichGraphSum<ex> term;
-    size_t order = 0;
-    for (string line; getline(star_product_file, line); )
-    {
-        if (line.length() == 0)
-            continue;
-        if (line[0] == 'h')
-        {
-            star_product[order] = term;
-            term = KontsevichGraphSum<ex>({ });
-            order = stoi(line.substr(2));
-        }
-        else
-        {
-            KontsevichGraph graph;
-            stringstream ss(line);
-            ss >> graph;
-            string coefficient_str;
-            ss >> coefficient_str;
-            ex coefficient = coefficient_reader(coefficient_str);
-            term += KontsevichGraphSum<ex>({ { coefficient, graph } });
-        }
-    }
-    star_product[order] = term; // the last one
-
+    KontsevichGraphSeries<ex> star_product = KontsevichGraphSeries<ex>::from_istream(star_product_file, [&coefficient_reader](std::string s) -> ex { return coefficient_reader(s); });
+    size_t order = star_product.precision();
     star_product.reduce();
 
     KontsevichGraphSeries<ex> arg = { { 0, { { 1, KontsevichGraph(0, 1, {}) } }} };

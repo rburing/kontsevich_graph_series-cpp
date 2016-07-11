@@ -24,6 +24,8 @@ class KontsevichGraphSeries : public std::map< size_t, KontsevichGraphSum<T> >
     KontsevichGraphSeries<T>& operator+=(const KontsevichGraphSeries<T>& rhs);
     KontsevichGraphSeries<T>& operator-=(const KontsevichGraphSeries<T>& rhs);
 
+    static KontsevichGraphSeries<T> from_istream(std::istream& is, std::function<T(std::string)> const& parser, std::function<bool(KontsevichGraph, size_t)> const& filter = nullptr);
+
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSeries<T>& series);
 };
 

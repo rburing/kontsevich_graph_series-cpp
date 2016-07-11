@@ -11,7 +11,8 @@ int main(int argc, char* argv[])
 {
     if (argc != 2)
     {
-        cout << "Usage: " << argv[0] << " <graph-series-filename>\n";
+        cout << "Usage: " << argv[0] << " <graph-series-filename>\n\n"
+             << "Accepts only homogeneous power series: graphs with n internal vertices at order n.\n";
         return 1;
     }
 
@@ -19,38 +20,22 @@ int main(int argc, char* argv[])
     string graph_series_filename(argv[1]);
     ifstream graph_series_file(graph_series_filename);
     parser coefficient_reader;
-    KontsevichGraphSeries<ex> graph_series;
-    KontsevichGraphSum<ex> term;
-    size_t order = 0;
+    bool homogeneous = true;
     map<size_t, set< vector<size_t> > > in_degrees;
-    for (string line; getline(graph_series_file, line); )
+    KontsevichGraphSeries<ex> graph_series = KontsevichGraphSeries<ex>::from_istream(graph_series_file,
+        [&coefficient_reader](std::string s) -> ex { return coefficient_reader(s); },
+        [&homogeneous, &in_degrees](KontsevichGraph graph, size_t order) -> bool
+                                   {
+                                       in_degrees[order].insert(graph.in_degrees());
+                                       return homogeneous &= graph.internal() == order;
+                                   }
+    );
+    size_t order = graph_series.precision();
+    if (!homogeneous)
     {
-        if (line.length() == 0)
-            continue;
-        if (line[0] == 'h')
-        {
-            graph_series[order] = term;
-            term = KontsevichGraphSum<ex>({ });
-            order = stoi(line.substr(2));
-        }
-        else
-        {
-            KontsevichGraph graph;
-            stringstream ss(line);
-            ss >> graph;
-            in_degrees[order].insert(graph.in_degrees());
-            if (graph.internal() != order)
-            {
-                cerr << "Only accepting homogeneous power series: graphs with n internal vertices at order n.\n";
-                return 1;
-            }
-            string coefficient_str;
-            ss >> coefficient_str;
-            ex coefficient = coefficient_reader(coefficient_str);
-            term += KontsevichGraphSum<ex>({ { coefficient, graph } });
-        }
+        cerr << "Only accepting homogeneous power series: graphs with n internal vertices at order n.\n";
+        return 1;
     }
-    graph_series[order] = term; // the last one
 
     graph_series.reduce();
 

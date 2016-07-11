@@ -1,5 +1,6 @@
 #include "kontsevich_graph_series.hpp"
 #include "util/cartesian_product.hpp"
+#include <sstream>
 
 template <class T>
 size_t KontsevichGraphSeries<T>::precision() const
@@ -109,6 +110,40 @@ KontsevichGraphSeries<T> operator-(KontsevichGraphSeries<T> lhs, const Kontsevic
 {
     lhs -= rhs;
     return lhs;
+}
+
+template <class T>
+KontsevichGraphSeries<T> KontsevichGraphSeries<T>::from_istream(std::istream& is, std::function<T(std::string)> const& parser, std::function<bool(KontsevichGraph, size_t)> const& filter)
+{
+    KontsevichGraphSeries<T> graph_series;
+    KontsevichGraphSum<T> term;
+    size_t order = 0;
+    for (std::string line; getline(is, line); )
+    {
+        if (line.length() == 0)
+            continue;
+        if (line[0] == 'h')
+        {
+            graph_series[order] = term;
+            term = KontsevichGraphSum<T>({ });
+            order = stoi(line.substr(2));
+        }
+        else
+        {
+            KontsevichGraph graph;
+            std::stringstream ss(line);
+            ss >> graph;
+            if (filter && !filter(graph, order))
+                continue;
+            std::string coefficient_str;
+            ss >> coefficient_str;
+            T coefficient = parser(coefficient_str);
+            term += KontsevichGraphSum<T>({ { coefficient, graph } });
+        }
+    }
+    graph_series[order] = term; // the last one
+    graph_series.precision(order);
+    return graph_series;
 }
 
 template <class T>
