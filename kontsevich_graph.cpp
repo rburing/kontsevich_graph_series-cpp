@@ -43,6 +43,8 @@ void KontsevichGraph::normalize()
     {
         std::vector<KontsevichGraph::VertexPair> local_minimum = d_targets;
         size_t local_exchanges = apply_permutation(d_internal, d_external, local_minimum, vertices);
+        if (local_exchanges % 2 == 1 && local_minimum == d_targets)
+            d_sign = 0;
         if (local_minimum < global_minimum) {
             global_minimum = local_minimum;
             exchanges = local_exchanges;

@@ -10,6 +10,11 @@ void KontsevichGraphSum<T>::reduce()
     auto current_term = this->begin();
     while (current_term < this->end())
     {
+        if (current_term->second.sign() == 0)
+        {
+            current_term = this->erase(current_term);
+            continue;
+        }
         current_term->first *= current_term->second.sign();
         current_term->second.sign(1);
         auto subsequent_term = current_term + 1;
