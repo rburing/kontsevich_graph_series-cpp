@@ -50,12 +50,11 @@ int main(int argc, char* argv[])
         cout << "h^" << n << ":\n";
 
         // First we choose the target vertices i,j,k of the Jacobiator (which contains 2 bivectors), in increasing order (without loss of generality)
-        // NB: the possibility of i and k falling back on the Jacobiator itself (k = i + 1, j = i + 1/2???) is covered by the other case where j and k go back
-        for (size_t i = 0; i != n + 1; ++i)
+        for (size_t i = 0; i != n + 3 - 4; ++i)
         {
-            for (size_t j = i + 1; j != n + 2; ++j)
+            for (size_t j = i + 1; j != n + 3 - 3; ++j)
             {
-                for (size_t k = j + 1; k != n + 3; ++k)
+                for (size_t k = j + 1; k != n + 3 - 2; ++k)
                 {
                     // Then we choose the target vertices of the remaining n - 2 bivectors, stored in a multi-index of length 2*(n-2)
                     // Here we have one fewer possible target: the internal vertex (n + 3 - 2) acts as a placeholder for the Jacobiator, to be replaced by the Leibniz rule later on
@@ -71,6 +70,7 @@ int main(int argc, char* argv[])
                                 accept = false; // accept only strictly increasing indices
                                 break;
                             }
+                            // TODO: filter out tadpoles, maybe?
                         }
                         if (!accept)
                             continue;
@@ -87,8 +87,10 @@ int main(int argc, char* argv[])
                         targets[n-2].second = j;
 
                         std::vector<KontsevichGraph::Vertex*> jacobi_targets { &targets[n-2].first, &targets[n-2].second, &targets[n-1].second };
-                        std::deque<KontsevichGraph::Vertex> jacobi_vertices { // to be used for edges incoming on the Jacobiator, applying the Leibniz rule
-                            // i, j, k will go here (if the Jacobiator does not act directly on itself)
+                        std::vector<KontsevichGraph::Vertex> jacobi_vertices { // to be used for edges incoming on the Jacobiator, applying the Leibniz rule
+                            KontsevichGraph::Vertex(i),
+                            KontsevichGraph::Vertex(j),
+                            KontsevichGraph::Vertex(k),
                             KontsevichGraph::Vertex(n + 3 - 2),
                             KontsevichGraph::Vertex(n + 3 - 1)
                         };
@@ -101,17 +103,6 @@ int main(int argc, char* argv[])
                                 bad_targets.push_back(&targets[idx].first);
                             if (targets[idx].second == KontsevichGraph::Vertex(n + 3 - 2))
                                 bad_targets.push_back(&targets[idx].second);
-                        }
-                        for (KontsevichGraph::Vertex* jacobi_target : jacobi_targets) // look for bad targets in second (Jacobiator) part
-                        {
-                            if (*jacobi_target == KontsevichGraph::Vertex(n + 3 - 2) || *jacobi_target == KontsevichGraph::Vertex(n + 3 - 1))
-                            {
-                                bad_targets.push_back(jacobi_target);
-                            }
-                            else
-                            {
-                                jacobi_vertices.push_front(*jacobi_target); // in case none of the Jacobiator edges go back on the Jacobiator, (k, j, i) are added to jacobi_vertices
-                            }
                         }
 
                         KontsevichGraphSum<ex> graph_sum;
@@ -134,12 +125,17 @@ int main(int argc, char* argv[])
                                 {
                                     *bad_targets[idx] = jacobi_vertices[(*leibniz_index)[idx]];
                                 }
-                                KontsevichGraph graph(n, 3, targets, 1, false);
+                                KontsevichGraph graph(n, 3, targets);
                                 vector<size_t> indegrees = graph.in_degrees();
-                                // TODO: Maybe count jacobi_indegrees differently: only count edges coming from Leibniz (using *leibniz_index), and let the others "dive under"
-                                vector<size_t> jacobi_indegrees({ graph.in_degree(targets[n-2].first), graph.in_degree(targets[n-2].second), graph.in_degree(targets[n-1].second) });
-                                graph.normalize();
-                                if (in_degrees[n].find(indegrees) == in_degrees[n].end())
+                                vector<size_t> jacobi_indegrees({ 1, 1, 1 });
+                                for (size_t idx = 0; idx != bad_targets.size(); ++idx)
+                                {
+                                    if ((*leibniz_index)[idx] < 3)
+                                    {
+                                        ++jacobi_indegrees[(*leibniz_index)[idx]]; // this is correct, because the targets of Jacobi are permuted in place
+                                    }
+                                }
+                                if (in_degrees[n].find(indegrees) == in_degrees[n].end()) // skip terms
                                     continue;
                                 if (coefficients.find({ indegrees, jacobi_indegrees }) == coefficients.end())
                                 {
