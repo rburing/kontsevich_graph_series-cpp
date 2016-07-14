@@ -47,13 +47,18 @@ void KontsevichGraph::normalize()
     // find permutation of vertex labels such that the list of targets is minimal with respect to the defined ordering
     std::vector<KontsevichGraph::VertexPair> global_minimum = d_targets;
     size_t exchanges = sort_pairs(global_minimum.begin(), global_minimum.end());
+
+    // TODO: do we need this many variables?
+    std::vector<KontsevichGraph::VertexPair> d_targets_sorted = global_minimum;
+    size_t first_exchanges = exchanges;
+
     std::vector<KontsevichGraph::Vertex> vertices(d_external + d_internal);
     std::iota(vertices.begin(), vertices.end(), 0);
     while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
     {
         std::vector<KontsevichGraph::VertexPair> local_minimum = d_targets;
         size_t local_exchanges = apply_permutation(d_internal, d_external, local_minimum, vertices);
-        if (local_exchanges % 2 == 1 && local_minimum == d_targets)
+        if ((first_exchanges - local_exchanges) % 2 == 1 && local_minimum == d_targets_sorted)
             d_sign = 0;
         if (local_minimum < global_minimum) {
             global_minimum = local_minimum;
@@ -130,16 +135,8 @@ size_t KontsevichGraph::multiplicity() const
 
 bool KontsevichGraph::is_zero() const
 {
-    std::vector<KontsevichGraph::Vertex> vertices(d_external + d_internal);
-    std::iota(vertices.begin(), vertices.end(), 0);
-    while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
-    {
-        std::vector<KontsevichGraph::VertexPair> permuted = d_targets;
-        size_t exchanges = apply_permutation(d_internal, d_external, permuted, vertices);
-        if (permuted == d_targets && exchanges % 2 == 1)
-            return true;
-    }
-    return false;
+    // this is decided in normalize()
+    return d_sign == 0;
 }
 
 size_t KontsevichGraph::in_degree(KontsevichGraph::Vertex vertex) const
@@ -340,7 +337,7 @@ std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t extern
                 if (mirror < graph)
                     graph = mirror;
             }
-            if (modulo_signs)
+            if (modulo_signs && graph.sign() != 0)
                 graph.sign(1);
             result.insert(graph);
         }
