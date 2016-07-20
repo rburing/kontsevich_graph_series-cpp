@@ -2,6 +2,7 @@
 #include "../kontsevich_graph_operator.hpp"
 #include "../util/partitions.hpp"
 #include "../util/factorial.hpp"
+#include "../util/poisson_structure.hpp" // for poisson_structures
 #include <ginac/ginac.h>
 #include <iostream>
 #include <vector>
@@ -10,11 +11,6 @@
 #include <sstream>
 using namespace std;
 using namespace GiNaC;
-
-DECLARE_FUNCTION_3P(phi)
-REGISTER_FUNCTION(phi, dummy())
-DECLARE_FUNCTION_3P(u)
-REGISTER_FUNCTION(u, dummy())
 
 int main(int argc, char* argv[])
 {
@@ -48,14 +44,6 @@ int main(int argc, char* argv[])
                 cout << indegrees[j] << " ";
             cout << ": " << graph_series[n][indegrees].size() << "\n";
             cout.flush();
-
-            symbol x("x"), y("y"), z("z");
-
-            std::vector<PoissonStructure> poisson_structures {
-                { { x, y, z }, { {0, u(x,y,z)*phi(x,y,z).diff(z), -u(x,y,z)*phi(x,y,z).diff(y)},
-                                 {-u(x,y,z)*phi(x,y,z).diff(z), 0, u(x,y,z)*phi(x,y,z).diff(x) },
-                                 { u(x,y,z)*phi(x,y,z).diff(y), -u(x,y,z)*phi(x,y,z).diff(x), 0 } } },
-            };
 
             for (PoissonStructure& poisson : poisson_structures)
             {
