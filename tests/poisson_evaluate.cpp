@@ -12,6 +12,69 @@
 using namespace std;
 using namespace GiNaC;
 
+void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStructure const& poisson, set<ex, ex_is_less>& linear_system, lst& unknowns)
+{
+    typedef std::vector< std::multiset<size_t> > multi_index;
+    map< multi_index, map<ex, ex, ex_is_less> > coefficients;
+    for (auto& term : graph_sum)
+    {
+        map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term](multi_index arg_derivatives, GiNaC::ex summand) {
+                ex result = (term.first * summand).expand();
+                if (result == 0)
+                    return;
+                if (!is_a<add>(result))
+                    result = lst(result);
+                for (auto term : result)
+                {
+                    ex coefficient = 1;
+                    ex derivatives = 1;
+                    if (!is_a<mul>(term))
+                        term = lst(term);
+                    for (auto factor : term)
+                    {
+                        if  (is_a<GiNaC::function>(factor) || is_a<fderivative>(factor))
+                            derivatives *= factor;
+                        else if (is_a<numeric>(factor) || is_a<symbol>(factor))
+                            coefficient *= factor;
+                        else if (is_a<power>(factor))
+                        {
+                            if (is_a<GiNaC::function>(factor.op(0)) || is_a<fderivative>(factor.op(0)))
+                                derivatives *= factor;
+                            else if (is_a<numeric>(factor.op(0)) || is_a<symbol>(factor.op(0)))
+                                coefficient *= factor;
+                        }
+                        else
+                        {
+                            cout << "What the hell is " << factor << "?\n";
+                        }
+                    }
+                    coefficients[arg_derivatives][derivatives] += coefficient;
+                }
+        });
+        cout << ".";
+        cout.flush();
+    }
+    cout << "\n";
+
+    for (auto pair : coefficients)
+    {
+        for (auto pair2 : pair.second)
+        {
+            ex result2 = pair2.second;
+            if (result2 == 0)
+                continue;
+            for (ex var : unknowns)
+            {
+                if (result2.coeff(var) != 0) // first weight variable occurring in expression
+                {
+                    result2 /= result2.coeff(var); // divide by its coefficient
+                    break;
+                }
+            }
+            linear_system.insert(result2 == 0);
+        }
+    }
+}
 int main(int argc, char* argv[])
 {
     if (argc != 3 || poisson_structures.find(argv[2]) == poisson_structures.end())
@@ -51,67 +114,17 @@ int main(int argc, char* argv[])
                 cout << indegrees[j] << " ";
             cout << ": " << graph_series[n][indegrees].size() << "\n";
             cout.flush();
-
-            typedef std::vector< std::multiset<size_t> > multi_index;
-            map< multi_index, map<ex, ex, ex_is_less> > coefficients;
-            for (auto& term : graph_series[n][indegrees])
+            
+            switch (poisson.type)
             {
-                map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term](multi_index arg_derivatives, GiNaC::ex summand) {
-                        ex result = (term.first * summand).expand();
-                        if (result == 0)
-                            return;
-                        if (!is_a<add>(result))
-                            result = lst(result);
-                        for (auto term : result)
-                        {
-                            ex coefficient = 1;
-                            ex derivatives = 1;
-                            if (!is_a<mul>(term))
-                                term = lst(term);
-                            for (auto factor : term)
-                            {
-                                if  (is_a<GiNaC::function>(factor) || is_a<fderivative>(factor))
-                                    derivatives *= factor;
-                                else if (is_a<numeric>(factor) || is_a<symbol>(factor))
-                                    coefficient *= factor;
-                                else if (is_a<power>(factor))
-                                {
-                                    if (is_a<GiNaC::function>(factor.op(0)) || is_a<fderivative>(factor.op(0)))
-                                        derivatives *= factor;
-                                    else if (is_a<numeric>(factor.op(0)) || is_a<symbol>(factor.op(0)))
-                                        coefficient *= factor;
-                                }
-                                else
-                                {
-                                    cout << "What the hell is " << factor << "?\n";
-                                    // TODO: return 1;
-                                }
-                            }
-                            coefficients[arg_derivatives][derivatives] += coefficient;
-                        }
-                });
-                cout << ".";
-                cout.flush();
-            }
-            cout << "\n";
-
-            for (auto pair : coefficients)
-            {
-                for (auto pair2 : pair.second)
-                {
-                    ex result2 = pair2.second;
-                    if (result2 == 0)
-                        continue;
-                    for (ex var : unknowns)
-                    {
-                        if (result2.coeff(var) != 0) // first weight variable occurring in expression
-                        {
-                            result2 /= result2.coeff(var); // divide by its coefficient
-                            break;
-                        }
-                    }
-                    linear_system.insert(result2 == 0);
-                }
+                case PoissonStructure::Type::Polynomial:
+                    break;
+                case PoissonStructure::Type::Generic:
+                    equations_from_generic_poisson(graph_series[n][indegrees], poisson, linear_system, unknowns);
+                    break;
+                case PoissonStructure::Type::Particular:
+                    // points
+                    break;
             }
         }
     }
