@@ -20,6 +20,7 @@ class KontsevichGraphSeries : public std::map< size_t, KontsevichGraphSum<T> >
     size_t precision() const;
     size_t precision(size_t new_precision);
     void reduce();
+    void reduce_mod_permutations();
     KontsevichGraphSeries<T> operator()(std::vector< KontsevichGraphSeries<T> > arguments);
     KontsevichGraphSeries<T>& operator+=(const KontsevichGraphSeries<T>& rhs);
     KontsevichGraphSeries<T>& operator-=(const KontsevichGraphSeries<T>& rhs);

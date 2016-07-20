@@ -20,6 +20,7 @@ class KontsevichGraphSum : public std::vector< std::pair<T, KontsevichGraph> >
     public:
     typedef std::pair<T, KontsevichGraph> Term;
     void reduce();
+    void reduce_mod_permutations();
     KontsevichGraphSum<T> operator()(std::vector< KontsevichGraphSum<T> > arguments);
     bool operator==(const KontsevichGraphSum<T>& other);
     bool operator!=(const KontsevichGraphSum<T>& other);
