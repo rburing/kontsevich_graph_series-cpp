@@ -3,7 +3,7 @@ CFLAGS=-std=c++11 -pedantic -Wall -Wextra -Werror -O3
 LDFLAGS=
 
 .PHONY: all
-all: tests/kontsevich_graph_tests tests/star_product_associativity tests/relevant_graphs tests/star_product tests/cyclic_weight_relations tests/substitute_weight_relations tests/reduce tests/star_product_associator tests/reduce_mod_jacobi
+all: tests/kontsevich_graph_tests tests/star_product_associativity tests/relevant_graphs tests/star_product tests/cyclic_weight_relations tests/substitute_weight_relations tests/reduce tests/star_product_associator tests/reduce_mod_jacobi tests/reduce_mod_permutations
 
 kontsevich_graph.o:
 	$(CC) $(CFLAGS) -c kontsevich_graph.cpp
@@ -62,6 +62,12 @@ tests/reduce_mod_jacobi.o:
 tests/reduce_mod_jacobi: tests/reduce_mod_jacobi.o kontsevich_graph.o
 	$(CC) -o tests/reduce_mod_jacobi tests/reduce_mod_jacobi.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
+tests/reduce_mod_permutations.o:
+	$(CC) $(CFLAGS) -c tests/reduce_mod_permutations.cpp -o tests/reduce_mod_permutations.o
+
+tests/reduce_mod_permutations: tests/reduce_mod_permutations.o kontsevich_graph.o
+	$(CC) -o tests/reduce_mod_permutations tests/reduce_mod_permutations.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+
 .PHONY: clean
 clean:
 	rm -f kontsevich_graph.o
@@ -74,3 +80,4 @@ clean:
 	rm -f tests/reduce.o tests/reduce
 	rm -f tests/star_product_associator.o tests/star_product_associator
 	rm -f tests/reduce_mod_jacobi.o tests/reduce_mod_jacobi
+	rm -f tests/reduce_mod_permutations.o tests/reduce_mod_permutations
