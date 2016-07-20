@@ -6,6 +6,7 @@
 #include <tuple>
 #include <stack>
 #include <sstream>
+#include <map>
 #include <cmath>
 
 KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector<KontsevichGraph::VertexPair> targets, int sign, bool normalized)
@@ -421,6 +422,34 @@ bool KontsevichGraph::has_multiple_edges() const
         if (target_pair.first == target_pair.second)
             return true;
     return false;
+}
+
+std::vector< std::pair<KontsevichGraph, int> > KontsevichGraph::permutations() const
+{
+    std::vector< std::pair<KontsevichGraph, int> > result;
+    std::vector<KontsevichGraph::VertexPair> targets = d_targets;
+    std::map<size_t, std::vector<KontsevichGraph::Vertex*> > bad_targets;
+    for (auto& target_pair : targets)
+    {
+        if ((size_t)target_pair.first < d_external)
+            bad_targets[target_pair.first].push_back(&target_pair.first);
+        if ((size_t)target_pair.second < d_external)
+            bad_targets[target_pair.second].push_back(&target_pair.second);
+    }
+    std::vector<KontsevichGraph::Vertex> ground_vertices(d_external);
+    std::iota(ground_vertices.begin(), ground_vertices.end(), 0);
+    do
+    {
+        for (auto& entry : bad_targets)
+            for (KontsevichGraph::Vertex* bad_target : entry.second)
+                *bad_target = ground_vertices[entry.first];
+        KontsevichGraph graph(d_internal, d_external, targets);
+        int sign = graph.sign();
+        graph.sign(1);
+        result.push_back({ graph, sign });
+    }
+    while (std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
+    return result;
 }
 
 std::ostream& operator<<(std::ostream &os, const KontsevichGraph::Vertex v)
