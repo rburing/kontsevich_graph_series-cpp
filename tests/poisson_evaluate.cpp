@@ -12,6 +12,49 @@
 using namespace std;
 using namespace GiNaC;
 
+void equations_from_polynomial_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStructure const& poisson, set<ex, ex_is_less>& linear_system, lst& unknowns)
+{
+    typedef std::vector< std::multiset<size_t> > multi_index;
+    map< multi_index, ex > coefficients;
+    for (auto& term : graph_sum)
+    {
+        map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term](multi_index arg_derivatives, GiNaC::ex summand) {
+            ex result = (term.first * summand).expand();
+            coefficients[arg_derivatives] += result;
+        });
+        cout << ".";
+        cout.flush();
+    }
+    for (auto& entry : coefficients)
+    {
+        if (entry.second == 0)
+            continue;
+        ex result = entry.second;
+        vector<size_t> degrees;
+        for (symbol const& variable : poisson.coordinates)
+            degrees.push_back(result.degree(variable));
+        CartesianProduct monomialdegrees_list(degrees);
+        for (auto monomialdegrees = monomialdegrees_list.begin(); monomialdegrees != monomialdegrees_list.end(); ++monomialdegrees)
+        {
+            ex result2 = result;
+            for (size_t i = 0; i != poisson.coordinates.size(); ++i)
+                result2 = result2.coeff(poisson.coordinates[i], (*monomialdegrees)[i]).expand();
+            if (result2 == 0)
+                continue;
+            for (ex var : unknowns)
+            {
+                if (result2.coeff(var) != 0) // first weight variable occurring in expression
+                {
+                    result2 /= result2.coeff(var); // divide by its coefficient
+                    break;
+                }
+            }
+            linear_system.insert(result2 == 0);
+        }
+    }
+    cout << "\n";
+}
+
 void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStructure const& poisson, set<ex, ex_is_less>& linear_system, lst& unknowns)
 {
     typedef std::vector< std::multiset<size_t> > multi_index;
@@ -75,6 +118,7 @@ void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStr
         }
     }
 }
+
 int main(int argc, char* argv[])
 {
     if (argc != 3 || poisson_structures.find(argv[2]) == poisson_structures.end())
@@ -118,6 +162,7 @@ int main(int argc, char* argv[])
             switch (poisson.type)
             {
                 case PoissonStructure::Type::Polynomial:
+                    equations_from_polynomial_poisson(graph_series[n][indegrees], poisson, linear_system, unknowns);
                     break;
                 case PoissonStructure::Type::Generic:
                     equations_from_generic_poisson(graph_series[n][indegrees], poisson, linear_system, unknowns);
