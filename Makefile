@@ -3,7 +3,10 @@ CFLAGS=-std=c++11 -pedantic -Wall -Wextra -Werror -O3
 LDFLAGS=
 
 .PHONY: all
-all: tests/kontsevich_graph_tests tests/star_product_associativity tests/relevant_graphs tests/star_product tests/cyclic_weight_relations tests/substitute_weight_relations tests/reduce tests/star_product_associator tests/reduce_mod_jacobi tests/reduce_mod_permutations
+all: bin bin/kontsevich_graph_tests bin/star_product_associativity bin/relevant_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_weight_relations bin/reduce bin/star_product_associator bin/reduce_mod_jacobi bin/reduce_mod_permutations
+
+bin:
+	mkdir bin
 
 kontsevich_graph.o:
 	$(CC) $(CFLAGS) -c kontsevich_graph.cpp
@@ -11,73 +14,65 @@ kontsevich_graph.o:
 tests/kontsevich_graph_tests.o:
 	$(CC) $(CFLAGS) -c tests/kontsevich_graph_tests.cpp -o tests/kontsevich_graph_tests.o
 
-tests/kontsevich_graph_tests: tests/kontsevich_graph_tests.o kontsevich_graph.o
-	$(CC) -o tests/kontsevich_graph_tests tests/kontsevich_graph_tests.o kontsevich_graph.o $(LDFLAGS)
+bin/kontsevich_graph_tests: bin tests/kontsevich_graph_tests.o kontsevich_graph.o
+	$(CC) -o bin/kontsevich_graph_tests tests/kontsevich_graph_tests.o kontsevich_graph.o $(LDFLAGS)
 
 tests/star_product_associativity.o:
 	$(CC) $(CFLAGS) -c tests/star_product_associativity.cpp -o tests/star_product_associativity.o
 
-tests/star_product_associativity: tests/star_product_associativity.o kontsevich_graph.o
-	$(CC) -o tests/star_product_associativity tests/star_product_associativity.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+bin/star_product_associativity: bin tests/star_product_associativity.o kontsevich_graph.o
+	$(CC) -o bin/star_product_associativity tests/star_product_associativity.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
 tests/relevant_graphs.o:
 	$(CC) $(CFLAGS) -c tests/relevant_graphs.cpp -o tests/relevant_graphs.o
 
-tests/relevant_graphs: tests/relevant_graphs.o kontsevich_graph.o
-	$(CC) -o tests/relevant_graphs tests/relevant_graphs.o kontsevich_graph.o $(LDFLAGS)
+bin/relevant_graphs: bin tests/relevant_graphs.o kontsevich_graph.o
+	$(CC) -o bin/relevant_graphs tests/relevant_graphs.o kontsevich_graph.o $(LDFLAGS)
 
 tests/star_product.o:
 	$(CC) $(CFLAGS) -c tests/star_product.cpp -o tests/star_product.o
 
-tests/star_product: tests/star_product.o kontsevich_graph.o
-	$(CC) -o tests/star_product tests/star_product.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+bin/star_product: bin tests/star_product.o kontsevich_graph.o
+	$(CC) -o bin/star_product tests/star_product.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
 tests/cyclic_weight_relations.o:
 	$(CC) $(CFLAGS) -c tests/cyclic_weight_relations.cpp -o tests/cyclic_weight_relations.o
 
-tests/cyclic_weight_relations: tests/cyclic_weight_relations.o kontsevich_graph.o
-	$(CC) -o tests/cyclic_weight_relations tests/cyclic_weight_relations.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+bin/cyclic_weight_relations: bin tests/cyclic_weight_relations.o kontsevich_graph.o
+	$(CC) -o bin/cyclic_weight_relations tests/cyclic_weight_relations.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
 tests/substitute_weight_relations.o:
 	$(CC) $(CFLAGS) -c tests/substitute_weight_relations.cpp -o tests/substitute_weight_relations.o
 
-tests/substitute_weight_relations: tests/substitute_weight_relations.o kontsevich_graph.o
-	$(CC) -o tests/substitute_weight_relations tests/substitute_weight_relations.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+bin/substitute_weight_relations: bin tests/substitute_weight_relations.o kontsevich_graph.o
+	$(CC) -o bin/substitute_weight_relations tests/substitute_weight_relations.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
 tests/reduce.o:
 	$(CC) $(CFLAGS) -c tests/reduce.cpp -o tests/reduce.o
 
-tests/reduce: tests/reduce.o kontsevich_graph.o
-	$(CC) -o tests/reduce tests/reduce.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+bin/reduce: bin tests/reduce.o kontsevich_graph.o
+	$(CC) -o bin/reduce tests/reduce.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
 tests/star_product_associator.o:
 	$(CC) $(CFLAGS) -c tests/star_product_associator.cpp -o tests/star_product_associator.o
 
-tests/star_product_associator: tests/star_product_associator.o kontsevich_graph.o
-	$(CC) -o tests/star_product_associator tests/star_product_associator.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+bin/star_product_associator: bin tests/star_product_associator.o kontsevich_graph.o
+	$(CC) -o bin/star_product_associator tests/star_product_associator.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
 tests/reduce_mod_jacobi.o:
 	$(CC) $(CFLAGS) -c tests/reduce_mod_jacobi.cpp -o tests/reduce_mod_jacobi.o
 
-tests/reduce_mod_jacobi: tests/reduce_mod_jacobi.o kontsevich_graph.o
-	$(CC) -o tests/reduce_mod_jacobi tests/reduce_mod_jacobi.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+bin/reduce_mod_jacobi: bin tests/reduce_mod_jacobi.o kontsevich_graph.o
+	$(CC) -o bin/reduce_mod_jacobi tests/reduce_mod_jacobi.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
 tests/reduce_mod_permutations.o:
 	$(CC) $(CFLAGS) -c tests/reduce_mod_permutations.cpp -o tests/reduce_mod_permutations.o
 
-tests/reduce_mod_permutations: tests/reduce_mod_permutations.o kontsevich_graph.o
-	$(CC) -o tests/reduce_mod_permutations tests/reduce_mod_permutations.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+bin/reduce_mod_permutations: bin tests/reduce_mod_permutations.o kontsevich_graph.o
+	$(CC) -o bin/reduce_mod_permutations tests/reduce_mod_permutations.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
 .PHONY: clean
 clean:
 	rm -f kontsevich_graph.o
-	rm -f tests/kontsevich_graph_tests.o tests/kontsevich_graph_tests
-	rm -f tests/star_product_associativity.o tests/star_product_associativity
-	rm -f tests/relevant_graphs.o tests/relevant_graphs
-	rm -f tests/star_product.o tests/star_product
-	rm -f tests/cyclic_weight_relations.o tests/cyclic_weight_relations
-	rm -f tests/substitute_weight_relations.o tests/substitute_weight_relations
-	rm -f tests/reduce.o tests/reduce
-	rm -f tests/star_product_associator.o tests/star_product_associator
-	rm -f tests/reduce_mod_jacobi.o tests/reduce_mod_jacobi
-	rm -f tests/reduce_mod_permutations.o tests/reduce_mod_permutations
+	rm -f tests/*.o
+	rm -rf bin
