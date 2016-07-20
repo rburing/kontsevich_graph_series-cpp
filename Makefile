@@ -3,7 +3,7 @@ CFLAGS=-std=c++11 -pedantic -Wall -Wextra -Werror -O3
 LDFLAGS=
 
 .PHONY: all
-all: bin bin/kontsevich_graph_tests bin/star_product_associativity bin/relevant_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_weight_relations bin/reduce bin/star_product_associator bin/reduce_mod_jacobi bin/reduce_mod_permutations
+all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/relevant_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_weight_relations bin/reduce bin/star_product_associator bin/reduce_mod_jacobi bin/reduce_mod_permutations
 
 bin:
 	mkdir bin
@@ -17,11 +17,11 @@ tests/kontsevich_graph_tests.o:
 bin/kontsevich_graph_tests: bin tests/kontsevich_graph_tests.o kontsevich_graph.o
 	$(CC) -o bin/kontsevich_graph_tests tests/kontsevich_graph_tests.o kontsevich_graph.o $(LDFLAGS)
 
-tests/star_product_associativity.o:
-	$(CC) $(CFLAGS) -c tests/star_product_associativity.cpp -o tests/star_product_associativity.o
+tests/poisson_evaluate.o:
+	$(CC) $(CFLAGS) -c tests/poisson_evaluate.cpp -o tests/poisson_evaluate.o
 
-bin/star_product_associativity: bin tests/star_product_associativity.o kontsevich_graph.o
-	$(CC) -o bin/star_product_associativity tests/star_product_associativity.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+bin/poisson_evaluate: bin tests/poisson_evaluate.o kontsevich_graph.o
+	$(CC) -o bin/poisson_evaluate tests/poisson_evaluate.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
 tests/relevant_graphs.o:
 	$(CC) $(CFLAGS) -c tests/relevant_graphs.cpp -o tests/relevant_graphs.o
