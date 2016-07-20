@@ -4,12 +4,7 @@
 #include <ginac/ginac.h>
 #include "kontsevich_graph_series.hpp"
 #include "util/cartesian_product.hpp"
-
-struct PoissonStructure
-{
-    std::vector<GiNaC::symbol> coordinates;
-    std::vector< std::vector<GiNaC::ex> > bivector;
-};
+#include "util/poisson_structure.hpp"
 
 void map_operator_coefficients_from_graph(KontsevichGraph graph, PoissonStructure poisson, std::function<void(std::vector< std::multiset<size_t> >, GiNaC::ex)> fun)
 {
