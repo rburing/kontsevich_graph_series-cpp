@@ -20,55 +20,33 @@ int main(int argc, char* argv[])
 {
     if (argc != 2)
     {
-        cout << "Usage: " << argv[0] << " <star-product-filename>\n";
+        cout << "Usage: " << argv[0] << " <graph-series-filename>\n";
         return 1;
     }
 
-    // Reading in star product:
-    string star_product_filename(argv[1]);
-    ifstream star_product_file(star_product_filename);
+    // Reading in graph series:
+    string graph_series_filename(argv[1]);
+    ifstream graph_series_file(graph_series_filename);
     parser coefficient_reader;
-    KontsevichGraphSeries<ex> star_product = KontsevichGraphSeries<ex>::from_istream(star_product_file, [&coefficient_reader](std::string s) -> ex { return coefficient_reader(s); });
-    size_t order = star_product.precision();
+    KontsevichGraphSeries<ex> graph_series = KontsevichGraphSeries<ex>::from_istream(graph_series_file, [&coefficient_reader](std::string s) -> ex { return coefficient_reader(s); });
+    size_t order = graph_series.precision();
 
-    // Make a list of weight variables
-    lst weight_vars;
+    // Make a list of unknowns
+    lst unknowns;
     for (std::pair<string, ex> pair : coefficient_reader.get_syms())
-        weight_vars.append(pair.second);
+        unknowns.append(pair.second);
 
-    star_product.reduce();
-
-    cout << "Number of terms in star product:\n";
-    for (size_t n = 0; n <= order; ++n)
-    {
-        cout << "h^" << n << ": " << star_product[n].size() << " total\n";
-        for (std::vector<size_t> indegrees : star_product[n].in_degrees(true))
-        {
-            for (size_t j = 0; j != indegrees.size(); ++j)
-                cout << indegrees[j] << " ";
-            cout << ": " << star_product[n][indegrees].size() << "\n";
-        }
-    }
-    cout << "Computing associator...";
-    cout.flush();
-    KontsevichGraphSeries<ex> arg = { { 0, { { 1, KontsevichGraph(0, 1, {}) } }} };
-    KontsevichGraphSeries<ex> assoc = star_product({ star_product, arg }) - star_product({ arg, star_product });
-    cout << endl;
-    cout << "Reducing associator...";
-    cout.flush();
-    assoc.reduce();
-    cout << endl;
-    cout << "Number of terms in associator:\n";
-    set<ex, ex_is_less> weight_system;
+    cout << "Number of terms:\n";
+    set<ex, ex_is_less> linear_system;
     for (size_t n = 0; n <= order; ++n)
     {
         cout << "h^" << n << ":\n";
-        cout << assoc[n].size() << " total\n";
-        for (std::vector<size_t> indegrees : assoc[n].in_degrees(true))
+        cout << graph_series[n].size() << " total\n";
+        for (std::vector<size_t> indegrees : graph_series[n].in_degrees(true))
         {
             for (size_t j = 0; j != indegrees.size(); ++j)
                 cout << indegrees[j] << " ";
-            cout << ": " << assoc[n][indegrees].size() << "\n";
+            cout << ": " << graph_series[n][indegrees].size() << "\n";
             cout.flush();
 
             symbol x("x"), y("y"), z("z");
@@ -83,7 +61,7 @@ int main(int argc, char* argv[])
             {
                 typedef std::vector< std::multiset<size_t> > multi_index;
                 map< multi_index, map<ex, ex, ex_is_less> > coefficients;
-                for (auto& term : assoc[n][indegrees])
+                for (auto& term : graph_series[n][indegrees])
                 {
                     map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term](multi_index arg_derivatives, GiNaC::ex summand) {
                             ex result = (term.first * summand).expand();
@@ -131,7 +109,7 @@ int main(int argc, char* argv[])
                         ex result2 = pair2.second;
                         if (result2 == 0)
                             continue;
-                        for (ex var : weight_vars)
+                        for (ex var : unknowns)
                         {
                             if (result2.coeff(var) != 0) // first weight variable occurring in expression
                             {
@@ -139,24 +117,24 @@ int main(int argc, char* argv[])
                                 break;
                             }
                         }
-                        weight_system.insert(result2 == 0);
+                        linear_system.insert(result2 == 0);
                     }
                 }
             }
         }
     }
-    cout << "Got system of " << weight_system.size() << " linear equations in " << weight_vars.nops() << " unknowns:\n";
-    lst weight_system_lst;
-    for (ex eq : weight_system)
+    cout << "Got system of " << linear_system.size() << " linear equations in " << unknowns.nops() << " unknowns:\n";
+    lst linear_system_lst;
+    for (ex eq : linear_system)
     {
         if (eq.lhs() != eq.rhs()) // not a tautology
         {
             cout << eq << endl;
-            weight_system_lst.append(eq);
+            linear_system_lst.append(eq);
         }
     }
     cout << "Solving it...\n";
-    for (ex eq : lsolve(weight_system_lst, weight_vars))
+    for (ex eq : lsolve(linear_system_lst, unknowns))
         if (eq.lhs() != eq.rhs()) // not a tautology
             cout << eq << endl;
 }
