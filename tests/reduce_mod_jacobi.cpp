@@ -147,7 +147,13 @@ int main(int argc, char* argv[])
                         }
                         graph_sum.reduce();
                         if (graph_sum.size() != 0)
+                        {
                             cerr << "\r" << ++counter;
+                            for (auto& pair : coefficients)
+                            {
+                                coefficient_list.append(pair.second);
+                            }
+                        }
                         graph_series[n] -= graph_sum;
                     }
                 }
@@ -155,9 +161,9 @@ int main(int argc, char* argv[])
         }
     }
 
-    cout << "\nNumber of coefficients: " << counter << "\n";
+    cout << "\nNumber of coefficients: " << coefficient_list.nops() << "\n";
     cout << "\nNumber of terms: " << graph_series[order].size() << "\n";
-    cout << "\nNumber of terms per coefficient: " << (float)graph_series[order].size()/counter<< "\n";
+    cout << "\nNumber of terms per coefficient: " << (float)graph_series[order].size()/coefficient_list.nops() << "\n";
 
     cout.flush();
 
