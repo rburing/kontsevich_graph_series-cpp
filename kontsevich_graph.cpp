@@ -2,6 +2,7 @@
 #include "util/sort_pairs.hpp"
 #include "util/cartesian_product.hpp"
 #include "util/factorial.hpp"
+#include "util/permutations.hpp"
 #include <algorithm>
 #include <tuple>
 #include <stack>
@@ -424,9 +425,9 @@ bool KontsevichGraph::has_multiple_edges() const
     return false;
 }
 
-std::vector< std::pair<KontsevichGraph, int> > KontsevichGraph::permutations() const
+std::vector< std::tuple<KontsevichGraph, int, int> > KontsevichGraph::permutations() const
 {
-    std::vector< std::pair<KontsevichGraph, int> > result;
+    std::vector< std::tuple<KontsevichGraph, int, int> > result;
     std::vector<KontsevichGraph::VertexPair> targets = d_targets;
     std::map<size_t, std::vector<KontsevichGraph::Vertex*> > bad_targets;
     for (auto& target_pair : targets)
@@ -446,7 +447,7 @@ std::vector< std::pair<KontsevichGraph, int> > KontsevichGraph::permutations() c
         KontsevichGraph graph(d_internal, d_external, targets);
         int sign = graph.sign();
         graph.sign(1);
-        result.push_back({ graph, sign });
+        result.push_back(std::make_tuple(graph, sign, parity(ground_vertices)));
     }
     while (std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
     return result;

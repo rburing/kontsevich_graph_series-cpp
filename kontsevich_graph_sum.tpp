@@ -43,18 +43,18 @@ void KontsevichGraphSum<T>::reduce_mod_permutations()
     {
         current_term->first *= current_term->second.sign();
         current_term->second.sign(1);
-        std::vector< std::pair<KontsevichGraph, int> > my_permutations = current_term->second.permutations();
+        std::vector< std::tuple<KontsevichGraph, int, int> > my_permutations = current_term->second.permutations();
         auto subsequent_term = current_term + 1;
         while (subsequent_term < this->end())
         {
             subsequent_term->first *= subsequent_term->second.sign();
             subsequent_term->second.sign(1);
             auto permutation = my_permutations.begin();
-            while (permutation->first != subsequent_term->second && permutation != my_permutations.end())
+            while (std::get<0>(*permutation) != subsequent_term->second && permutation != my_permutations.end())
                 permutation++;
             if (permutation != my_permutations.end())
             {
-                current_term->first += subsequent_term->first * (-permutation->second); // TODO: why minus? is it correct?
+                current_term->first -= subsequent_term->first * std::get<1>(*permutation); // TODO: why minus? is it correct?
                 subsequent_term = this->erase(subsequent_term);
             }
             else
