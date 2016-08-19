@@ -85,6 +85,16 @@ KontsevichGraphSeries<T> KontsevichGraphSeries<T>::operator()(std::vector< Konts
 }
 
 template <class T>
+KontsevichGraphSeries<T> KontsevichGraphSeries<T>::skew_symmetrization()
+{
+    KontsevichGraphSeries<T> total;
+    total.precision(this->precision());
+    for (auto current_term = this->begin(); current_term != this->end(); ++current_term)
+        total[current_term->first] = current_term->second.skew_symmetrization();
+    return total;
+}
+
+template <class T>
 KontsevichGraphSeries<T>& KontsevichGraphSeries<T>::operator+=(const KontsevichGraphSeries<T>& rhs)
 {
     size_t practical_precision = this->rbegin()->first;

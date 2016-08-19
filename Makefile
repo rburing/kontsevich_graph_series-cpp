@@ -3,7 +3,7 @@ CFLAGS=-std=c++11 -pedantic -Wall -Wextra -Werror -O3
 LDFLAGS=
 
 .PHONY: all
-all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/relevant_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_weight_relations bin/reduce bin/star_product_associator bin/reduce_mod_jacobi bin/reduce_mod_permutations
+all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/relevant_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_weight_relations bin/reduce bin/star_product_associator bin/reduce_mod_jacobi bin/skew_symmetrize bin/reduce_mod_permutations
 
 bin:
 	mkdir bin
@@ -64,6 +64,12 @@ tests/reduce_mod_jacobi.o:
 
 bin/reduce_mod_jacobi: bin tests/reduce_mod_jacobi.o kontsevich_graph.o
 	$(CC) -o bin/reduce_mod_jacobi tests/reduce_mod_jacobi.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+
+tests/skew_symmetrize.o:
+	$(CC) $(CFLAGS) -c tests/skew_symmetrize.cpp -o tests/skew_symmetrize.o
+
+bin/skew_symmetrize: bin tests/skew_symmetrize.o kontsevich_graph.o
+	$(CC) -o bin/skew_symmetrize tests/skew_symmetrize.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
 tests/reduce_mod_permutations.o:
 	$(CC) $(CFLAGS) -c tests/reduce_mod_permutations.cpp -o tests/reduce_mod_permutations.o

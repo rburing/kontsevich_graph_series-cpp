@@ -30,6 +30,7 @@ class KontsevichGraphSum : public std::vector< std::pair<T, KontsevichGraph> >
     std::vector< std::vector<size_t> > in_degrees(bool ascending = false) const;
     KontsevichGraphSum<T> operator[](std::vector<size_t> indegrees) const;
     T operator[](KontsevichGraph);
+    KontsevichGraphSum<T> skew_symmetrization();
 
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>::Term& term);
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>& gs);
