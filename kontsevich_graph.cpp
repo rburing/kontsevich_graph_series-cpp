@@ -445,7 +445,7 @@ std::vector< std::tuple<KontsevichGraph, int, int> > KontsevichGraph::permutatio
             for (KontsevichGraph::Vertex* bad_target : entry.second)
                 *bad_target = ground_vertices[entry.first];
         KontsevichGraph graph(d_internal, d_external, targets);
-        int sign = graph.sign();
+        int sign = d_sign * graph.sign(); // multiplication by d_sign takes original sign into account
         graph.sign(1);
         result.push_back(std::make_tuple(graph, sign, parity(ground_vertices)));
     }
