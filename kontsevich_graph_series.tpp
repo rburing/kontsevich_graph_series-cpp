@@ -43,7 +43,7 @@ void KontsevichGraphSeries<T>::reduce_mod_permutations()
 }
 
 template <class T>
-KontsevichGraphSeries<T> KontsevichGraphSeries<T>::operator()(std::vector< KontsevichGraphSeries<T> > arguments)
+KontsevichGraphSeries<T> KontsevichGraphSeries<T>::operator()(std::vector< KontsevichGraphSeries<T> > arguments) const
 {
     KontsevichGraphSeries<T> result;
     // Theoretical precision of the result (may be the theoretical maximum):
@@ -67,6 +67,9 @@ KontsevichGraphSeries<T> KontsevichGraphSeries<T>::operator()(std::vector< Konts
     // Actual composition:
     for (size_t n = 0; n <= practical_precision; ++n)
     {
+        auto entry = this->find(n);
+        if (entry == this->end())
+            continue;
         CartesianProduct multilinearity_indices(argument_sizes);
         for (auto arg_indices = multilinearity_indices.begin(); arg_indices != multilinearity_indices.end(); ++arg_indices) // Multi-linearity
         {
@@ -78,14 +81,14 @@ KontsevichGraphSeries<T> KontsevichGraphSeries<T>::operator()(std::vector< Konts
             std::vector< KontsevichGraphSum<T> > args(arguments.size());
             for (size_t i = 0; i != arguments.size(); ++i)
                 args[i] = arguments[i][(*arg_indices)[i]];
-            result[total_order] += (*this)[n](args);
+            result[total_order] += entry->second(args);
         }
     }
     return result;
 }
 
 template <class T>
-KontsevichGraphSeries<T> KontsevichGraphSeries<T>::skew_symmetrization()
+KontsevichGraphSeries<T> KontsevichGraphSeries<T>::skew_symmetrization() const
 {
     KontsevichGraphSeries<T> total;
     total.precision(this->precision());

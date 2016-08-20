@@ -99,7 +99,7 @@ std::istream& operator>>(std::istream& is, KontsevichGraphSum<T>& sum)
 }
 
 template <class T>
-bool KontsevichGraphSum<T>::operator==(const KontsevichGraphSum<T> &other)
+bool KontsevichGraphSum<T>::operator==(const KontsevichGraphSum<T> &other) const
 {
     KontsevichGraphSum<T> difference = *this - other;
     difference.reduce();
@@ -107,7 +107,7 @@ bool KontsevichGraphSum<T>::operator==(const KontsevichGraphSum<T> &other)
 }
 
 template <class T>
-bool KontsevichGraphSum<T>::operator!=(const KontsevichGraphSum<T> &other)
+bool KontsevichGraphSum<T>::operator!=(const KontsevichGraphSum<T> &other) const
 {
     return !(*this == other);
 }
@@ -192,7 +192,7 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::operator[](std::vector<size_t> inde
 }
 
 template <class T>
-T KontsevichGraphSum<T>::operator[](KontsevichGraph graph)
+T KontsevichGraphSum<T>::operator[](KontsevichGraph graph) const
 {
     T coefficient = 0;
     for (auto& term : *this)
@@ -206,7 +206,7 @@ T KontsevichGraphSum<T>::operator[](KontsevichGraph graph)
 }
 
 template <class T>
-KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichGraphSum<T> > arguments)
+KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichGraphSum<T> > arguments) const
 {
     KontsevichGraphSum<T> total; // TODO: pre-compute size?
 
@@ -319,7 +319,7 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichG
 
 
 template <class T> 
-KontsevichGraphSum<T> KontsevichGraphSum<T>::skew_symmetrization()
+KontsevichGraphSum<T> KontsevichGraphSum<T>::skew_symmetrization() const
 {
     KontsevichGraphSum<T> total;
     for (auto& term : *this)
