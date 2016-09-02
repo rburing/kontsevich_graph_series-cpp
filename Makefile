@@ -1,6 +1,7 @@
 CC=g++
 CFLAGS=-std=c++11 -pedantic -Wall -Wextra -Werror -O3
 LDFLAGS=
+EIGEN_CFLAGS=-I/usr/include/eigen3
 
 .PHONY: all
 all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/relevant_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_weight_relations bin/reduce bin/star_product_associator bin/reduce_mod_jacobi bin/skew_symmetrize bin/reduce_mod_permutations
@@ -60,7 +61,7 @@ bin/star_product_associator: bin tests/star_product_associator.o kontsevich_grap
 	$(CC) -o bin/star_product_associator tests/star_product_associator.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
 tests/reduce_mod_jacobi.o:
-	$(CC) $(CFLAGS) -c tests/reduce_mod_jacobi.cpp -o tests/reduce_mod_jacobi.o
+	$(CC) $(CFLAGS) $(EIGEN_CFLAGS) -c tests/reduce_mod_jacobi.cpp -o tests/reduce_mod_jacobi.o
 
 bin/reduce_mod_jacobi: bin tests/reduce_mod_jacobi.o kontsevich_graph.o
 	$(CC) -o bin/reduce_mod_jacobi tests/reduce_mod_jacobi.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)

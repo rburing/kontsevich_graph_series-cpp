@@ -17,3 +17,4 @@ Dependencies:
   - `kontsevich_graph_operator.hpp`,
   - `util/continued_fraction.hpp`,
   - the test programs.
+- Eigen, for linear algebra in `tests/reduce_mod_jacobi.cpp`.

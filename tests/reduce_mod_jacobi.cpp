@@ -2,8 +2,18 @@
 #include <ginac/ginac.h>
 #include <iostream>
 #include <fstream>
+#include "../util/continued_fraction.hpp"
+#include <Eigen/Dense>
+#include <Eigen/SparseCore>
+#include <Eigen/SparseQR>
+#include <Eigen/OrderingMethods>
 using namespace std;
 using namespace GiNaC;
+
+typedef Eigen::Triplet<double> Triplet;
+typedef Eigen::SparseMatrix<double> SparseMatrix;
+
+double threshold = 1e-13;
 
 int main(int argc, char* argv[])
 {
@@ -38,7 +48,7 @@ int main(int argc, char* argv[])
     graph_series.reduce();
 
     size_t counter = 0;
-    lst coefficient_list;
+    std::vector<symbol> coefficient_list;
 
     for (size_t n = 2; n <= order; ++n) // need at least 2 internal vertices for Jacobi
     {
@@ -133,6 +143,8 @@ int main(int argc, char* argv[])
                                         ++jacobi_indegrees[(*leibniz_index)[idx]]; // this is correct, because the targets of Jacobi are permuted in place
                                     }
                                 }
+                                if (jacobi_indegrees != vector<size_t>({ 1, 1, 1})) // it suffices to restrict the internal Jacobi to in-degree 1,1,1
+                                    continue;
                                 if (in_degrees[n].find(indegrees) == in_degrees[n].end()) // skip terms
                                     continue;
                                 if (coefficients.find({ indegrees, jacobi_indegrees }) == coefficients.end())
@@ -149,7 +161,7 @@ int main(int argc, char* argv[])
                             cerr << "\r" << ++counter;
                             for (auto& pair : coefficients)
                             {
-                                coefficient_list.append(pair.second);
+                                coefficient_list.push_back(pair.second);
                             }
                         }
                         graph_series[n] -= graph_sum;
@@ -159,15 +171,96 @@ int main(int argc, char* argv[])
         }
     }
 
-    cout << "\nNumber of coefficients: " << coefficient_list.nops() << "\n";
+    cout << "\nNumber of coefficients: " << coefficient_list.size() << "\n";
     cout << "\nNumber of terms: " << graph_series[order].size() << "\n";
-    cout << "\nNumber of terms per coefficient: " << (float)graph_series[order].size()/coefficient_list.nops() << "\n";
+    cout << "\nNumber of terms per coefficient: " << (float)graph_series[order].size()/coefficient_list.size() << "\n";
 
     cout.flush();
 
+    cerr << "\nReducing...\n";
     graph_series.reduce();
 
+    lst equations;
+
     for (size_t n = 0; n <= order; ++n)
+        for (auto& term : graph_series[n])
+            equations.append(term.first);
+
+    // Set up sparse matrix linear system
+
+    cerr << "Setting up linear system...\n";
+    size_t rows = equations.nops();
+    size_t cols = coefficient_list.size();
+
+    Eigen::VectorXd b(rows);
+    SparseMatrix matrix(rows,cols);
+
+    std::vector<Triplet> tripletList;
+    size_t idx = 0;
+    for (ex equation : equations)
+    {
+        if (!is_a<add>(equation))
+            equation = lst(equation);
+        for (ex term : equation)
+        {
+            if (!is_a<mul>(term))
+                term = lst(term);
+            double prefactor = 1;
+            symbol coefficient("one");
+            for (ex factor : term)
+            {
+                if (is_a<numeric>(factor))
+                    prefactor *= ex_to<numeric>(factor).to_double();
+                else if (is_a<symbol>(factor))
+                    coefficient = ex_to<symbol>(factor);
+            }
+            if (coefficient.get_name() == "one") // constant term
+                b(idx) = -prefactor;
+            else
+                tripletList.push_back(Triplet(idx,find(coefficient_list.begin(), coefficient_list.end(), coefficient) - coefficient_list.begin(), prefactor));
+                // NB: Eigen uses zero-based indices (contrast MATLAB, Mathematica)
+        }
+        ++idx;
+    }
+
+    matrix.setFromTriplets(tripletList.begin(), tripletList.end());
+    
+    cerr << "Solving linear system numerically...\n";
+
+    Eigen::SparseQR< SparseMatrix, Eigen::COLAMDOrdering<int> > qr(matrix);
+    Eigen::VectorXd x = qr.solve(b);
+    
+    cerr << "Residual norm = " << (matrix * x - b).squaredNorm() << "\n";
+
+    cerr << "Rounding...\n";
+    x = x.unaryExpr([](double elem) { return fabs(elem) < threshold ? 0.0 : elem; });
+
+    cerr << "Still a solution? Residual norm = " << (matrix * x - b).squaredNorm() << "\n";
+
+    cerr << "Approximating numerical solution by rational solution...\n";
+
+    lst zero_substitution;
+    lst solution_substitution;
+    for (int i = 0; i != x.size(); i++)
+    {
+        ex result = best_rational_approximation(x.coeff(i), threshold);
+        if (result == 0)
+            zero_substitution.append(coefficient_list[i] == 0);
+        else
+            solution_substitution.append(coefficient_list[i] == result);
+    }
+
+    cerr << "Substituting zeros...\n";
+
+    for (auto& order: graph_series)
+        for (auto& term : graph_series[order.first])
+            term.first = term.first.subs(zero_substitution);
+
+    cerr << "Reducing zeros...\n";
+
+    graph_series.reduce();
+
+    for (size_t n = 0; n <= graph_series.precision(); ++n)
     {
         cout << "h^" << n << ":\n";
         for (auto& term : graph_series[n])
@@ -175,4 +268,17 @@ int main(int argc, char* argv[])
             cout << term.second.encoding() << "    " << term.first << "\n";
         }
     }
+
+    cerr << "Verifying solution...\n";
+
+    for (auto& order: graph_series)
+        for (auto& term : graph_series[order.first])
+            term.first = term.first.subs(solution_substitution);
+
+    graph_series.reduce();
+
+    cout << "Do we really have a solution? " << (graph_series == 0 ? "Yes" : "No") << "\n";
+
+    for (ex subs : solution_substitution)
+        cout << subs << "\n";
 }
