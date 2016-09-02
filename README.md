@@ -13,4 +13,7 @@ Features:
 - reduce graph series modulo the Jacobi identity and its differential consequences.
 
 Dependencies:
-- GiNaC and its dependency CLN, for `kontsevich_graph_operator.hpp` and the test programs.
+- GiNaC and its dependency CLN, for:
+  - `kontsevich_graph_operator.hpp`,
+  - `util/continued_fraction.hpp`,
+  - the test programs.
