@@ -107,6 +107,16 @@ bool KontsevichGraphSum<T>::operator==(const KontsevichGraphSum<T> &other) const
 }
 
 template <class T>
+bool KontsevichGraphSum<T>::operator==(int other) const
+{
+    if (other != 0)
+        return false;
+    KontsevichGraphSum<T> difference = *this;
+    difference.reduce();
+    return difference.size() == 0;
+}
+
+template <class T>
 bool KontsevichGraphSum<T>::operator!=(const KontsevichGraphSum<T> &other) const
 {
     return !(*this == other);

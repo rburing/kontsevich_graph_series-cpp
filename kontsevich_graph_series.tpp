@@ -140,6 +140,16 @@ KontsevichGraphSeries<T> operator-(KontsevichGraphSeries<T> lhs, const Kontsevic
 }
 
 template <class T>
+bool KontsevichGraphSeries<T>::operator==(int other) const
+{
+    if (other != 0)
+        return false;
+    KontsevichGraphSeries<T> difference = *this;
+    difference.reduce();
+    return difference.size() == 0;
+}
+
+template <class T>
 KontsevichGraphSeries<T> KontsevichGraphSeries<T>::from_istream(std::istream& is, std::function<T(std::string)> const& parser, std::function<bool(KontsevichGraph, size_t)> const& filter)
 {
     KontsevichGraphSeries<T> graph_series;
