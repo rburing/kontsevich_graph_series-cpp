@@ -96,9 +96,6 @@ int main(int argc, char* argv[])
 
                         std::vector<KontsevichGraph::Vertex*> jacobi_targets { &targets[n-2].first, &targets[n-2].second, &targets[n-1].second };
                         std::vector<KontsevichGraph::Vertex> jacobi_vertices { // to be used for edges incoming on the Jacobiator, applying the Leibniz rule
-                            KontsevichGraph::Vertex(i),
-                            KontsevichGraph::Vertex(j),
-                            KontsevichGraph::Vertex(k),
                             KontsevichGraph::Vertex(n + 3 - 2),
                             KontsevichGraph::Vertex(n + 3 - 1)
                         };
@@ -115,7 +112,7 @@ int main(int argc, char* argv[])
 
                         KontsevichGraphSum<ex> graph_sum;
 
-                        map< std::pair< vector<size_t>, vector<size_t> >, symbol > coefficients;
+                        map< vector<size_t>, symbol > coefficients;
                         for (auto jacobi_targets_choice : std::vector< std::vector<KontsevichGraph::Vertex> >({ { targets[n-2].first, targets[n-2].second, targets[n-1].second },
                                                                                                                 { targets[n-2].second, targets[n-1].second, targets[n-2].first },
                                                                                                                 { targets[n-1].second, targets[n-2].first, targets[n-2].second } }))
@@ -135,24 +132,14 @@ int main(int argc, char* argv[])
                                 }
                                 KontsevichGraph graph(n, 3, targets);
                                 vector<size_t> indegrees = graph.in_degrees();
-                                vector<size_t> jacobi_indegrees({ 1, 1, 1 });
-                                for (size_t idx = 0; idx != bad_targets.size(); ++idx)
-                                {
-                                    if ((*leibniz_index)[idx] < 3)
-                                    {
-                                        ++jacobi_indegrees[(*leibniz_index)[idx]]; // this is correct, because the targets of Jacobi are permuted in place
-                                    }
-                                }
-                                if (jacobi_indegrees != vector<size_t>({ 1, 1, 1})) // it suffices to restrict the internal Jacobi to in-degree 1,1,1
-                                    continue;
                                 if (in_degrees[n].find(indegrees) == in_degrees[n].end()) // skip terms
                                     continue;
-                                if (coefficients.find({ indegrees, jacobi_indegrees }) == coefficients.end())
+                                if (coefficients.find(indegrees) == coefficients.end())
                                 {
-                                    symbol coefficient("c_" + to_string(counter) + "_" + to_string(indegrees[0]) + to_string(indegrees[1]) + to_string(indegrees[2]) + "_" + to_string(jacobi_indegrees[0]) + to_string(jacobi_indegrees[1]) + to_string(jacobi_indegrees[2]));
-                                    coefficients[{ indegrees, jacobi_indegrees}] = coefficient;
+                                    symbol coefficient("c_" + to_string(counter) + "_" + to_string(indegrees[0]) + to_string(indegrees[1]) + to_string(indegrees[2]));
+                                    coefficients[indegrees] = coefficient;
                                 }
-                                graph_sum += KontsevichGraphSum<ex>({ { coefficients[{ indegrees, jacobi_indegrees } ], graph } });
+                                graph_sum += KontsevichGraphSum<ex>({ { coefficients[indegrees], graph } });
                             }
                         }
                         graph_sum.reduce();
