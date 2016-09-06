@@ -4,7 +4,7 @@ LDFLAGS=
 EIGEN_CFLAGS=-I/usr/include/eigen3
 
 .PHONY: all
-all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/relevant_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_weight_relations bin/reduce bin/star_product_associator bin/reduce_mod_jacobi bin/skew_symmetrize bin/reduce_mod_permutations
+all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/relevant_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_relations bin/reduce bin/star_product_associator bin/reduce_mod_jacobi bin/skew_symmetrize bin/reduce_mod_permutations
 
 bin:
 	mkdir bin
@@ -42,11 +42,11 @@ tests/cyclic_weight_relations.o:
 bin/cyclic_weight_relations: bin tests/cyclic_weight_relations.o kontsevich_graph.o
 	$(CC) -o bin/cyclic_weight_relations tests/cyclic_weight_relations.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
-tests/substitute_weight_relations.o:
-	$(CC) $(CFLAGS) -c tests/substitute_weight_relations.cpp -o tests/substitute_weight_relations.o
+tests/substitute_relations.o:
+	$(CC) $(CFLAGS) -c tests/substitute_relations.cpp -o tests/substitute_relations.o
 
-bin/substitute_weight_relations: bin tests/substitute_weight_relations.o kontsevich_graph.o
-	$(CC) -o bin/substitute_weight_relations tests/substitute_weight_relations.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+bin/substitute_relations: bin tests/substitute_relations.o kontsevich_graph.o
+	$(CC) -o bin/substitute_relations tests/substitute_relations.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
 tests/reduce.o:
 	$(CC) $(CFLAGS) -c tests/reduce.cpp -o tests/reduce.o
