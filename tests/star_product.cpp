@@ -14,7 +14,8 @@ int main(int argc, char* argv[])
 {
     if (argc != 2)
     {
-        cout << "Usage: " << argv[0] << " <graphs-and-weights-filename>\n";
+        cout << "Usage: " << argv[0] << " <graph-series-filename>\n\n"
+             << "The file should contain a graph series with n-internal-vertex prime graphs modulo mirror images at order n.\n";
         return 1;
     }
     string filename(argv[1]);
@@ -22,16 +23,16 @@ int main(int argc, char* argv[])
     map<KontsevichGraph, ex> weights;
     // Reading in known graphs and their (possibly symbolic) weights:
     ifstream weights_file(filename);
-    weights_file.ignore(numeric_limits<streamsize>::max(), '\n'); // ignore first line with column headers
-    KontsevichGraph graph;
-    string weight_str;
     symtab weights_table;
     parser weights_reader(weights_table);
-    while (weights_file >> graph >> weight_str)
+    KontsevichGraphSeries<ex> graph_series = KontsevichGraphSeries<ex>::from_istream(weights_file, [&weights_reader](std::string s) -> ex { return weights_reader(s); });
+    for (auto& order : graph_series)
     {
-        ex weight = weights_reader(weight_str);
-        weights[graph] = weight;
-        relevants[graph.internal()].insert(graph);
+        for (auto& term : order.second)
+        {
+            weights[term.second] = term.first;
+            relevants[order.first].insert(term.second);
+        }
     }
     if (relevants.empty())
     {
