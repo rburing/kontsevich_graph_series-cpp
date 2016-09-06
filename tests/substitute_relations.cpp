@@ -11,29 +11,30 @@ int main(int argc, char* argv[])
 {
     if (argc != 3)
     {
-        cout << "Usage: " << argv[0] << " <graphs-and-weights-filename> <weight-relations-filename>\n";
+        cout << "Usage: " << argv[0] << " <graphs-series-filename> <relations-filename>\n";
         return 1;
     }
-    string graphs_weights_filename(argv[1]), weight_relations_filename(argv[2]);
+    string graph_series_filename(argv[1]), relations_filename(argv[2]);
 
-    // Reading in known weight relations:
-    ifstream weight_relations_file(weight_relations_filename);
-    lst weight_relations;
-    parser weights_reader;
-    for (string lhs, rhs; getline(weight_relations_file, lhs, '=') && weight_relations_file.ignore(1) && getline(weight_relations_file, rhs); )
+    // Reading in coefficient relations:
+    ifstream relations_file(relations_filename);
+    lst relations;
+    parser coefficient_reader;
+    for (string lhs, rhs; getline(relations_file, lhs, '=') && relations_file.ignore(1) && getline(relations_file, rhs); )
     {
-        weight_relations.append(weights_reader(lhs) == weights_reader(rhs));
+        relations.append(coefficient_reader(lhs) == coefficient_reader(rhs));
     }
 
-    // Reading in known graphs and their (possibly symbolic) weights:
-    ifstream weights_file(graphs_weights_filename);
-    weights_file.ignore(numeric_limits<streamsize>::max(), '\n'); // ignore first line with column headers
-    KontsevichGraph graph;
-    string weight_str;
-    cout << "Graph\t\t\tWeight\n";
-    while (weights_file >> graph >> weight_str)
+    // Reading in graphs and their (possibly symbolic) coefficients:
+    ifstream graph_series_file(graph_series_filename);
+    KontsevichGraphSeries<ex> graph_series = KontsevichGraphSeries<ex>::from_istream(graph_series_file, [&coefficient_reader](std::string s) -> ex { return coefficient_reader(s); });
+
+    for (size_t n = 0; n <= graph_series.precision(); ++n)
     {
-        ex weight = weights_reader(weight_str);
-        cout << graph.encoding() << "    " << weight.subs(weight_relations) << "\n";
+        cout << "h^" << n << ":\n";
+        for (auto& term : graph_series[n])
+        {
+            cout << term.second.encoding() << "    " << term.first.subs(relations) << "\n";
+        }
     }
 }
