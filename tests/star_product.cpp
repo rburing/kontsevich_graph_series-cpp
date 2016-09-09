@@ -114,7 +114,6 @@ int main(int argc, char* argv[])
             star_product[n] += KontsevichGraphSum<ex>({ { major_coeff * weights[prime] * prime.multiplicity(), prime } });
         }
     }
-    star_product.reduce();
     for (size_t n = 0; n <= order; ++n)
     {
         cout << "h^" << n << ":\n";
