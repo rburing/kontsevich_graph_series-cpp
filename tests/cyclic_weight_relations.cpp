@@ -24,11 +24,6 @@ int main(int argc, char* argv[])
     KontsevichGraphSeries<ex> star_product = KontsevichGraphSeries<ex>::from_istream(star_product_file, [&coefficient_reader](std::string s) -> ex { return coefficient_reader(s); });
     size_t order = star_product.precision();
 
-    // Make a list of weight variables
-    lst weight_vars;
-    for (std::pair<string, ex> pair : coefficient_reader.get_syms())
-        weight_vars.append(pair.second);
-
     // Computing cyclic linear weight relations:
     lst weight_relations;
     for (auto& term : star_product[order])
@@ -67,20 +62,6 @@ int main(int argc, char* argv[])
             linear_combination -= (modified_graph.in_degree(0) % 2 ? 1 : -1) * star_product[order][modified_graph] / modified_graph.multiplicity();
         }
         if (linear_combination != 0)
-        {
-            for (std::pair<string, ex> pair : coefficient_reader.get_syms())
-            {
-                if (linear_combination.coeff(pair.second) != 0) // first weight variable occurring in expression
-                {
-                    linear_combination /= linear_combination.coeff(pair.second); // divide by its coefficient
-                    break;
-                }
-            }
-            weight_relations.append(linear_combination == 0);
-        }
-    }
-    for (ex const& weight_relation : lsolve(weight_relations, weight_vars))
-    {
-        cout << weight_relation << "\n";
+            cout << linear_combination.expand() << "==0\n";
     }
 }
