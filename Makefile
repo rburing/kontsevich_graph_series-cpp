@@ -4,7 +4,7 @@ LDFLAGS=
 EIGEN_CFLAGS=-I/usr/include/eigen3
 
 .PHONY: all
-all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/relevant_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_relations bin/reduce bin/star_product_associator bin/reduce_mod_jacobi bin/skew_symmetrize bin/reduce_mod_permutations
+all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/generate_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_relations bin/reduce bin/star_product_associator bin/reduce_mod_jacobi bin/skew_symmetrize bin/reduce_mod_permutations
 
 bin:
 	mkdir bin
@@ -24,11 +24,11 @@ tests/poisson_evaluate.o:
 bin/poisson_evaluate: bin tests/poisson_evaluate.o kontsevich_graph.o
 	$(CC) -o bin/poisson_evaluate tests/poisson_evaluate.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
-tests/relevant_graphs.o:
-	$(CC) $(CFLAGS) -c tests/relevant_graphs.cpp -o tests/relevant_graphs.o
+tests/generate_graphs.o:
+	$(CC) $(CFLAGS) -c tests/generate_graphs.cpp -o tests/generate_graphs.o
 
-bin/relevant_graphs: bin tests/relevant_graphs.o kontsevich_graph.o
-	$(CC) -o bin/relevant_graphs tests/relevant_graphs.o kontsevich_graph.o $(LDFLAGS)
+bin/generate_graphs: bin tests/generate_graphs.o kontsevich_graph.o
+	$(CC) -o bin/generate_graphs tests/generate_graphs.o kontsevich_graph.o $(LDFLAGS)
 
 tests/star_product.o:
 	$(CC) $(CFLAGS) -c tests/star_product.cpp -o tests/star_product.o
