@@ -48,7 +48,7 @@ class KontsevichGraph
     bool has_multiple_edges() const;
     std::vector< std::tuple<KontsevichGraph, int, int> > permutations() const;
 
-    static std::set<KontsevichGraph> graphs(size_t internal, size_t external = 2, bool modulo_signs = false, bool modulo_mirror_images = false, std::function<bool(KontsevichGraph)> const& filter = nullptr);
+    static std::set<KontsevichGraph> graphs(size_t internal, size_t external = 2, bool modulo_signs = false, bool modulo_mirror_images = false, std::function<void(KontsevichGraph)> const& callback = nullptr, std::function<bool(KontsevichGraph)> const& filter = nullptr);
 
     private:
     friend std::ostream& operator<<(std::ostream &os, const KontsevichGraph& g);
