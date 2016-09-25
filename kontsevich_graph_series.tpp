@@ -157,7 +157,7 @@ KontsevichGraphSeries<T> KontsevichGraphSeries<T>::from_istream(std::istream& is
     size_t order = 0;
     for (std::string line; getline(is, line); )
     {
-        if (line.length() == 0)
+        if (line.length() == 0 || line[0] == '#') // also skip comments
             continue;
         if (line[0] == 'h')
         {

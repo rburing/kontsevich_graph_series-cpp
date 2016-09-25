@@ -117,9 +117,16 @@ int main(int argc, char* argv[])
     for (size_t n = 0; n <= order; ++n)
     {
         cout << "h^" << n << ":\n";
-        for (auto& pair : star_product[n])
+        for (auto& indegree : star_product[n].in_degrees(true))
         {
-            cout << pair.second.encoding() << "    " << pair.first << "\n";
+            cout << "# ";
+            for (size_t in : indegree)
+                cout << in << " ";
+            cout << "\n";
+            for (auto& term : star_product[n][indegree])
+            {
+                cout << term.second.encoding() << "    " << term.first << "\n";
+            }
         }
     }
 }

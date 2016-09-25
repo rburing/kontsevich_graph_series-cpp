@@ -30,9 +30,16 @@ int main(int argc, char* argv[])
     for (size_t n = 0; n <= order; ++n)
     {
         cout << "h^" << n << ":\n";
-        for (auto& term : assoc[n])
+        for (auto& indegree : assoc[n].in_degrees(true))
         {
-            cout << term.second.encoding() << "    " << term.first << "\n";
+            cout << "# ";
+            for (size_t in : indegree)
+                cout << in << " ";
+            cout << "\n";
+            for (auto& term : assoc[n][indegree])
+            {
+                cout << term.second.encoding() << "    " << term.first << "\n";
+            }
         }
     }
 }
