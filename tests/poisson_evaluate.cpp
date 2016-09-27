@@ -12,6 +12,40 @@
 using namespace std;
 using namespace GiNaC;
 
+void equations_from_particular_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStructure const& poisson, set<ex, ex_is_less>& linear_system, lst& unknowns, vector<size_t> point)
+{
+    lst point_substitution;
+    for (size_t i = 0; i != poisson.coordinates.size(); ++i)
+        point_substitution.append(poisson.coordinates[i] == point[i]);
+    typedef std::vector< std::multiset<size_t> > multi_index;
+    map< multi_index, ex > coefficients;
+    for (auto& term : graph_sum)
+    {
+        map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term, &point_substitution](multi_index arg_derivatives, GiNaC::ex summand) {
+            ex result = (term.first * summand).subs(point_substitution).expand();
+            coefficients[arg_derivatives] += result;
+        });
+        cout << ".";
+        cout.flush();
+    }
+    for (auto& entry : coefficients)
+    {
+        if (entry.second == 0)
+            continue;
+        ex result = entry.second;
+        for (ex var : unknowns)
+        {
+            if (result.coeff(var) != 0) // first weight variable occurring in expression
+            {
+                result /= result.coeff(var); // divide by its coefficient
+                break;
+            }
+        }
+        linear_system.insert(result == 0);
+    }
+    cout << "\n";
+}
+
 void equations_from_polynomial_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStructure const& poisson, set<ex, ex_is_less>& linear_system, lst& unknowns)
 {
     typedef std::vector< std::multiset<size_t> > multi_index;
@@ -146,6 +180,12 @@ int main(int argc, char* argv[])
     for (std::pair<string, ex> pair : coefficient_reader.get_syms())
         unknowns.append(pair.second);
 
+    // Point for particular Poisson structure:
+    vector<size_t> point(poisson.coordinates.size());
+    for (size_t i = 0; i != poisson.coordinates.size(); ++i)
+        point[i] = i+1;
+    // Right now, only the point (1, 2, ..., dim). TODO: more points, options
+
     cout << "Number of terms:\n";
     set<ex, ex_is_less> linear_system;
     for (size_t n = 0; n <= order; ++n)
@@ -168,7 +208,7 @@ int main(int argc, char* argv[])
                     equations_from_generic_poisson(graph_series[n][indegrees], poisson, linear_system, unknowns);
                     break;
                 case PoissonStructure::Type::Particular:
-                    // points
+                    equations_from_particular_poisson(graph_series[n][indegrees], poisson, linear_system, unknowns, point);
                     break;
             }
         }
