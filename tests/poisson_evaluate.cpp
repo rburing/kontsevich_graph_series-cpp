@@ -25,8 +25,7 @@ void equations_from_particular_poisson(KontsevichGraphSum<ex> graph_sum, Poisson
             ex result = (term.first * summand).subs(point_substitution).expand();
             coefficients[arg_derivatives] += result;
         });
-        cout << ".";
-        cout.flush();
+        cerr << ".";
     }
     for (auto& entry : coefficients)
     {
@@ -41,9 +40,12 @@ void equations_from_particular_poisson(KontsevichGraphSum<ex> graph_sum, Poisson
                 break;
             }
         }
-        linear_system.insert(result == 0);
+        pair< set<ex,ex_is_less>::const_iterator, bool > insertion = linear_system.insert(result == 0);
+        if (insertion.second) // new equation
+            cout << result << "==0\n";
     }
-    cout << "\n";
+    cout.flush();
+    cerr << "\n";
 }
 
 void equations_from_polynomial_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStructure const& poisson, set<ex, ex_is_less>& linear_system, lst& unknowns)
@@ -56,8 +58,7 @@ void equations_from_polynomial_poisson(KontsevichGraphSum<ex> graph_sum, Poisson
             ex result = (term.first * summand).expand();
             coefficients[arg_derivatives] += result;
         });
-        cout << ".";
-        cout.flush();
+        cerr << ".";
     }
     for (auto& entry : coefficients)
     {
@@ -83,10 +84,13 @@ void equations_from_polynomial_poisson(KontsevichGraphSum<ex> graph_sum, Poisson
                     break;
                 }
             }
-            linear_system.insert(result2 == 0);
+            pair< set<ex,ex_is_less>::const_iterator, bool > insertion = linear_system.insert(result2 == 0);
+            if (insertion.second) // new equation
+                cout << result2 << "==0\n";
         }
     }
-    cout << "\n";
+    cout.flush();
+    cerr << "\n";
 }
 
 void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStructure const& poisson, set<ex, ex_is_less>& linear_system, lst& unknowns)
@@ -122,17 +126,14 @@ void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStr
                         }
                         else
                         {
-                            cout << "What the hell is " << factor << "?\n";
+                            cerr << "What the hell is " << factor << "?\n";
                         }
                     }
                     coefficients[arg_derivatives][derivatives] += coefficient;
                 }
         });
-        cout << ".";
-        cout.flush();
+        cerr << ".";
     }
-    cout << "\n";
-
     for (auto pair : coefficients)
     {
         for (auto pair2 : pair.second)
@@ -148,20 +149,24 @@ void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStr
                     break;
                 }
             }
-            linear_system.insert(result2 == 0);
+            auto insertion = linear_system.insert(result2 == 0);
+            if (insertion.second) // new equation
+                cout << result2 << "==0\n";
         }
     }
+    cout.flush();
+    cerr << "\n";
 }
 
 int main(int argc, char* argv[])
 {
     if (argc != 3 || poisson_structures.find(argv[2]) == poisson_structures.end())
     {
-        cout << "Usage: " << argv[0] << " <graph-series-filename> <poisson-structure>\n\n"
+        cerr << "Usage: " << argv[0] << " <graph-series-filename> <poisson-structure>\n\n"
              << "Poisson structures can be chosen from the following list:\n";
         for (auto const& entry : poisson_structures)
         {
-            cout << "- " << entry.first << "\n";
+            cerr << "- " << entry.first << "\n";
         }
         return 1;
     }
@@ -186,18 +191,17 @@ int main(int argc, char* argv[])
         point[i] = i+1;
     // Right now, only the point (1, 2, ..., dim). TODO: more points, options
 
-    cout << "Number of terms:\n";
+    cerr << "Number of terms:\n";
     set<ex, ex_is_less> linear_system;
     for (size_t n = 0; n <= order; ++n)
     {
-        cout << "h^" << n << ":\n";
-        cout << graph_series[n].size() << " total\n";
+        cerr << "h^" << n << ":\n";
+        cerr << graph_series[n].size() << " total\n";
         for (std::vector<size_t> indegrees : graph_series[n].in_degrees(true))
         {
             for (size_t j = 0; j != indegrees.size(); ++j)
-                cout << indegrees[j] << " ";
-            cout << ": " << graph_series[n][indegrees].size() << "\n";
-            cout.flush();
+                cerr << indegrees[j] << " ";
+            cerr << ": " << graph_series[n][indegrees].size() << "\n";
             
             switch (poisson.type)
             {
@@ -213,16 +217,11 @@ int main(int argc, char* argv[])
             }
         }
     }
-    cout << "Got system of " << linear_system.size() << " linear equations in " << unknowns.nops() << " unknowns:\n";
+    cout << "Got system of " << linear_system.size() << " linear equations in " << unknowns.nops() << " unknowns.\n";
     lst linear_system_lst;
     for (ex eq : linear_system)
-    {
         if (eq.lhs() != eq.rhs()) // not a tautology
-        {
-            cout << eq << endl;
             linear_system_lst.append(eq);
-        }
-    }
     cout << "Solving it...\n";
     for (ex eq : lsolve(linear_system_lst, unknowns))
         if (eq.lhs() != eq.rhs()) // not a tautology
