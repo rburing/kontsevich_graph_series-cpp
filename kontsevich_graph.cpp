@@ -427,6 +427,19 @@ bool KontsevichGraph::has_multiple_edges() const
     return false;
 }
 
+bool KontsevichGraph::has_max_internal_indegree(size_t max_indegree) const
+{
+    std::map<KontsevichGraph::Vertex, size_t> seen;
+    for (auto const& target_pair : d_targets)
+    {
+        if ((size_t)target_pair.first >= d_external && ++seen[target_pair.first] == max_indegree + 1)
+            return false;
+        if ((size_t)target_pair.second >= d_external && ++seen[target_pair.second] == max_indegree + 1)
+            return false;
+    }
+    return true;
+}
+
 std::vector< std::tuple<KontsevichGraph, int, int> > KontsevichGraph::permutations() const
 {
     std::vector< std::tuple<KontsevichGraph, int, int> > result;

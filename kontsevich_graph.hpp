@@ -46,6 +46,7 @@ class KontsevichGraph
     bool has_cycles() const;
     bool has_tadpoles() const;
     bool has_multiple_edges() const;
+    bool has_max_internal_indegree(size_t max_indegree) const;
     std::vector< std::tuple<KontsevichGraph, int, int> > permutations() const;
 
     static std::set<KontsevichGraph> graphs(size_t internal, size_t external = 2, bool modulo_signs = false, bool modulo_mirror_images = false, std::function<void(KontsevichGraph)> const& callback = nullptr, std::function<bool(KontsevichGraph)> const& filter = nullptr);
