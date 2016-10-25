@@ -118,6 +118,14 @@ KontsevichGraphSeries<T> KontsevichGraphSeries<T>::inverse() const
 }
 
 template <class T>
+KontsevichGraphSeries<T> KontsevichGraphSeries<T>::gauge_transform(const KontsevichGraphSeries<T>& gauge)
+{
+    // TODO: only defined if series has two ground vertices
+    KontsevichGraphSeries<T> gauge_inverse = gauge.inverse();
+    return gauge_inverse({ (*this)({ gauge, gauge }) });
+}
+
+template <class T>
 KontsevichGraphSeries<T>& KontsevichGraphSeries<T>::operator+=(const KontsevichGraphSeries<T>& rhs)
 {
     size_t practical_precision = this->rbegin()->first;
