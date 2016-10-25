@@ -4,7 +4,7 @@ LDFLAGS=
 EIGEN_CFLAGS=-I/usr/include/eigen3
 
 .PHONY: all
-all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/generate_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_relations bin/reduce bin/invert bin/star_product_associator bin/reduce_mod_jacobi bin/skew_symmetrize bin/reduce_mod_permutations
+all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/generate_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_relations bin/reduce bin/invert bin/gauge bin/star_product_associator bin/reduce_mod_jacobi bin/skew_symmetrize bin/reduce_mod_permutations
 
 bin:
 	mkdir bin
@@ -59,6 +59,12 @@ tests/invert.o:
 
 bin/invert: bin tests/invert.o kontsevich_graph.o
 	$(CC) -o bin/invert tests/invert.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
+
+tests/gauge.o:
+	$(CC) $(CFLAGS) -c tests/gauge.cpp -o tests/gauge.o
+
+bin/gauge: bin tests/gauge.o kontsevich_graph.o
+	$(CC) -o bin/gauge tests/gauge.o kontsevich_graph.o -lcln -lginac $(LDFLAGS)
 
 tests/star_product_associator.o:
 	$(CC) $(CFLAGS) -c tests/star_product_associator.cpp -o tests/star_product_associator.o
