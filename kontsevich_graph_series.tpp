@@ -98,6 +98,26 @@ KontsevichGraphSeries<T> KontsevichGraphSeries<T>::skew_symmetrization() const
 }
 
 template <class T>
+KontsevichGraphSeries<T> KontsevichGraphSeries<T>::inverse() const
+{
+    // TODO: only defined if series has one ground vertex
+    KontsevichGraphSeries<T> result;
+    result.precision(this->precision());
+    result[0] = this->at(0);                       // TODO: properly test whether invertible
+    for (size_t n = 1; n != precision() + 1; ++n)
+    {
+        for (size_t k = 0; k != n; ++k)
+        {
+            try {
+                result[n] -= result[k]({ this->at(n-k) });
+            }
+            catch (std::out_of_range) {}
+        }
+    }
+    return result;
+}
+
+template <class T>
 KontsevichGraphSeries<T>& KontsevichGraphSeries<T>::operator+=(const KontsevichGraphSeries<T>& rhs)
 {
     size_t practical_precision = this->rbegin()->first;
