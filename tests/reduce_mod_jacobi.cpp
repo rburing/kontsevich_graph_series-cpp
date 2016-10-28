@@ -57,102 +57,121 @@ int main(int argc, char* argv[])
 
         cout << "h^" << n << ":\n";
 
-        // First we choose the target vertices i,j,k of the Jacobiator (which contains 2 bivectors), in increasing order (without loss of generality)
-        for (size_t i = 0; i != n + 3 - 4; ++i)
+        // First we choose the target vertices i,j,k of the Jacobiators (which contain 2 bivectors), in increasing order (without loss of generality)
+        
+        // Jacobi must have three distinct arguments, and not act on itself, but can act on other Jacobi
+
+        for (size_t k = 1; k <= n/2; ++k)
         {
-            for (size_t j = i + 1; j != n + 3 - 3; ++j)
+            std::vector<size_t> jacobi_vertices(3*k, n + 3);
+            CartesianProduct jacobi_indices(jacobi_vertices);
+            for (auto jacobi_index = jacobi_indices.begin(); jacobi_index != jacobi_indices.end(); ++jacobi_index)
             {
-                for (size_t k = j + 1; k != n + 3 - 2; ++k)
+                bool accept = true;
+                for (size_t i = 0; i != k; ++i)
                 {
-                    // Then we choose the target vertices of the remaining n - 2 bivectors, stored in a multi-index of length 2*(n-2)
-                    // Here we have one fewer possible target: the internal vertex (n + 3 - 2) acts as a placeholder for the Jacobiator, to be replaced by the Leibniz rule later on
-                    std::vector<size_t> remaining_edges(2*(n-2), n + 3 - 1);
-                    CartesianProduct indices(remaining_edges);
-                    for (auto multi_index = indices.begin(); multi_index != indices.end(); ++multi_index)
+                    if ((*jacobi_index)[i*3] >= (*jacobi_index)[i*3 + 1] || (*jacobi_index)[i*3 + 1] >= (*jacobi_index)[i*3 + 2]) // not strictly increasing
                     {
-                        bool accept = true;
-                        for (size_t idx = 0; idx != n - 2; ++idx)
+                        accept = false;
+                        break;
+                    }
+                }
+                if (!accept)
+                    continue;
+
+                // Then we choose the target vertices of the remaining n - 2*k bivectors, stored in a multi-index of length 2*(n-2*k)
+                // Here we have k fewer possible targets: out of the last 2*k internal vertices, the first k act as placeholders for the respective Jacobiators,
+                // to be replaced by the Leibniz rule later on
+                std::vector<size_t> remaining_edges(2*(n-2*k), n + 3 - k);
+                CartesianProduct indices(remaining_edges);
+                for (auto multi_index = indices.begin(); multi_index != indices.end(); ++multi_index)
+                {
+                    bool accept = true;
+                    for (size_t idx = 0; idx != n - 2*k; ++idx)
+                    {
+                        if ((*multi_index)[2*idx] >= (*multi_index)[2*idx+1])
                         {
-                            if ((*multi_index)[2*idx] >= (*multi_index)[2*idx+1])
-                            {
-                                accept = false; // accept only strictly increasing indices
-                                break;
-                            }
-                            // TODO: filter out tadpoles, maybe?
+                            accept = false; // accept only strictly increasing indices
+                            break;
                         }
-                        if (!accept)
-                            continue;
+                        // TODO: filter out tadpoles, maybe?
+                    }
+                    if (!accept)
+                        continue;
 
-                        // We build the list of targets for the graph, as described above (using i,j,k and the multi-index)
-                        std::vector<KontsevichGraph::VertexPair> targets(n);
-                        // first part:
-                        for (size_t idx = 0; idx != n - 2; ++idx)
-                            targets[idx] = {(*multi_index)[2*idx], (*multi_index)[2*idx+1]};
-                        // second part:
-                        targets[n-1].first = static_cast<KontsevichGraph::Vertex>(n + 3 - 2);
-                        targets[n-1].second = k;
-                        targets[n-2].first = i;
-                        targets[n-2].second = j;
+                    // We build the list of targets for the graph, as described above (using i,j,k and the multi-index)
+                    std::vector<KontsevichGraph::VertexPair> targets(n);
+                    // first part:
+                    for (size_t idx = 0; idx != n - 2*k; ++idx)
+                        targets[idx] = {(*multi_index)[2*idx], (*multi_index)[2*idx+1]};
+                    // second part:
+                    for (size_t i = 0; i != k; ++i)
+                    {
+                        targets[n - 2*k + 2*i].first = KontsevichGraph::Vertex((*jacobi_index)[3*i]);
+                        targets[n - 2*k + 2*i].second = KontsevichGraph::Vertex((*jacobi_index)[3*i + 1]);
+                        targets[n - 2*k + 2*i + 1].first = KontsevichGraph::Vertex(n + 3 - 2*k + 2*i);
+                        targets[n - 2*k + 2*i + 1].second = KontsevichGraph::Vertex((*jacobi_index)[3*i + 2]);
+                    }
 
-                        std::vector<KontsevichGraph::Vertex*> jacobi_targets { &targets[n-2].first, &targets[n-2].second, &targets[n-1].second };
-                        std::vector<KontsevichGraph::Vertex> jacobi_vertices { // to be used for edges incoming on the Jacobiator, applying the Leibniz rule
-                            KontsevichGraph::Vertex(n + 3 - 2),
-                            KontsevichGraph::Vertex(n + 3 - 1)
-                        };
+                    // Make vector of references to bad targets: those in first part with target >= (n + 3 - 2*k), the placeholders for the Jacobiators:
+                    std::map<KontsevichGraph::Vertex*, int> bad_targets;
+                    for (size_t idx = 0; idx != n - 2*k; ++idx) // look for bad targets in first part
+                    {
+                        if ((int)targets[idx].first >= (int)n + 3 - 2*(int)k)
+                            bad_targets[&targets[idx].first] = (int)targets[idx].first - (n + 3 - 2*k);
+                        if ((int)targets[idx].second >= (int)n + 3 - 2*(int)k)
+                            bad_targets[&targets[idx].second] = (int)targets[idx].second - (n + 3 - 2*k);
+                    }
 
-                        // Make vector of references to bad targets: those in first part with target equal to (n + 3 - 2), the placeholder for the Jacobiator:
-                        std::vector<KontsevichGraph::Vertex*> bad_targets;
-                        for (size_t idx = 0; idx != n - 2; ++idx) // look for bad targets in first part
+                    KontsevichGraphSum<ex> graph_sum;
+
+                    // Replace bad targets by Leibniz rule:
+                    map< vector<size_t>, symbol > coefficients;
+                    std::vector<size_t> leibniz_sizes(bad_targets.size(), 2);
+                    CartesianProduct leibniz_indices(leibniz_sizes);
+                    for (auto leibniz_index = leibniz_indices.begin(); leibniz_index != leibniz_indices.end(); ++leibniz_index)
+                    {
+                        size_t idx = 0;
+                        for (auto& bad_target : bad_targets)
+                            *(bad_target.first) = KontsevichGraph::Vertex(3 + n - 2*k + 2*(bad_target.second) + (*leibniz_index)[idx++]);
+
+                        for (size_t i = 0; i != k; ++i)
                         {
-                            if (targets[idx].first == KontsevichGraph::Vertex(n + 3 - 2))
-                                bad_targets.push_back(&targets[idx].first);
-                            if (targets[idx].second == KontsevichGraph::Vertex(n + 3 - 2))
-                                bad_targets.push_back(&targets[idx].second);
-                        }
-
-                        KontsevichGraphSum<ex> graph_sum;
-
-                        map< vector<size_t>, symbol > coefficients;
-                        for (auto jacobi_targets_choice : std::vector< std::vector<KontsevichGraph::Vertex> >({ { targets[n-2].first, targets[n-2].second, targets[n-1].second },
-                                                                                                                { targets[n-2].second, targets[n-1].second, targets[n-2].first },
-                                                                                                                { targets[n-1].second, targets[n-2].first, targets[n-2].second } }))
-                        {
-                            // Set Jacobiator targets to one of the three permutatations
-                            targets[n-2].first = jacobi_targets_choice[0];
-                            targets[n-2].second = jacobi_targets_choice[1];
-                            targets[n-1].second = jacobi_targets_choice[2];
-                            // Replace bad targets by Leibniz rule:
-                            std::vector<size_t> leibniz_sizes(bad_targets.size(), jacobi_vertices.size());
-                            CartesianProduct leibniz_indices(leibniz_sizes);
-                            for (auto leibniz_index = leibniz_indices.begin(); leibniz_index != leibniz_indices.end(); ++leibniz_index)
+                            for (auto jacobi_targets_choice : std::vector< std::vector<KontsevichGraph::Vertex> >({ { targets[n-2*k+2*i].first, targets[n-2*k+2*i].second, targets[n-2*k+2*i+1].second },
+                                                                                                                    { targets[n-2*k+2*i].second, targets[n-2*k+2*i+1].second, targets[n-2*k+2*i].first },
+                                                                                                                    { targets[n-2*k+2*i+1].second, targets[n-2*k+2*i].first, targets[n-2*k+2*i].second } }))
                             {
-                                for (size_t idx = 0; idx != bad_targets.size(); ++idx)
-                                {
-                                    *bad_targets[idx] = jacobi_vertices[(*leibniz_index)[idx]];
-                                }
+                                // Set Jacobiator targets to one of the three permutatations
+                                targets[n-2*k+2*i].first = jacobi_targets_choice[0];
+                                targets[n-2*k+2*i].second = jacobi_targets_choice[1];
+                                targets[n-2*k+2*i+1].second = jacobi_targets_choice[2];
+
                                 KontsevichGraph graph(n, 3, targets);
+
                                 vector<size_t> indegrees = graph.in_degrees();
+
                                 if (in_degrees[n].find(indegrees) == in_degrees[n].end()) // skip terms
                                     continue;
                                 if (coefficients.find(indegrees) == coefficients.end())
                                 {
-                                    symbol coefficient("c_" + to_string(counter) + "_" + to_string(indegrees[0]) + to_string(indegrees[1]) + to_string(indegrees[2]));
+                                    symbol coefficient("c_" + to_string(k) + "_" + to_string(counter) + "_" + to_string(indegrees[0]) + to_string(indegrees[1]) + to_string(indegrees[2]));
                                     coefficients[indegrees] = coefficient;
                                 }
                                 graph_sum += KontsevichGraphSum<ex>({ { coefficients[indegrees], graph } });
                             }
                         }
-                        graph_sum.reduce();
-                        if (graph_sum.size() != 0)
-                        {
-                            cerr << "\r" << ++counter;
-                            for (auto& pair : coefficients)
-                            {
-                                coefficient_list.push_back(pair.second);
-                            }
-                        }
-                        graph_series[n] -= graph_sum;
                     }
+
+                    graph_sum.reduce();
+                    if (graph_sum.size() != 0)
+                    {
+                        cerr << "\r" << ++counter;
+                        for (auto& pair : coefficients)
+                        {
+                            coefficient_list.push_back(pair.second);
+                        }
+                    }
+                    graph_series[n] -= graph_sum;
                 }
             }
         }
@@ -171,7 +190,10 @@ int main(int argc, char* argv[])
 
     for (size_t n = 0; n <= order; ++n)
         for (auto& term : graph_series[n])
+        {
+            cerr << term.first << "==0\n";
             equations.append(term.first);
+        }
 
     // Set up sparse matrix linear system
 
