@@ -14,7 +14,7 @@ using namespace GiNaC;
 typedef Eigen::Triplet<double> Triplet;
 typedef Eigen::SparseMatrix<double> SparseMatrix;
 
-double threshold = 1e-13;
+double threshold = 1e-5;
 
 int main(int argc, char* argv[])
 {
