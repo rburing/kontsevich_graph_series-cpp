@@ -2,6 +2,7 @@
 #include <ginac/ginac.h>
 #include <iostream>
 #include <fstream>
+#include <limits>
 #include "../util/continued_fraction.hpp"
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
@@ -17,12 +18,17 @@ double threshold = 1e-13;
 
 int main(int argc, char* argv[])
 {
-    if (argc != 2)
+    if (argc != 2 && argc != 3)
     {
-        cout << "Usage: " << argv[0] << " <graph-series-filename>\n\n"
-             << "Accepts only homogeneous power series: graphs with n internal vertices at order n.\n";
+        cout << "Usage: " << argv[0] << " <graph-series-filename> [max-jacobiators]\n\n"
+             << "Accepts only homogeneous power series: graphs with n internal vertices at order n.\n"
+             << "Optional argument max-jacobiators restricts the number of Jacobiators in each generated differential consequence.\n";
         return 1;
     }
+
+    size_t max_jacobiators = numeric_limits<size_t>::max();
+    if (argc == 3)
+        max_jacobiators = stoi(argv[2]);
 
     // Reading in graph series
     string graph_series_filename(argv[1]);
@@ -61,7 +67,7 @@ int main(int argc, char* argv[])
         
         // Jacobi must have three distinct arguments, and not act on itself, but can act on other Jacobi
 
-        for (size_t k = 1; k <= n/2; ++k)
+        for (size_t k = 1; k <= min(n/2, max_jacobiators); ++k)
         {
             std::vector<size_t> jacobi_vertices(3*k, n + 3);
             CartesianProduct jacobi_indices(jacobi_vertices);
