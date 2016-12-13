@@ -22,7 +22,7 @@ void equations_from_particular_poisson(KontsevichGraphSum<ex> graph_sum, Poisson
     for (auto& term : graph_sum)
     {
         map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term, &point_substitution](multi_index arg_derivatives, GiNaC::ex summand) {
-            ex result = (term.first * summand).subs(point_substitution).expand();
+            ex result = (term.first * term.second.sign() * summand).subs(point_substitution).expand();
             coefficients[arg_derivatives] += result;
         });
         cerr << ".";
@@ -55,7 +55,7 @@ void equations_from_polynomial_poisson(KontsevichGraphSum<ex> graph_sum, Poisson
     for (auto& term : graph_sum)
     {
         map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term](multi_index arg_derivatives, GiNaC::ex summand) {
-            ex result = (term.first * summand).expand();
+            ex result = (term.first * term.second.sign() * summand).expand();
             coefficients[arg_derivatives] += result;
         });
         cerr << ".";
@@ -100,7 +100,7 @@ void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStr
     for (auto& term : graph_sum)
     {
         map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term](multi_index arg_derivatives, GiNaC::ex summand) {
-                ex result = (term.first * summand).expand();
+                ex result = (term.first * term.second.sign() * summand).expand();
                 if (result == 0)
                     return;
                 if (!is_a<add>(result))
