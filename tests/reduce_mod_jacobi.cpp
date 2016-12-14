@@ -55,6 +55,7 @@ int main(int argc, char* argv[])
 
     size_t counter = 0;
     std::vector<symbol> coefficient_list;
+    std::map<symbol, KontsevichGraph, ex_is_less> kontsevich_jacobi_leibniz_graphs;
 
     for (size_t n = 2; n <= order; ++n) // need at least 2 internal vertices for Jacobi
     {
@@ -119,6 +120,9 @@ int main(int argc, char* argv[])
                         targets[n - 2*k + 2*i + 1].second = KontsevichGraph::Vertex((*jacobi_index)[3*i + 2]);
                     }
 
+                    KontsevichGraph template_graph(n, 3, targets, 1, true);
+                    // TODO: count number of arrows falling on Jacs
+
                     // Make vector of references to bad targets: those in first part with target >= (n + 3 - 2*k), the placeholders for the Jacobiators:
                     std::map<KontsevichGraph::Vertex*, int> bad_targets;
                     for (size_t idx = 0; idx != n - 2*k; ++idx) // look for bad targets in first part
@@ -161,6 +165,7 @@ int main(int argc, char* argv[])
                                 if (coefficients.find(indegrees) == coefficients.end())
                                 {
                                     symbol coefficient("c_" + to_string(k) + "_" + to_string(counter) + "_" + to_string(indegrees[0]) + to_string(indegrees[1]) + to_string(indegrees[2]));
+                                    kontsevich_jacobi_leibniz_graphs[coefficient] = template_graph;
                                     coefficients[indegrees] = coefficient;
                                 }
                                 graph_sum += KontsevichGraphSum<ex>({ { coefficients[indegrees], graph } });
@@ -295,5 +300,5 @@ int main(int argc, char* argv[])
     cout << "Do we really have a solution? " << (graph_series == 0 ? "Yes" : "No") << "\n";
 
     for (ex subs : solution_substitution)
-        cout << subs << "\n";
+        cout << kontsevich_jacobi_leibniz_graphs[ex_to<symbol>(subs.lhs())].encoding() << "    " << subs << "\n";
 }
