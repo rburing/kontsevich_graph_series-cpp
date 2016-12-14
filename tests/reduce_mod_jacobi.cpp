@@ -18,17 +18,20 @@ double threshold = 1e-5;
 
 int main(int argc, char* argv[])
 {
-    if (argc != 2 && argc != 3)
+    if (argc != 2 && argc != 3 && argc != 4)
     {
-        cout << "Usage: " << argv[0] << " <graph-series-filename> [max-jacobiators]\n\n"
+        cout << "Usage: " << argv[0] << " <graph-series-filename> [max-jacobiators] [max-jac-indegree]\n\n"
              << "Accepts only homogeneous power series: graphs with n internal vertices at order n.\n"
              << "Optional argument max-jacobiators restricts the number of Jacobiators in each generated differential consequence.\n";
         return 1;
     }
 
     size_t max_jacobiators = numeric_limits<size_t>::max();
-    if (argc == 3)
+    size_t max_jac_indegree = numeric_limits<size_t>::max();
+    if (argc == 3 || argc == 4)
         max_jacobiators = stoi(argv[2]);
+    if (argc == 4)
+        max_jac_indegree = stoi(argv[3]);
 
     // Reading in graph series
     string graph_series_filename(argv[1]);
@@ -121,7 +124,6 @@ int main(int argc, char* argv[])
                     }
 
                     KontsevichGraph template_graph(n, 3, targets, 1, true);
-                    // TODO: count number of arrows falling on Jacs
 
                     // Make vector of references to bad targets: those in first part with target >= (n + 3 - 2*k), the placeholders for the Jacobiators:
                     std::map<KontsevichGraph::Vertex*, int> bad_targets;
@@ -132,6 +134,20 @@ int main(int argc, char* argv[])
                         if ((int)targets[idx].second >= (int)n + 3 - 2*(int)k)
                             bad_targets[&targets[idx].second] = (int)targets[idx].second - (n + 3 - 2*k);
                     }
+
+                    // Count number of arrows falling on Jacs:
+                    std::map<int, size_t> in_degree;
+                    bool acceptable = true;
+                    for (auto pair : bad_targets)
+                    {
+                        if (++in_degree[pair.second] == max_jac_indegree + 1)
+                        {
+                            acceptable = false;
+                            break;
+                        }
+                    }
+                    if (!acceptable)
+                        continue;
 
                     KontsevichGraphSum<ex> graph_sum;
 
@@ -299,6 +315,9 @@ int main(int argc, char* argv[])
 
     cout << "Do we really have a solution? " << (graph_series == 0 ? "Yes" : "No") << "\n";
 
-    for (ex subs : solution_substitution)
-        cout << kontsevich_jacobi_leibniz_graphs[ex_to<symbol>(subs.lhs())].encoding() << "    " << subs << "\n";
+    if (graph_series == 0)
+    {
+        for (ex subs : solution_substitution)
+            cout << kontsevich_jacobi_leibniz_graphs[ex_to<symbol>(subs.lhs())].encoding() << "    " << subs << "\n";
+    }
 }
