@@ -26,6 +26,7 @@ class KontsevichGraphSeries : public std::map< size_t, KontsevichGraphSum<T> >
     KontsevichGraphSeries<T> inverse() const;
     KontsevichGraphSeries<T> gauge_transform(const KontsevichGraphSeries<T>& gauge);
     bool operator==(int other) const;
+    bool operator!=(int other) const;
     void reduce();
     void reduce_mod_permutations();
 

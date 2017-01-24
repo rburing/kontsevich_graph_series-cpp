@@ -123,6 +123,12 @@ bool KontsevichGraphSum<T>::operator!=(const KontsevichGraphSum<T> &other) const
 }
 
 template <class T>
+bool KontsevichGraphSum<T>::operator!=(int other) const
+{
+    return !(*this == other);
+}
+
+template <class T>
 KontsevichGraphSum<T>& KontsevichGraphSum<T>::operator+=(const KontsevichGraphSum<T>& rhs)
 {
     this->reserve(this->size() + rhs.size());
