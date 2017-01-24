@@ -19,19 +19,19 @@ class KontsevichGraphSum : public std::vector< std::pair<T, KontsevichGraph> >
 
     public:
     typedef std::pair<T, KontsevichGraph> Term;
-    void reduce();
-    void reduce_mod_permutations();
+    KontsevichGraphSum<T> operator[](std::vector<size_t> indegrees) const;
+    T operator[](KontsevichGraph) const;
     KontsevichGraphSum<T> operator()(std::vector< KontsevichGraphSum<T> > arguments) const;
-    bool operator==(const KontsevichGraphSum<T>& other) const;
-    bool operator==(int other) const;
-    bool operator!=(const KontsevichGraphSum<T>& other) const;
     KontsevichGraphSum<T>& operator+=(const KontsevichGraphSum<T>& rhs);
     KontsevichGraphSum<T>& operator-=(const KontsevichGraphSum<T>& rhs);
     KontsevichGraphSum<T>& operator=(const KontsevichGraphSum<T>&) = default;
     std::vector< std::vector<size_t> > in_degrees(bool ascending = false) const;
-    KontsevichGraphSum<T> operator[](std::vector<size_t> indegrees) const;
-    T operator[](KontsevichGraph) const;
     KontsevichGraphSum<T> skew_symmetrization() const;
+    void reduce();
+    void reduce_mod_permutations();
+    bool operator==(const KontsevichGraphSum<T>& other) const;
+    bool operator==(int other) const;
+    bool operator!=(const KontsevichGraphSum<T>& other) const;
 
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>::Term& term);
     friend std::ostream& operator<< <>(std::ostream& os, const KontsevichGraphSum<T>& gs);

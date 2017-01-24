@@ -21,33 +21,33 @@ class KontsevichGraph
 
     KontsevichGraph() = default;
     KontsevichGraph(size_t internal, size_t external, std::vector<VertexPair> targets, int sign = 1, bool normalized = false);
-    void normalize();
-    std::vector<Vertex> internal_vertices() const;
     std::vector<VertexPair> targets() const;
     VertexPair targets(Vertex internal_vertex) const;
     int sign() const;
     int sign(int new_sign);
-    std::pair< size_t, std::vector<VertexPair> > abs() const;
     size_t internal() const;
     size_t external() const;
     size_t vertices() const;
+    std::vector<Vertex> internal_vertices() const;
+    std::pair< size_t, std::vector<VertexPair> > abs() const;
     size_t multiplicity() const;
-    bool is_zero() const;
     size_t in_degree(KontsevichGraph::Vertex vertex) const;
     std::vector<size_t> in_degrees() const;
     std::vector<Vertex> neighbors_in(Vertex vertex) const;
-    bool operator<(const KontsevichGraph& rhs) const;
-    KontsevichGraph& operator*=(const KontsevichGraph& rhs);
-    bool is_prime() const;
     KontsevichGraph mirror_image() const;
-    bool positive_differential_order() const;
     std::string as_sage_expression() const;
     std::string encoding() const;
+    std::vector< std::tuple<KontsevichGraph, int, int> > permutations() const;
+    void normalize();
+    KontsevichGraph& operator*=(const KontsevichGraph& rhs);
+    bool operator<(const KontsevichGraph& rhs) const;
+    bool is_zero() const;
+    bool is_prime() const;
+    bool positive_differential_order() const;
     bool has_cycles() const;
     bool has_tadpoles() const;
     bool has_multiple_edges() const;
     bool has_max_internal_indegree(size_t max_indegree) const;
-    std::vector< std::tuple<KontsevichGraph, int, int> > permutations() const;
 
     static std::set<KontsevichGraph> graphs(size_t internal, size_t external = 2, bool modulo_signs = false, bool modulo_mirror_images = false, std::function<void(KontsevichGraph)> const& callback = nullptr, std::function<bool(KontsevichGraph)> const& filter = nullptr);
 

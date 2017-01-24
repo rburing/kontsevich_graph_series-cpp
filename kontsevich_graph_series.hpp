@@ -19,15 +19,15 @@ class KontsevichGraphSeries : public std::map< size_t, KontsevichGraphSum<T> >
     public:
     size_t precision() const;
     size_t precision(size_t new_precision);
-    void reduce();
-    void reduce_mod_permutations();
     KontsevichGraphSeries<T> operator()(std::vector< KontsevichGraphSeries<T> > arguments) const;
     KontsevichGraphSeries<T>& operator+=(const KontsevichGraphSeries<T>& rhs);
     KontsevichGraphSeries<T>& operator-=(const KontsevichGraphSeries<T>& rhs);
-    bool operator==(int other) const;
     KontsevichGraphSeries<T> skew_symmetrization() const;
     KontsevichGraphSeries<T> inverse() const;
     KontsevichGraphSeries<T> gauge_transform(const KontsevichGraphSeries<T>& gauge);
+    bool operator==(int other) const;
+    void reduce();
+    void reduce_mod_permutations();
 
     static KontsevichGraphSeries<T> from_istream(std::istream& is, std::function<T(std::string)> const& parser, std::function<bool(KontsevichGraph, size_t)> const& filter = nullptr);
 
