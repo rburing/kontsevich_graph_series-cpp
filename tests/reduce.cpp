@@ -10,11 +10,15 @@ using namespace GiNaC;
 
 int main(int argc, char* argv[])
 {
-    if (argc != 2)
+    if (argc != 2 && argc != 3)
     {
-        cout << "Usage: " << argv[0] << " <graph-series-filename>\n";
+        cout << "Usage: " << argv[0] << " <graph-series-filename> [--print-differential-orders]\n";
         return 1;
     }
+
+    bool print_differential_orders = false;
+    if (argc == 3 && string(argv[2]) == "--print-differential-orders")
+        print_differential_orders = true;
     
     // Reading in graph series:
     string graph_series_filename(argv[1]);
@@ -25,10 +29,21 @@ int main(int argc, char* argv[])
 
     for (size_t n = 0; n <= graph_series.precision(); ++n)
     {
-        cout << "h^" << n << ":\n";
-        for (auto& term : graph_series[n])
+        if (graph_series[n] != 0 || n == graph_series.precision())
+            cout << "h^" << n << ":\n";
+        for (auto& indegree : graph_series[n].in_degrees(true))
         {
-            cout << term.second.encoding() << "    " << term.first << "\n";
+            if (print_differential_orders)
+            {
+                cout << "# ";
+                for (size_t in : indegree)
+                    cout << in << " ";
+                cout << "\n";
+            }
+            for (auto& term : graph_series[n][indegree])
+            {
+                cout << term.second.encoding() << "    " << term.first << "\n";
+            }
         }
     }
 }
