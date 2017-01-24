@@ -8,10 +8,14 @@ int main(int argc, char* argv[])
 {
     std::function<int(void)> usage = [argv]() {
         cerr << "Usage: " << argv[0] << " <internal> [external] [graph-options] [additional-options]\n\n"
-             << "Available graph-options: --prime --zero --positive-differential-order\n"
+             << "Available graph-options: --prime, --zero, --positive-differential-order\n"
              << "Possible graph-option values: yes, no.\n"
              << "Omitting a graph-option indicates indifference.\n"
-             << "Additional options: --with-coefficients (default: no), --modulo-mirror-images (default: no), --normal-forms (default: no)\n"
+             << "Additional options:\n"
+             << "  --with-coefficients (default: no),\n"
+             << "  --modulo-mirror-images (default: no),\n"
+             << "  --normal-forms (default: no)\n"
+             << "  --basic (default: no; if yes, overrides graph-options, --normal-forms, and --modulo-mirror-images)\n"
              << "Example: " << argv[0] << " 3 --prime=yes --normal-forms=yes --modulo-mirror-images=yes\n";
         return 1;
     };
@@ -50,6 +54,7 @@ int main(int argc, char* argv[])
     map< string, Answer > option_values = { { "prime",                       Answer::Indifferent },
                                             { "zero",                        Answer::Indifferent },
                                             { "positive-differential-order", Answer::Indifferent },
+                                            { "basic",                       Answer::No },
                                             { "with-coefficients",           Answer::No },
                                             { "normal-forms",                Answer::No },
                                             { "modulo-mirror-images",        Answer::No } };
@@ -75,6 +80,15 @@ int main(int argc, char* argv[])
                 return 1;
             }
         }
+    }
+
+    if (option_values["basic"] == Answer::Yes)
+    {
+        option_values["prime"] = Answer::Yes;
+        option_values["zero"] = Answer::Indifferent;
+        option_values["positive-differential-order"] = Answer::Yes;
+        option_values["modulo-mirror-images"] = Answer::Yes;
+        option_values["normal-forms"] = Answer::Yes;
     }
 
     size_t counter = 0;
