@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
              << "Available graph-options: --prime --zero --positive-differential-order\n"
              << "Possible graph-option values: yes, no.\n"
              << "Omitting a graph-option indicates indifference.\n"
-             << "Additional options: --modulo-mirror-images (default: no), --normal-forms (default: no)\n"
+             << "Additional options: --with-coefficients (default: no), --modulo-mirror-images (default: no), --normal-forms (default: no)\n"
              << "Example: " << argv[0] << " 3 --prime=yes --normal-forms=yes --modulo-mirror-images=yes\n";
         return 1;
     };
@@ -50,6 +50,7 @@ int main(int argc, char* argv[])
     map< string, Answer > option_values = { { "prime",                       Answer::Indifferent },
                                             { "zero",                        Answer::Indifferent },
                                             { "positive-differential-order", Answer::Indifferent },
+                                            { "with-coefficients",           Answer::No },
                                             { "normal-forms",                Answer::No },
                                             { "modulo-mirror-images",        Answer::No } };
 
@@ -78,13 +79,19 @@ int main(int argc, char* argv[])
 
     size_t counter = 0;
     KontsevichGraph::graphs(internal, external, option_values["normal-forms"] == Answer::Yes, option_values["modulo-mirror-images"] == Answer::Yes,
-        [internal, &counter](KontsevichGraph g)
+        [internal, &counter, &option_values](KontsevichGraph g)
         {
-            cout << g.encoding() << "    ";
-            if (g.is_zero() || !g.positive_differential_order())
-                cout << "0\n";
-            else
-                cout << "w_" << internal << "_" << (++counter) << "\n";
+            cout << g.encoding();
+            if (option_values["with-coefficients"] == Answer::Yes)
+            {
+                cout << "    ";
+                if (g.is_zero() || !g.positive_differential_order())
+                    cout << "0";
+                else
+                    cout << "w_" << internal << "_" << (++counter);
+            }
+            cout << "\n";
+            cout.flush();
         },
         [&option_values](KontsevichGraph g) -> bool
         {
