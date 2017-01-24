@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 
     size_t counter = 0;
     KontsevichGraph::graphs(internal, external, option_values["normal-forms"] == Answer::Yes, option_values["modulo-mirror-images"] == Answer::Yes,
-        [internal, &counter, &option_values](KontsevichGraph g)
+        [internal, &counter, &option_values](KontsevichGraph& g)
         {
             cout << g.encoding();
             if (option_values["with-coefficients"] == Answer::Yes)
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
             cout << "\n";
             cout.flush();
         },
-        [&option_values](KontsevichGraph g) -> bool
+        [&option_values](KontsevichGraph& g) -> bool
         {
             bool answer = true;
             answer &= (option_values["prime"] == Answer::Indifferent) ||
