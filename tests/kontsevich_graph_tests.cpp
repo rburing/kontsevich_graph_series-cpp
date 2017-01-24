@@ -1,6 +1,7 @@
 #include "../kontsevich_graph_series.hpp"
 #include <iostream>
 #include <sstream>
+#include <cmath>
 using namespace std;
 
 int main()
@@ -105,7 +106,9 @@ int main()
     cout << "\n";
 
     cout << "Generating graphs:\n";
-    std::set<KontsevichGraph> graphs = KontsevichGraph::graphs(3, 2, true, true, nullptr, [](KontsevichGraph g) -> bool { return g.positive_differential_order() && g.is_prime(); });
+    size_t n = 4;
+    size_t num_graphs = 0;
+    std::set<KontsevichGraph> graphs = KontsevichGraph::graphs(n, 2, true, false, nullptr, nullptr);
     for (auto& g : graphs)
     {
         std::vector<KontsevichGraph::VertexPair> targets = g.abs().second;
@@ -113,7 +116,11 @@ int main()
         for (size_t i = 0; i != targets.size(); ++i)
             cout << targets[i].first << " " << targets[i].second << "\t";
         cout << " (sign " << g.sign() << ", ";
-        cout << (g.is_prime() ? "" : "not ") << "prime)";
+        cout << (g.is_prime() ? "" : "not ") << "prime";
+        cout << ", multiplicity " << g.multiplicity() << ")"; 
         cout << "\n";
+        num_graphs += g.multiplicity();
     }
+    cout << "Number of graphs: " << num_graphs << "\n";
+    cout << "(n*(n+1))^n = " << pow(n*(n+1), n) << "\n";
 }
