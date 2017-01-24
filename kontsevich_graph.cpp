@@ -304,7 +304,7 @@ std::string KontsevichGraph::as_sage_expression() const
     return ss.str();
 }
 
-std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t external, bool normal_forms, bool modulo_mirror_images, std::function<void(KontsevichGraph)> const& callback, std::function<bool(KontsevichGraph)> const& filter)
+std::set<KontsevichGraph> KontsevichGraph::graphs(size_t internal, size_t external, bool normal_forms, bool modulo_mirror_images, std::function<void(KontsevichGraph&)> const& callback, std::function<bool(KontsevichGraph&)> const& filter)
 {
     std::set<KontsevichGraph> result;
     std::vector<size_t> ends(2*internal);
