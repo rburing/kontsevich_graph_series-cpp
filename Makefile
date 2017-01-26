@@ -5,7 +5,7 @@ GINAC_LDFLAGS=-lcln -lginac
 EIGEN_CFLAGS=-I/usr/include/eigen3
 
 .PHONY: all
-all: bin bin/kontsevich_graph_tests bin/poisson_make_vanish bin/generate_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_relations bin/reduce bin/invert bin/gauge bin/star_product_associator bin/reduce_mod_jacobi bin/skew_symmetrize bin/reduce_mod_permutations bin/weight_integrands
+all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/poisson_make_vanish bin/generate_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_relations bin/reduce bin/invert bin/gauge bin/star_product_associator bin/reduce_mod_jacobi bin/skew_symmetrize bin/reduce_mod_permutations bin/weight_integrands
 
 bin:
 	mkdir bin
