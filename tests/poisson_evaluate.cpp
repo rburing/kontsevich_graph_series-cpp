@@ -40,10 +40,10 @@ int main(int argc, char* argv[])
                 cout << indegrees[j] << " ";
             cout << "\n";
             
-            map< multi_index, ex > coefficients;
+            map< multi_indexes, ex > coefficients;
             for (auto& term : graph_series[n][indegrees])
             {
-                map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term](multi_index arg_derivatives, GiNaC::ex summand) {
+                map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term](multi_indexes arg_derivatives, GiNaC::ex summand) {
                     ex result = (term.first * summand).expand();
                     coefficients[arg_derivatives] += result;
                 });
