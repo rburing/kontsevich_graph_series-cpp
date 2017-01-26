@@ -23,6 +23,27 @@ int main(int argc, char* argv[])
 
     PoissonStructure const& poisson = poisson_structures[argv[2]];
 
+    cout << "Coordinates: ";
+    for (symbol coordinate : poisson.coordinates)
+        cout << coordinate << " ";
+    cout << "\n";
+    cout << "Poisson structure matrix:\n";
+    cout << "[";
+    for (auto row = poisson.bivector.begin(); row != poisson.bivector.end(); ++row)
+    {
+        cout << "[";
+        for (auto entry = row->begin(); entry != row->end(); ++entry)
+        {
+            cout << *entry;
+            if (entry + 1 != row->end())
+                cout << ", ";
+        }
+        cout << "]";
+        if (row + 1 != poisson.bivector.end())
+            cout << "\n";
+    }
+    cout << "]\n\n";
+
     // Reading in graph series:
     string graph_series_filename(argv[1]);
     ifstream graph_series_file(graph_series_filename);
