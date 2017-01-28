@@ -23,16 +23,14 @@ int main(int argc, char* argv[])
     ex expression = coefficient_reader(string(argv[2]));
 
     for (size_t n = 0; n <= graph_series.precision(); ++n)
-        for (auto& term : graph_series[n])
-            term.first = term.first.coeff(expression);
-
-    graph_series.reduce();
-
-    for (size_t n = 0; n <= graph_series.precision(); ++n)
     {
         if (graph_series[n] != 0 || n == graph_series.precision())
             cout << "h^" << n << ":\n";
         for (auto& term : graph_series[n])
-            cout << term.second.encoding() << "    " << term.first << "\n";
+        {
+            term.first = term.first.coeff(expression);
+            if (term.first != 0)
+                cout << term.second.encoding() << "    " << term.first << "\n";
+        }
     }
 }
