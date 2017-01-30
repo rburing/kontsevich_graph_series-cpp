@@ -160,9 +160,9 @@ void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStr
 
 int main(int argc, char* argv[])
 {
-    if (argc != 3 || poisson_structures.find(argv[2]) == poisson_structures.end())
+    if ((argc != 3 && argc != 4) || poisson_structures.find(argv[2]) == poisson_structures.end())
     {
-        cerr << "Usage: " << argv[0] << " <graph-series-filename> <poisson-structure>\n\n"
+        cerr << "Usage: " << argv[0] << " <graph-series-filename> <poisson-structure> [--linear-solve]\n\n"
              << "Poisson structures can be chosen from the following list:\n";
         for (auto const& entry : poisson_structures)
         {
@@ -170,6 +170,7 @@ int main(int argc, char* argv[])
         }
         return 1;
     }
+    bool solve = argc == 4 && string(argv[3]) == "--linear-solve";
 
     PoissonStructure const& poisson = poisson_structures[argv[2]];
 
@@ -217,13 +218,16 @@ int main(int argc, char* argv[])
             }
         }
     }
-    cout << "Got system of " << linear_system.size() << " linear equations in " << unknowns.nops() << " unknowns.\n";
-    lst linear_system_lst;
-    for (ex eq : linear_system)
-        if (eq.lhs() != eq.rhs()) // not a tautology
-            linear_system_lst.append(eq);
-    cout << "Solving it...\n";
-    for (ex eq : lsolve(linear_system_lst, unknowns))
-        if (eq.lhs() != eq.rhs()) // not a tautology
-            cout << eq << endl;
+    if (solve)
+    {
+        cout << "Got system of " << linear_system.size() << " linear equations in " << unknowns.nops() << " unknowns.\n";
+        lst linear_system_lst;
+        for (ex eq : linear_system)
+            if (eq.lhs() != eq.rhs()) // not a tautology
+                linear_system_lst.append(eq);
+        cout << "Solving it...\n";
+        for (ex eq : lsolve(linear_system_lst, unknowns))
+            if (eq.lhs() != eq.rhs()) // not a tautology
+                cout << eq << endl;
+    }
 }
