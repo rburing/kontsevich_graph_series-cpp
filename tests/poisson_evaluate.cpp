@@ -53,7 +53,8 @@ int main(int argc, char* argv[])
 
     for (size_t n = 0; n <= order; ++n)
     {
-        cout << "h^" << n << ":\n";
+        if (graph_series[n] != 0 || n == order)
+            cout << "h^" << n << ":\n";
         for (std::vector<size_t> indegrees : graph_series[n].in_degrees(true))
         {
             cout << "# ";
