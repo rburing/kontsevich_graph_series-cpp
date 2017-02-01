@@ -18,19 +18,22 @@ double threshold = 1e-5;
 
 int main(int argc, char* argv[])
 {
-    if (argc != 2 && argc != 3 && argc != 4)
+    if (argc != 2 && argc != 3 && argc != 4 && argc != 5)
     {
-        cout << "Usage: " << argv[0] << " <graph-series-filename> [max-jacobiators] [max-jac-indegree]\n\n"
+        cout << "Usage: " << argv[0] << " <graph-series-filename> [max-jacobiators] [max-jac-indegree] [--solve]\n\n"
              << "Accepts only homogeneous power series: graphs with n internal vertices at order n.\n"
-             << "Optional argument max-jacobiators restricts the number of Jacobiators in each generated differential consequence.\n";
+             << "The optional arguments [max-jacobiators] and [max-jac-indegree] restrict the types of differential consequences of Jacobi taken into account:\n"
+             << "- [max-jacobiators] restricts the number of Jacobiators per differential consequence, while\n"
+             << "- [max-jac-indegree] restricts the number of arrows falling on Jacobiators.\n"
+             << "When the optional argument [--solve] is specified, the undetermined variables in the input are added to the linear system to-be-solved.\n";
         return 1;
     }
 
     size_t max_jacobiators = numeric_limits<size_t>::max();
     size_t max_jac_indegree = numeric_limits<size_t>::max();
-    if (argc == 3 || argc == 4)
+    if (argc == 3 || argc == 4 || argc == 5)
         max_jacobiators = stoi(argv[2]);
-    if (argc == 4)
+    if (argc == 4 || argc == 5)
         max_jac_indegree = stoi(argv[3]);
 
     // Reading in graph series
@@ -70,6 +73,11 @@ int main(int argc, char* argv[])
 
     size_t counter = 0;
     std::vector<symbol> coefficient_list;
+
+    if (argc == 5 && string(argv[4]) == "--solve")
+        for (auto namevar : coefficient_reader.get_syms())
+            coefficient_list.push_back(ex_to<symbol>(namevar.second));
+
     std::map<symbol, KontsevichGraph, ex_is_less> kontsevich_jacobi_leibniz_graphs;
 
     for (size_t n = 2; n <= order; ++n) // need at least 2 internal vertices for Jacobi
@@ -240,7 +248,7 @@ int main(int argc, char* argv[])
 
     // Set up sparse matrix linear system
 
-    cerr << "Setting up linear system...\n";
+    cerr << "Setting up linear system for numerical solution...\n";
     size_t rows = equations.nops();
     size_t cols = coefficient_list.size();
 
