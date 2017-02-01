@@ -10,7 +10,8 @@ int main(int argc, char* argv[])
 {
     if (argc != 3)
     {
-        cout << "Usage: " << argv[0] << " <graph-series-filename> <expression>\n";
+        cout << "Usage: " << argv[0] << " <graph-series-filename> <expression>\n\n"
+             << "If <expression>=1, the constant part is taken.\n";
         return 1;
     }
 
@@ -22,13 +23,21 @@ int main(int argc, char* argv[])
 
     ex expression = coefficient_reader(string(argv[2]));
 
+    lst allzero_substitution;
+    if (expression == 1)
+        for (auto named_symbol : coefficient_reader.get_syms())
+            allzero_substitution.append(named_symbol.second==0);
+
     for (size_t n = 0; n <= graph_series.precision(); ++n)
     {
         if (graph_series[n] != 0 || n == graph_series.precision())
             cout << "h^" << n << ":\n";
         for (auto& term : graph_series[n])
         {
-            term.first = term.first.coeff(expression);
+            if (expression == 1)
+                term.first = term.first.subs(allzero_substitution);
+            else
+                term.first = term.first.coeff(expression);
             if (term.first != 0)
                 cout << term.second.encoding() << "    " << term.first << "\n";
         }
