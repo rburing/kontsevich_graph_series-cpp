@@ -145,6 +145,10 @@ int main(int argc, char* argv[])
 
                     KontsevichGraph template_graph(n, external, targets, 1, true);
 
+                    vector<size_t> indegrees = template_graph.in_degrees();
+                    if (in_degrees[n].find(indegrees) == in_degrees[n].end()) // skip terms
+                        continue;
+
                     // Make vector of references to bad targets: those in first part with target >= (n + external - 2*k), the placeholders for the Jacobiators:
                     std::map<KontsevichGraph::Vertex*, int> bad_targets;
                     for (size_t idx = 0; idx != n - 2*k; ++idx) // look for bad targets in first part
@@ -172,7 +176,7 @@ int main(int argc, char* argv[])
                     KontsevichGraphSum<ex> graph_sum;
 
                     // Replace bad targets by Leibniz rule:
-                    map< vector<size_t>, symbol > coefficients;
+                    symbol coefficient("c_" + to_string(k) + "_" + to_string(counter));
                     std::vector<size_t> leibniz_sizes(bad_targets.size(), 2);
                     CartesianProduct leibniz_indices(leibniz_sizes);
                     for (auto leibniz_index = leibniz_indices.begin(); leibniz_index != leibniz_indices.end(); ++leibniz_index)
@@ -194,21 +198,7 @@ int main(int argc, char* argv[])
 
                                 KontsevichGraph graph(n, external, targets);
 
-                                vector<size_t> indegrees = graph.in_degrees();
-
-                                if (in_degrees[n].find(indegrees) == in_degrees[n].end()) // skip terms
-                                    continue;
-
-                                if (coefficients.find(indegrees) == coefficients.end())
-                                {
-                                    string coefficient_name = "c_" + to_string(k) + "_" + to_string(counter) + "_";
-                                    for (size_t j = 0; j != external; ++j)
-                                        coefficient_name += to_string(indegrees[j]);
-                                    symbol coefficient(coefficient_name);
-                                    kontsevich_jacobi_leibniz_graphs[coefficient] = template_graph;
-                                    coefficients[indegrees] = coefficient;
-                                }
-                                graph_sum += KontsevichGraphSum<ex>({ { coefficients[indegrees], graph } });
+                                graph_sum += KontsevichGraphSum<ex>({ { coefficient, graph } });
                             }
                         }
                     }
@@ -217,10 +207,8 @@ int main(int argc, char* argv[])
                     if (graph_sum.size() != 0)
                     {
                         cerr << "\r" << ++counter;
-                        for (auto& pair : coefficients)
-                        {
-                            coefficient_list.push_back(pair.second);
-                        }
+                        coefficient_list.push_back(coefficient);
+                        kontsevich_jacobi_leibniz_graphs[coefficient] = template_graph;
                     }
                     graph_series[n] -= graph_sum;
                 }
