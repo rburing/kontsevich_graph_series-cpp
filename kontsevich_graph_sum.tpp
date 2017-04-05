@@ -188,7 +188,7 @@ std::vector< std::vector<size_t> > KontsevichGraphSum<T>::in_degrees(bool ascend
     }
     if (ascending)
         sort(indegrees.begin(), indegrees.end(),
-               [&indegree_counts](std::vector<size_t>& indegree1, std::vector<size_t>& indegree2) {
+               [&indegree_counts](std::vector<size_t> indegree1, std::vector<size_t> indegree2) {
                   return indegree_counts[indegree1] < indegree_counts[indegree2];
                });
     return indegrees;
