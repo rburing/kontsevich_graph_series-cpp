@@ -45,6 +45,8 @@ template <class T>
 KontsevichGraphSum<T> operator-(KontsevichGraphSum<T> lhs, const KontsevichGraphSum<T>& rhs);
 template <class T>
 KontsevichGraphSum<T> operator*(T lhs, KontsevichGraphSum<T> rhs);
+template <class T>
+KontsevichGraphSum<T> schouten_bracket(const KontsevichGraphSum<T>& left, const KontsevichGraphSum<T>& right);
 
 #include "kontsevich_graph_sum.tpp"
 

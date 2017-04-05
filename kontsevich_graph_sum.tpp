@@ -1,6 +1,7 @@
 #include "kontsevich_graph_sum.hpp"
 #include "util/cartesian_product.hpp"
 #include "util/sort_pairs.hpp"
+#include "util/factorial.hpp"
 #include <algorithm>
 #include <map>
 
@@ -346,4 +347,38 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::skew_symmetrization() const
         }
     }
     return total;
+}
+
+template <class T>
+KontsevichGraphSum<T> schouten_bracket(const KontsevichGraphSum<T>& left, const KontsevichGraphSum<T>& right)
+{
+    // TODO check if inputs are polyvectors (indegree = 1 for each ground vertex)
+    KontsevichGraphSum<T> result;
+    if (left.size() == 0 || right.size() == 0)
+        return result;
+    size_t k = left.at(0).second.external();
+    size_t l = right.at(0).second.external();
+    KontsevichGraphSum<T> dot = { { 1, KontsevichGraph(0, 1, {}) } };
+    for (size_t j = 0; j != l; ++j)
+    {
+        T coefficient = (j % 2 == 0) ? 1 : -1;
+        coefficient *= (j*k % 2 == 0) ? 1 : -1;
+        std::vector< KontsevichGraphSum<T> > arguments(l, dot);
+        arguments[j] = left;
+        result += coefficient * right(arguments);
+    }
+    for (size_t i = 0; i != k; ++i)
+    {
+        T coefficient = ((k - 1 - i) % 2 == 0) ? -1 : 1;
+        coefficient *= ((k - 1 - i)*l % 2 == 0) ? 1 : -1;
+        std::vector< KontsevichGraphSum<T> > arguments(k, dot);
+        arguments[i] = right;
+        result += coefficient * left(arguments);
+    }
+    std::vector<size_t> ones(k + l - 1, 1);
+    result = result[ones];
+    T prefactor = 1;
+    prefactor /= factorial(k + l - 1);
+    result = prefactor * result.skew_symmetrization();
+    return result;
 }
