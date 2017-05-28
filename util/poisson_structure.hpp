@@ -9,6 +9,7 @@ struct PoissonStructure
 {
     std::vector<GiNaC::symbol> coordinates;
     std::vector< std::vector<GiNaC::ex> > bivector;
+    // used in poisson_make_vanish:
     enum class Type { Generic, Polynomial, Particular };
     Type type;
 };
