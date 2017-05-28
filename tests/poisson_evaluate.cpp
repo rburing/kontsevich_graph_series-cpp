@@ -1,6 +1,7 @@
 #include "../kontsevich_graph_series.hpp"
 #include "../kontsevich_graph_operator.hpp"
-#include "../util/poisson_structure.hpp" // for poisson_structures
+#include "../util/poisson_structure.hpp"
+#include "../util/poisson_structure_examples.hpp" // for poisson_structures
 #include <ginac/ginac.h>
 #include <iostream>
 #include <vector>
