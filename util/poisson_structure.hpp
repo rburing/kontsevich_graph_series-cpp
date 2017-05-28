@@ -40,6 +40,10 @@ std::map<std::string, PoissonStructure> poisson_structures {
                                     {-u(x,y,z)*phi(x,y,z).diff(z), 0, u(x,y,z)*phi(x,y,z).diff(x) },
                                     { u(x,y,z)*phi(x,y,z).diff(y), -u(x,y,z)*phi(x,y,z).diff(x), 0 } },
                      PoissonStructure::Type::Generic } },
+    {"3d-determinant", { { x, y, z }, { {0, phi(x,y,z).diff(z), -phi(x,y,z).diff(y)},
+                                    {-phi(x,y,z).diff(z), 0, phi(x,y,z).diff(x) },
+                                    { phi(x,y,z).diff(y), -phi(x,y,z).diff(x), 0 } },
+                     PoissonStructure::Type::Generic } },
     {"4d-determinant", { { x1, x2, x3, x4 }, { 
 {0, -(f2(x1,x2,x3,x4).diff(x3)*f3(x1,x2,x3,x4).diff(x4) - f2(x1,x2,x3,x4).diff(x4)*f3(x1,x2,x3,x4).diff(x3)), (f2(x1,x2,x3,x4).diff(x2)*f3(x1,x2,x3,x4).diff(x4) - f2(x1,x2,x3,x4).diff(x4)*f3(x1,x2,x3,x4).diff(x2)), -(f2(x1,x2,x3,x4).diff(x2)*f3(x1,x2,x3,x4).diff(x3)  - f2(x1,x2,x3,x4).diff(x3)*f3(x1,x2,x3,x4).diff(x2))},
 {(f2(x1,x2,x3,x4).diff(x3)*f3(x1,x2,x3,x4).diff(x4) - f2(x1,x2,x3,x4).diff(x4)*f3(x1,x2,x3,x4).diff(x3)), 0, -(f2(x1,x2,x3,x4).diff(x1)*f3(x1,x2,x3,x4).diff(x4) - f2(x1,x2,x3,x4).diff(x4)*f3(x1,x2,x3,x4).diff(x1)), (f2(x1,x2,x3,x4).diff(x1)*f3(x1,x2,x3,x4).diff(x3) - f2(x1,x2,x3,x4).diff(x3)*f3(x1,x2,x3,x4).diff(x1))},
