@@ -37,38 +37,6 @@ void KontsevichGraphSum<T>::reduce()
 }
 
 template <class T>
-void KontsevichGraphSum<T>::reduce_mod_permutations()
-{
-    auto current_term = this->begin();
-    while (current_term < this->end())
-    {
-        current_term->first *= current_term->second.sign();
-        current_term->second.sign(1);
-        std::vector< std::tuple<KontsevichGraph, int, int> > my_permutations = current_term->second.permutations();
-        auto subsequent_term = current_term + 1;
-        while (subsequent_term < this->end())
-        {
-            subsequent_term->first *= subsequent_term->second.sign();
-            subsequent_term->second.sign(1);
-            auto permutation = my_permutations.begin();
-            while (std::get<0>(*permutation) != subsequent_term->second && permutation != my_permutations.end())
-                permutation++;
-            if (permutation != my_permutations.end())
-            {
-                current_term->first -= subsequent_term->first * std::get<1>(*permutation); // TODO: why minus? is it correct?
-                subsequent_term = this->erase(subsequent_term);
-            }
-            else
-                subsequent_term++;
-        }
-        if (current_term->first == 0)
-            current_term = this->erase(current_term);
-        else
-            current_term++;
-    }
-}
-
-template <class T>
 std::ostream& operator<<(std::ostream& os, const std::pair<T, KontsevichGraph>& term)
 {
     os << term.first * term.second.sign() << "*(" << term.second << ")";

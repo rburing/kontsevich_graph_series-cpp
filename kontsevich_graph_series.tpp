@@ -29,20 +29,6 @@ void KontsevichGraphSeries<T>::reduce()
 }
 
 template <class T>
-void KontsevichGraphSeries<T>::reduce_mod_permutations()
-{
-    auto current_term = this->begin();
-    while (current_term != this->end())
-    {
-        current_term->second.reduce_mod_permutations();
-        if (current_term->second.size() == 0)
-            current_term = this->erase(current_term);
-        else
-            ++current_term;
-    }
-}
-
-template <class T>
 KontsevichGraphSeries<T> KontsevichGraphSeries<T>::operator()(std::vector< KontsevichGraphSeries<T> > arguments) const
 {
     KontsevichGraphSeries<T> result;

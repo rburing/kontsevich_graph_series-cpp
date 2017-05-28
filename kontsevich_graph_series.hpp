@@ -28,7 +28,6 @@ class KontsevichGraphSeries : public std::map< size_t, KontsevichGraphSum<T> >
     bool operator==(int other) const;
     bool operator!=(int other) const;
     void reduce();
-    void reduce_mod_permutations();
 
     static KontsevichGraphSeries<T> from_istream(std::istream& is, std::function<T(std::string)> const& parser, std::function<bool(KontsevichGraph, size_t)> const& filter = nullptr);
 
