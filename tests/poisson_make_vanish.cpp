@@ -13,7 +13,7 @@
 using namespace std;
 using namespace GiNaC;
 
-void equations_from_particular_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStructure const& poisson, set<ex, ex_is_less>& linear_system, lst& unknowns, vector<size_t> point)
+void equations_from_particular_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStructure& poisson, set<ex, ex_is_less>& linear_system, lst& unknowns, vector<size_t> point)
 {
     lst point_substitution;
     for (size_t i = 0; i != poisson.coordinates.size(); ++i)
@@ -49,7 +49,7 @@ void equations_from_particular_poisson(KontsevichGraphSum<ex> graph_sum, Poisson
     cerr << "\n";
 }
 
-void equations_from_polynomial_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStructure const& poisson, set<ex, ex_is_less>& linear_system, lst& unknowns)
+void equations_from_polynomial_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStructure& poisson, set<ex, ex_is_less>& linear_system, lst& unknowns)
 {
     typedef std::vector< std::multiset<size_t> > multi_index;
     map< multi_index, ex > coefficients;
@@ -94,7 +94,7 @@ void equations_from_polynomial_poisson(KontsevichGraphSum<ex> graph_sum, Poisson
     cerr << "\n";
 }
 
-void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStructure const& poisson, set<ex, ex_is_less>& linear_system, lst& unknowns)
+void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStructure& poisson, set<ex, ex_is_less>& linear_system, lst& unknowns)
 {
     typedef std::vector< std::multiset<size_t> > multi_index;
     map< multi_index, map<ex, ex, ex_is_less> > coefficients;
@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
     }
     bool solve = argc == 4 && string(argv[3]) == "--linear-solve";
 
-    PoissonStructure const& poisson = poisson_structures[argv[2]];
+    PoissonStructure& poisson = poisson_structures[argv[2]];
 
     // Reading in graph series:
     string graph_series_filename(argv[1]);

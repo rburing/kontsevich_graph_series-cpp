@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    PoissonStructure const& poisson = poisson_structures[argv[2]];
+    PoissonStructure& poisson = poisson_structures[argv[2]];
 
     cout << "Coordinates: ";
     for (symbol coordinate : poisson.coordinates)
