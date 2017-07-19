@@ -7,6 +7,7 @@
 #include <iostream>
 #include <set>
 #include <functional>
+#include "util/sort_pairs.hpp"
 
 class KontsevichGraph
 {
@@ -57,6 +58,24 @@ class KontsevichGraph
     friend bool operator==(const KontsevichGraph &lhs, const KontsevichGraph& rhs);
     friend bool operator!=(const KontsevichGraph &lhs, const KontsevichGraph& rhs);
 };
+
+inline size_t apply_permutation(size_t internal, size_t external, std::vector<KontsevichGraph::VertexPair>& targets, std::vector<KontsevichGraph::Vertex>& permutation)
+{
+    // Relabel elements of target pairs
+    for (size_t i = 0; i != internal; ++i) {
+        targets[i].first = permutation[targets[i].first];
+        targets[i].second = permutation[targets[i].second];
+    }
+    // Apply permutation to list of target pairs
+    std::vector<KontsevichGraph::VertexPair> permuted(targets.size());
+    for (size_t i = 0; i != internal; ++i)
+    {
+        permuted[permutation[external + i] - external] = targets[i];
+    }
+    targets.swap(permuted);
+    // Sort elements of target pairs
+    return sort_pairs(targets.begin(), targets.end());
+}
 
 KontsevichGraph operator*(KontsevichGraph lhs, const KontsevichGraph& rhs);
 

@@ -17,24 +17,6 @@ KontsevichGraph::KontsevichGraph(size_t internal, size_t external, std::vector<K
         normalize();
 }
 
-inline size_t apply_permutation(size_t internal, size_t external, std::vector<KontsevichGraph::VertexPair>& targets, std::vector<KontsevichGraph::Vertex>& permutation)
-{
-    // Relabel elements of target pairs
-    for (size_t i = 0; i != internal; ++i) {
-        targets[i].first = permutation[targets[i].first];
-        targets[i].second = permutation[targets[i].second];
-    }
-    // Apply permutation to list of target pairs
-    std::vector<KontsevichGraph::VertexPair> permuted(targets.size());
-    for (size_t i = 0; i != internal; ++i)
-    {
-        permuted[permutation[external + i] - external] = targets[i];
-    }
-    targets.swap(permuted);
-    // Sort elements of target pairs
-    return sort_pairs(targets.begin(), targets.end());
-}
-
 void KontsevichGraph::normalize()
 {
     // check for double edges
