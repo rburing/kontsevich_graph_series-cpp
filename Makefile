@@ -5,7 +5,7 @@ GINAC_LDFLAGS=-lcln -lginac
 EIGEN_CFLAGS=-I/usr/include/eigen3
 
 .PHONY: all
-all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/poisson_make_vanish bin/generate_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_relations bin/reduce bin/invert bin/gauge bin/star_product_associator bin/reduce_mod_jacobi bin/skew_symmetrize bin/weight_integrands bin/extract_coefficient bin/schouten_bracket bin/operator_latex
+all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/poisson_make_vanish bin/generate_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_relations bin/reduce bin/invert bin/gauge bin/star_product_associator bin/reduce_mod_jacobi bin/skew_symmetrize bin/weight_integrands bin/extract_coefficient bin/schouten_bracket bin/operator_latex bin/reduce_mod_jacobi_iterative
 
 bin:
 	mkdir bin
@@ -21,6 +21,9 @@ bin/%: tests/%.o kontsevich_graph.o
 
 tests/reduce_mod_jacobi.o: tests/reduce_mod_jacobi.cpp
 	$(CC) $(CFLAGS) $(EIGEN_CFLAGS) -c tests/reduce_mod_jacobi.cpp -o tests/reduce_mod_jacobi.o
+
+tests/reduce_mod_jacobi_iterative.o: tests/reduce_mod_jacobi_iterative.cpp
+	$(CC) $(CFLAGS) $(EIGEN_CFLAGS) -c tests/reduce_mod_jacobi_iterative.cpp -o tests/reduce_mod_jacobi_iterative.o
 
 .PHONY: clean
 clean:
