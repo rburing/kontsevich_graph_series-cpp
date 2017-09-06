@@ -211,15 +211,21 @@ int main(int argc, char* argv[])
         cerr << "\nReducing...\n";
         leibniz_graph_series.reduce();
 
-        lst equations;
+        //lst equations;
 
         for (size_t n = 0; n <= order; ++n)
             for (auto& term : leibniz_graph_series[n])
             {
                 cerr << term.second.encoding() << "    " << term.first << "==0\n";
-                equations.append(term.first);
+                //equations.append(term.first);
             }
 
+
+        // TODO: print Leibniz graphs at end (unconditionally)
+        // TODO: don't re-do old graphs
+        // TODO: first Jacobi, then normal form, then Leibniz rule
+
+        /*
         // Set up sparse matrix linear system
 
         cerr << "Setting up linear system for numerical solution...\n";
@@ -323,18 +329,23 @@ int main(int argc, char* argv[])
                 for (auto pair : kontsevich_jacobi_leibniz_graphs)
                     if (pair.second != ex(pair.second).subs(solution_substitution))
                         cout << pair.first.first.encoding() << "    " << pair.second << "==" << ex(pair.second).subs(solution_substitution) << "\n";
-                /*
                 char yesno;
                 cout << "Accept this solution? (Y/N) ";
                 cin >> yesno;
                 if (yesno == 'Y')
                     break;
-                */
                 break;
             }
         }
 
         // TODO: the number of graphs in the reduced sum will stabilize; can check this.
+        */
+
+        char yesno;
+        cout << "Next iteration? (Y/N) ";
+        cin >> yesno;
+        if (yesno != 'Y')
+            break;
 
         graph_series = leibniz_graph_series;
     }
