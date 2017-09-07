@@ -2,7 +2,6 @@
 #include <ginac/ginac.h>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 using namespace std;
 using namespace GiNaC;
 

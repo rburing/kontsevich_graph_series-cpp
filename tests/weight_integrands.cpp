@@ -2,10 +2,7 @@
 #include "../kontsevich_graph_weight.hpp"
 #include <ginac/ginac.h>
 #include <iostream>
-#include <vector>
 #include <fstream>
-#include <limits>
-#include <sstream>
 using namespace std;
 using namespace GiNaC;
 

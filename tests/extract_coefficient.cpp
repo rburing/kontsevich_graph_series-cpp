@@ -1,7 +1,6 @@
 #include "../kontsevich_graph_series.hpp"
 #include <ginac/ginac.h>
 #include <iostream>
-#include <vector>
 #include <fstream>
 using namespace std;
 using namespace GiNaC;

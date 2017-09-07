@@ -1,6 +1,5 @@
 #include "../kontsevich_graph_series.hpp"
 #include <string>
-#include <functional>
 
 using namespace std;
 

@@ -5,7 +5,6 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
-#include <limits>
 
 using namespace std;
 using namespace GiNaC;

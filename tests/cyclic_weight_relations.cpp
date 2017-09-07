@@ -3,8 +3,6 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
-#include <limits>
-#include <sstream>
 
 using namespace std;
 using namespace GiNaC;
