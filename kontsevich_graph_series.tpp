@@ -15,12 +15,12 @@ size_t KontsevichGraphSeries<T>::precision(size_t new_precision)
 }
 
 template <class T>
-void KontsevichGraphSeries<T>::reduce()
+void KontsevichGraphSeries<T>::reduce_mod_skew()
 {
     auto current_term = this->begin();
     while (current_term != this->end())
     {
-        current_term->second.reduce();
+        current_term->second.reduce_mod_skew();
         if (current_term->second.size() == 0)
             current_term = this->erase(current_term);
         else
@@ -159,7 +159,7 @@ bool KontsevichGraphSeries<T>::operator==(int other) const
     if (other != 0)
         return false;
     KontsevichGraphSeries<T> difference = *this;
-    difference.reduce();
+    difference.reduce_mod_skew();
     return difference.size() == 0;
 }
 

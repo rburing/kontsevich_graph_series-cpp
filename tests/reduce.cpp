@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
     ifstream graph_series_file(graph_series_filename);
     parser coefficient_reader;
     KontsevichGraphSeries<ex> graph_series = KontsevichGraphSeries<ex>::from_istream(graph_series_file, [&coefficient_reader](std::string s) -> ex { return coefficient_reader(s); });
-    graph_series.reduce();
+    graph_series.reduce_mod_skew();
 
     for (size_t n = 0; n <= graph_series.precision(); ++n)
     {

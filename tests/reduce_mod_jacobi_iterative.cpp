@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
             break;
         }
     }
-    graph_series.reduce();
+    graph_series.reduce_mod_skew();
 
     size_t counter = 0;
     vector<symbol> coefficient_list;
@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
                             }
                         }
 
-                        graph_sum.reduce();
+                        graph_sum.reduce_mod_skew();
                         if (graph_sum.size() != 0)
                         {
                             cerr << "\r" << ++counter;
@@ -209,7 +209,7 @@ int main(int argc, char* argv[])
         cout.flush();
 
         cerr << "\nReducing...\n";
-        leibniz_graph_series.reduce();
+        leibniz_graph_series.reduce_mod_skew();
 
         //lst equations;
 
@@ -303,7 +303,7 @@ int main(int argc, char* argv[])
 
             cerr << "Reducing zeros...\n";
 
-            leibniz_graph_series_copy.reduce();
+            leibniz_graph_series_copy.reduce_mod_skew();
 
             for (size_t n = 0; n <= leibniz_graph_series_copy.precision(); ++n)
             {
@@ -320,7 +320,7 @@ int main(int argc, char* argv[])
                 for (auto& term : leibniz_graph_series_copy[order.first])
                     term.first = term.first.subs(solution_substitution);
 
-            leibniz_graph_series_copy.reduce();
+            leibniz_graph_series_copy.reduce_mod_skew();
 
             cout << "Do we really have a solution? " << (leibniz_graph_series_copy == 0 ? "Yes" : "No") << "\n";
 
@@ -338,7 +338,7 @@ int main(int argc, char* argv[])
             }
         }
 
-        // TODO: the number of graphs in the reduced sum will stabilize; can check this.
+        // TODO: the number of graphs in the reduce_mod_skew'ed sum will stabilize; can check this.
         */
 
         char yesno;

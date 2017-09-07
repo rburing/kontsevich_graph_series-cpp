@@ -40,13 +40,13 @@ int main()
 
     KontsevichGraphSum<int> gs({ {3, g}, {2, g2}, {1, g2}, {-1, g}, {5, g3} });
     cout << gs << "\n";
-    gs.reduce();
+    gs.reduce_mod_skew();
     cout << gs << "\n";
 
     cout << "Series: ";
     KontsevichGraphSeries<int> star({{0, gs}, {1, gs}});
     star.precision(1);
-    star.reduce();
+    star.reduce_mod_skew();
     cout << star << "\n";
     cout << "Series precision: " << star.precision() << "\n";
 
@@ -54,7 +54,7 @@ int main()
     KontsevichGraph p(1, 2, { {0, 1} });
     KontsevichGraphSum<int> sum({ { 1, p } });
     KontsevichGraphSum<int> composition = sum({ sum, sum });
-    composition.reduce();
+    composition.reduce_mod_skew();
     cout << composition << "\n";
     cout << composition.size() << "\n";
     for (auto& term : composition)
@@ -91,7 +91,7 @@ int main()
     cout << "Total size: " << total.size() << "\n";
     cout << "Do we agree with SAGE? " << (total == composition ? "Yes" : "No") << "\n";
     KontsevichGraphSum<int> difference = composition - total;
-    difference.reduce();
+    difference.reduce_mod_skew();
     cout << "Difference: " << difference << "\n";
     cout << "Difference size: " << difference.size() << "\n";
 
@@ -101,7 +101,7 @@ int main()
     KontsevichGraphSeries<int> oneseries({ {0, onesum} });
     KontsevichGraphSeries<int> pseries({ {0, sum} });
     KontsevichGraphSeries<int> result = pseries ({ oneseries, oneseries });
-    result.reduce();
+    result.reduce_mod_skew();
     cout << result;
     cout << "\n";
 

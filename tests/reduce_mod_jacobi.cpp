@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    graph_series.reduce();
+    graph_series.reduce_mod_skew();
 
     size_t counter = 0;
     std::vector<symbol> coefficient_list;
@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
                         }
                     }
 
-                    graph_sum.reduce();
+                    graph_sum.reduce_mod_skew();
                     if (graph_sum.size() != 0)
                     {
                         cerr << "\r" << ++counter;
@@ -223,7 +223,7 @@ int main(int argc, char* argv[])
     cout.flush();
 
     cerr << "\nReducing...\n";
-    graph_series.reduce();
+    graph_series.reduce_mod_skew();
 
     lst equations;
 
@@ -306,7 +306,7 @@ int main(int argc, char* argv[])
 
     cerr << "Reducing zeros...\n";
 
-    graph_series.reduce();
+    graph_series.reduce_mod_skew();
 
     for (size_t n = 0; n <= graph_series.precision(); ++n)
     {
@@ -323,7 +323,7 @@ int main(int argc, char* argv[])
         for (auto& term : graph_series[order.first])
             term.first = term.first.subs(solution_substitution);
 
-    graph_series.reduce();
+    graph_series.reduce_mod_skew();
 
     cout << "Do we really have a solution? " << (graph_series == 0 ? "Yes" : "No") << "\n";
 

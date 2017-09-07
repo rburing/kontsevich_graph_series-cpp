@@ -6,7 +6,7 @@
 #include <map>
 
 template <class T>
-void KontsevichGraphSum<T>::reduce()
+void KontsevichGraphSum<T>::reduce_mod_skew()
 {
     auto current_term = this->begin();
     while (current_term < this->end())
@@ -71,7 +71,7 @@ template <class T>
 bool KontsevichGraphSum<T>::operator==(const KontsevichGraphSum<T> &other) const
 {
     KontsevichGraphSum<T> difference = *this - other;
-    difference.reduce();
+    difference.reduce_mod_skew();
     return difference.size() == 0;
 }
 
@@ -81,7 +81,7 @@ bool KontsevichGraphSum<T>::operator==(int other) const
     if (other != 0)
         return false;
     KontsevichGraphSum<T> difference = *this;
-    difference.reduce();
+    difference.reduce_mod_skew();
     return difference.size() == 0;
 }
 
