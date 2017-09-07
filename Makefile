@@ -5,7 +5,25 @@ GINAC_LDFLAGS=-lcln -lginac # -L${HOME}/lib
 EIGEN_CFLAGS=# -I${HOME}/src/eigen3
 
 .PHONY: all
-all: bin bin/kontsevich_graph_tests bin/poisson_evaluate bin/poisson_make_vanish bin/generate_graphs bin/star_product bin/cyclic_weight_relations bin/substitute_relations bin/reduce_mod_skew bin/invert bin/gauge bin/star_product_associator bin/reduce_mod_jacobi bin/skew_symmetrize bin/weight_integrands bin/extract_coefficient bin/schouten_bracket bin/operator_latex bin/reduce_mod_jacobi_iterative
+all: bin \
+  bin/kontsevich_graph_tests \
+  bin/poisson_evaluate \
+  bin/poisson_make_vanish \
+  bin/generate_graphs \
+  bin/star_product \
+  bin/cyclic_weight_relations \
+  bin/substitute_relations \
+  bin/reduce_mod_skew \
+  bin/invert \
+  bin/gauge \
+  bin/star_product_associator \
+  bin/reduce_mod_jacobi \
+  bin/skew_symmetrize \
+  bin/weight_integrands \
+  bin/extract_coefficient \
+  bin/schouten_bracket \
+  bin/operator_latex \
+  bin/reduce_mod_jacobi_iterative
 
 bin:
 	mkdir bin
