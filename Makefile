@@ -23,7 +23,8 @@ all: bin \
   bin/extract_coefficient \
   bin/schouten_bracket \
   bin/operator_latex \
-  bin/reduce_mod_jacobi_iterative
+  bin/reduce_mod_jacobi_iterative \
+  bin/reduce_mod_coboundary
 
 bin:
 	mkdir bin
