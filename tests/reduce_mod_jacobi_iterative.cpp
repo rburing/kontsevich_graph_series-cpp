@@ -78,6 +78,9 @@ int main(int argc, char* argv[])
 
     KontsevichGraphSeries<ex> leibniz_graph_series = graph_series;
 
+    // TODO: allow to specify this as a command line option
+    bool skew_leibniz = true;
+
     while (true)
     {
         for (size_t n = 0; n <= order; ++n)
@@ -127,41 +130,55 @@ int main(int argc, char* argv[])
                                                                                            { b, c, a },
                                                                                            { c, a, b } });
                         vector< pair<KontsevichGraph, KontsevichGraph::VertexPair> > leibniz_graphs;
-                        for (auto jacobi_targets_choice : jacobi_targets_choices)
+
+                        vector<KontsevichGraph::Vertex> ground_vertices { 0, 1, 2};
+                        do
                         {
-                            // Set Jacobiator targets to one of the three permutatations
-                            a = jacobi_targets_choice[0];
-                            b = jacobi_targets_choice[1];
-                            c = jacobi_targets_choice[2];
-
-                            vector<KontsevichGraph::VertexPair> d_targets = targets_template;
-
-                            // Find permutation of vertex labels such that the list of targets is minimal with respect to the defined ordering
-                            std::vector<KontsevichGraph::VertexPair> global_minimum = d_targets;
-                            sort_pairs(global_minimum.begin(), global_minimum.end());
-
-                            size_t d_internal = graph.internal();
-                            size_t d_external = graph.external();
-
-                            KontsevichGraph::VertexPair new_vw = {v, w};
-                            std::vector<KontsevichGraph::Vertex> vertices(d_external + d_internal);
-                            std::iota(vertices.begin(), vertices.end(), 0);
-                            while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
+                            for (auto jacobi_targets_choice : jacobi_targets_choices)
                             {
-                                std::vector<KontsevichGraph::VertexPair> local_minimum = d_targets;
-                                apply_permutation(d_internal, d_external, local_minimum, vertices);
-                                if (local_minimum < global_minimum)
-                                {
-                                    global_minimum = local_minimum;
-                                    // Find where Jacobiator is
-                                    new_vw = { vertices[(size_t)v], vertices[(size_t)w] };
-                                }
-                            }
-                            d_targets = global_minimum;
+                                // Set Jacobiator targets to one of the three permutatations
+                                a = jacobi_targets_choice[0];
+                                b = jacobi_targets_choice[1];
+                                c = jacobi_targets_choice[2];
 
-                            KontsevichGraph leibniz_graph(d_targets.size(), d_external, d_targets, 1, true);
-                            leibniz_graphs.push_back({ leibniz_graph, new_vw });
-                        }
+                                vector<KontsevichGraph::VertexPair> d_targets = targets_template;
+
+                                size_t idx = 0;
+                                for (KontsevichGraph::VertexPair& target_pair : d_targets)
+                                {
+                                    if ((size_t)target_pair.first < graph.external())
+                                        target_pair.first = ground_vertices[idx++];
+                                    if ((size_t)target_pair.second < graph.external())
+                                        target_pair.second = ground_vertices[idx++];
+                                }
+
+                                // Find permutation of vertex labels such that the list of targets is minimal with respect to the defined ordering
+                                std::vector<KontsevichGraph::VertexPair> global_minimum = d_targets;
+                                sort_pairs(global_minimum.begin(), global_minimum.end());
+
+                                size_t d_internal = graph.internal();
+                                size_t d_external = graph.external();
+
+                                KontsevichGraph::VertexPair new_vw = {v, w};
+                                std::vector<KontsevichGraph::Vertex> vertices(d_external + d_internal);
+                                std::iota(vertices.begin(), vertices.end(), 0);
+                                while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
+                                {
+                                    std::vector<KontsevichGraph::VertexPair> local_minimum = d_targets;
+                                    apply_permutation(d_internal, d_external, local_minimum, vertices);
+                                    if (local_minimum < global_minimum)
+                                    {
+                                        global_minimum = local_minimum;
+                                        // Find where Jacobiator is
+                                        new_vw = { vertices[(size_t)v], vertices[(size_t)w] };
+                                    }
+                                }
+                                d_targets = global_minimum;
+
+                                KontsevichGraph leibniz_graph(d_targets.size(), d_external, d_targets, 1, true);
+                                leibniz_graphs.push_back({ leibniz_graph, new_vw });
+                            }
+                        } while (skew_leibniz && std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
                         pair< KontsevichGraph, KontsevichGraph::VertexPair> leibniz_normal_form = *min_element(leibniz_graphs.begin(), leibniz_graphs.end());
 
                         if (kontsevich_jacobi_leibniz_graphs.find(leibniz_normal_form) != kontsevich_jacobi_leibniz_graphs.end())
@@ -190,6 +207,9 @@ int main(int argc, char* argv[])
                             }
                         }
 
+                        if (skew_leibniz)
+                            graph_sum = graph_sum.skew_symmetrization();
+
                         graph_sum.reduce_mod_skew();
                         if (graph_sum.size() != 0)
                         {
@@ -211,13 +231,13 @@ int main(int argc, char* argv[])
         cerr << "\nReducing...\n";
         leibniz_graph_series.reduce_mod_skew();
 
-        //lst equations;
+        lst equations;
 
         for (size_t n = 0; n <= order; ++n)
             for (auto& term : leibniz_graph_series[n])
             {
                 cerr << term.second.encoding() << "    " << term.first << "==0\n";
-                //equations.append(term.first);
+                equations.append(term.first);
             }
 
 
@@ -225,13 +245,16 @@ int main(int argc, char* argv[])
         // TODO: don't re-do old graphs
         // TODO: first Jacobi, then normal form, then Leibniz rule
 
+
+        size_t rows = equations.nops();
+        size_t cols = coefficient_list.size();
+
+        cerr << "Got linear system of size " << rows << " x " << cols << ".\n";
+
         /*
         // Set up sparse matrix linear system
 
         cerr << "Setting up linear system for numerical solution...\n";
-        size_t rows = equations.nops();
-        size_t cols = coefficient_list.size();
-
         Eigen::VectorXd b(rows);
         SparseMatrix matrix(rows,cols);
 
@@ -334,7 +357,6 @@ int main(int argc, char* argv[])
                 cin >> yesno;
                 if (yesno == 'Y')
                     break;
-                break;
             }
         }
 
