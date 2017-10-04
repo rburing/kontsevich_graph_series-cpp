@@ -68,11 +68,18 @@ int main(int argc, char* argv[])
     graph_series.reduce_mod_skew();
 
     size_t counter = 0;
-    vector<symbol> coefficient_list;
 
-    if (argc == 4 && string(argv[3]) == "--solve")
-        for (auto namevar : coefficient_reader.get_syms())
-            coefficient_list.push_back(ex_to<symbol>(namevar.second));
+    vector<symbol> unknowns_list;
+    for (auto namevar : coefficient_reader.get_syms())
+        unknowns_list.push_back(ex_to<symbol>(namevar.second));
+
+    if (unknowns_list.size() != 0 && !(argc == 4 && string(argv[3]) == "--solve"))
+    {
+        cerr << "Input contains unknowns; remove them or specify --solve to solve for them.\n";
+        return 1;
+    }
+
+    vector<symbol> coefficient_list = unknowns_list;
 
     map< pair<KontsevichGraph, KontsevichGraph::VertexPair>, symbol> kontsevich_jacobi_leibniz_graphs;
 
@@ -357,6 +364,8 @@ int main(int argc, char* argv[])
                     for (auto pair : kontsevich_jacobi_leibniz_graphs)
                         if (pair.second != ex(pair.second).subs(solution_substitution))
                             cout << pair.first.first.encoding() << "    " << pair.second << "==" << ex(pair.second).subs(solution_substitution) << "\n";
+                    for (auto var : unknowns_list)
+                        cout << var << "==" << ex(var).subs(solution_substitution) << "\n";
                 }
             }
         }
