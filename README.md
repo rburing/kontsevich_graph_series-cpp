@@ -23,7 +23,8 @@ Star product features:
 
 Poisson cohomology features:
 - skew-symmetrize graph series,
-- calculate the Schouten bracket of polyvectorfields given by skew Kontsevich graph series.
+- calculate the Schouten bracket of polyvectorfields given by skew Kontsevich graph series,
+- reduce graph polyvectorfields modulo coboundaries [[P, X]] where X is a graph series.
 
 Dependencies:
 - GiNaC and its dependency CLN, for:
