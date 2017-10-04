@@ -251,122 +251,122 @@ int main(int argc, char* argv[])
 
         cerr << "Got linear system of size " << rows << " x " << cols << ".\n";
 
-        /*
-        // Set up sparse matrix linear system
+        cerr << "Solve? (Y/N) ";
+        char solve;
+        cin >> solve;
 
-        cerr << "Setting up linear system for numerical solution...\n";
-        Eigen::VectorXd b(rows);
-        SparseMatrix matrix(rows,cols);
-
-        vector<Triplet> tripletList;
-        size_t idx = 0;
-        for (ex equation : equations)
+        if (solve == 'Y')
         {
-            if (!is_a<add>(equation))
-                equation = lst(equation);
-            for (ex term : equation)
+            // Set up sparse matrix linear system
+
+            cerr << "Setting up linear system for numerical solution...\n";
+            Eigen::VectorXd b(rows);
+            SparseMatrix matrix(rows,cols);
+
+            vector<Triplet> tripletList;
+            size_t idx = 0;
+            for (ex equation : equations)
             {
-                if (!is_a<mul>(term))
-                    term = lst(term);
-                double prefactor = 1;
-                symbol coefficient("one");
-                for (ex factor : term)
+                if (!is_a<add>(equation))
+                    equation = lst({equation});
+                for (ex term : equation)
                 {
-                    if (is_a<numeric>(factor))
-                        prefactor *= ex_to<numeric>(factor).to_double();
-                    else if (is_a<symbol>(factor))
-                        coefficient = ex_to<symbol>(factor);
+                    if (!is_a<mul>(term))
+                        term = lst({term});
+                    double prefactor = 1;
+                    symbol coefficient("one");
+                    for (ex factor : term)
+                    {
+                        if (is_a<numeric>(factor))
+                            prefactor *= ex_to<numeric>(factor).to_double();
+                        else if (is_a<symbol>(factor))
+                            coefficient = ex_to<symbol>(factor);
+                    }
+                    if (coefficient.get_name() == "one") // constant term
+                        b(idx) = -prefactor;
+                    else
+                        tripletList.push_back(Triplet(idx,find(coefficient_list.begin(), coefficient_list.end(), coefficient) - coefficient_list.begin(), prefactor));
+                        // NB: Eigen uses zero-based indices (contrast MATLAB, Mathematica)
                 }
-                if (coefficient.get_name() == "one") // constant term
-                    b(idx) = -prefactor;
-                else
-                    tripletList.push_back(Triplet(idx,find(coefficient_list.begin(), coefficient_list.end(), coefficient) - coefficient_list.begin(), prefactor));
-                    // NB: Eigen uses zero-based indices (contrast MATLAB, Mathematica)
-            }
-            ++idx;
-        }
-
-        matrix.setFromTriplets(tripletList.begin(), tripletList.end());
-        
-        cerr << "Solving linear system (" << rows << " x " << cols << ") numerically...\n";
-
-        Eigen::SparseQR< SparseMatrix, Eigen::COLAMDOrdering<int> > qr(matrix);
-        Eigen::VectorXd x = qr.solve(b);
-        
-        cerr << "Residual norm = " << (matrix * x - b).squaredNorm() << "\n";
-
-        cerr << "Rounding...\n";
-        x = x.unaryExpr([](double elem) { return fabs(elem) < threshold ? 0.0 : elem; });
-
-        double residual_norm = (matrix * x - b).squaredNorm();
-        cerr << "Still a solution? Residual norm = " << residual_norm << "\n";
-
-        if (!isnan(residual_norm) && residual_norm < 1.0)
-        {
-            cerr << "Approximating numerical solution by rational solution...\n";
-
-            lst zero_substitution;
-            lst solution_substitution;
-            for (int i = 0; i != x.size(); i++)
-            {
-                ex result = best_rational_approximation(x.coeff(i), threshold);
-                if (result == 0)
-                    zero_substitution.append(coefficient_list[i] == 0);
-                else
-                    solution_substitution.append(coefficient_list[i] == result);
+                ++idx;
             }
 
-            cerr << "Substituting zeros...\n";
+            matrix.setFromTriplets(tripletList.begin(), tripletList.end());
+            
+            cerr << "Solving linear system (" << rows << " x " << cols << ") numerically...\n";
 
-            KontsevichGraphSeries<ex> leibniz_graph_series_copy = leibniz_graph_series; // TODO: inefficient?
+            Eigen::SparseQR< SparseMatrix, Eigen::COLAMDOrdering<int> > qr(matrix);
+            Eigen::VectorXd x = qr.solve(b);
+            
+            cerr << "Residual norm = " << (matrix * x - b).squaredNorm() << "\n";
 
-            for (auto& order: leibniz_graph_series_copy)
-                for (auto& term : leibniz_graph_series_copy[order.first])
-                    term.first = term.first.subs(zero_substitution);
+            cerr << "Rounding...\n";
+            x = x.unaryExpr([](double elem) { return fabs(elem) < threshold ? 0.0 : elem; });
 
-            cerr << "Reducing zeros...\n";
+            double residual_norm = (matrix * x - b).squaredNorm();
+            cerr << "Still a solution? Residual norm = " << residual_norm << "\n";
 
-            leibniz_graph_series_copy.reduce_mod_skew();
-
-            for (size_t n = 0; n <= leibniz_graph_series_copy.precision(); ++n)
+            if (!isnan(residual_norm) && residual_norm < 1.0)
             {
-                cout << "h^" << n << ":\n";
-                for (auto& term : leibniz_graph_series_copy[n])
+                cerr << "Approximating numerical solution by rational solution...\n";
+
+                lst zero_substitution;
+                lst solution_substitution;
+                for (int i = 0; i != x.size(); i++)
                 {
-                    cout << term.second.encoding() << "    " << term.first << "\n";
+                    ex result = best_rational_approximation(x.coeff(i), threshold);
+                    if (result == 0)
+                        zero_substitution.append(coefficient_list[i] == 0);
+                    else
+                        solution_substitution.append(coefficient_list[i] == result);
                 }
-            }
 
-            cerr << "Verifying solution...\n";
+                cerr << "Substituting zeros...\n";
 
-            for (auto& order: leibniz_graph_series_copy)
-                for (auto& term : leibniz_graph_series_copy[order.first])
-                    term.first = term.first.subs(solution_substitution);
+                KontsevichGraphSeries<ex> leibniz_graph_series_copy = leibniz_graph_series; // TODO: inefficient?
 
-            leibniz_graph_series_copy.reduce_mod_skew();
+                for (auto& order: leibniz_graph_series_copy)
+                    for (auto& term : leibniz_graph_series_copy[order.first])
+                        term.first = term.first.subs(zero_substitution);
 
-            cout << "Do we really have a solution? " << (leibniz_graph_series_copy == 0 ? "Yes" : "No") << "\n";
+                cerr << "Reducing zeros...\n";
 
-            if (leibniz_graph_series_copy == 0)
-            {
-                for (auto pair : kontsevich_jacobi_leibniz_graphs)
-                    if (pair.second != ex(pair.second).subs(solution_substitution))
-                        cout << pair.first.first.encoding() << "    " << pair.second << "==" << ex(pair.second).subs(solution_substitution) << "\n";
-                char yesno;
-                cout << "Accept this solution? (Y/N) ";
-                cin >> yesno;
-                if (yesno == 'Y')
-                    break;
+                leibniz_graph_series_copy.reduce_mod_skew();
+
+                for (size_t n = 0; n <= leibniz_graph_series_copy.precision(); ++n)
+                {
+                    cout << "h^" << n << ":\n";
+                    for (auto& term : leibniz_graph_series_copy[n])
+                    {
+                        cout << term.second.encoding() << "    " << term.first << "\n";
+                    }
+                }
+
+                cerr << "Verifying solution...\n";
+
+                for (auto& order: leibniz_graph_series_copy)
+                    for (auto& term : leibniz_graph_series_copy[order.first])
+                        term.first = term.first.subs(solution_substitution);
+
+                leibniz_graph_series_copy.reduce_mod_skew();
+
+                cout << "Do we really have a solution? " << (leibniz_graph_series_copy == 0 ? "Yes" : "No") << "\n";
+
+                if (leibniz_graph_series_copy == 0)
+                {
+                    for (auto pair : kontsevich_jacobi_leibniz_graphs)
+                        if (pair.second != ex(pair.second).subs(solution_substitution))
+                            cout << pair.first.first.encoding() << "    " << pair.second << "==" << ex(pair.second).subs(solution_substitution) << "\n";
+                }
             }
         }
 
         // TODO: the number of graphs in the reduce_mod_skew'ed sum will stabilize; can check this.
-        */
 
-        char yesno;
+        char iterate;
         cout << "Next iteration? (Y/N) ";
-        cin >> yesno;
-        if (yesno != 'Y')
+        cin >> iterate;
+        if (iterate != 'Y')
             break;
 
         graph_series = leibniz_graph_series;
