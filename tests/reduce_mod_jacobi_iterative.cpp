@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
         for (size_t n = 0; n <= order; ++n)
             for (auto& term : leibniz_graph_series[n])
             {
-                cerr << term.second.encoding() << "    " << term.first << "==0\n";
+                cout << term.second.encoding() << "    " << term.first << "==0\n";
                 equations.append(term.first);
             }
 
@@ -373,7 +373,7 @@ int main(int argc, char* argv[])
         // TODO: the number of graphs in the reduce_mod_skew'ed sum will stabilize; can check this.
 
         char iterate;
-        cout << "Next iteration? (Y/N) ";
+        cerr << "Next iteration? (Y/N) ";
         cin >> iterate;
         if (iterate != 'Y')
             break;
