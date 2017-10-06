@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
 {
     std::function<int(void)> usage = [argv]() {
         cerr << "Usage: " << argv[0] << " <internal> [external] [graph-options] [additional-options]\n\n"
-             << "Available graph-options: --prime, --zero, --positive-differential-order\n"
+             << "Available graph-options: --prime, --zero, --positive-differential-order, --derivation\n"
              << "Possible graph-option values: yes, no.\n"
              << "Omitting a graph-option indicates indifference.\n"
              << "Additional options:\n"
@@ -53,6 +53,7 @@ int main(int argc, char* argv[])
     map< string, Answer > option_values = { { "prime",                       Answer::Indifferent },
                                             { "zero",                        Answer::Indifferent },
                                             { "positive-differential-order", Answer::Indifferent },
+                                            { "derivation",                  Answer::Indifferent },
                                             { "basic",                       Answer::No },
                                             { "with-coefficients",           Answer::No },
                                             { "normal-forms",                Answer::No },
@@ -86,11 +87,13 @@ int main(int argc, char* argv[])
         option_values["prime"] = Answer::Yes;
         option_values["zero"] = Answer::Indifferent;
         option_values["positive-differential-order"] = Answer::Yes;
+        option_values["derivation"] = Answer::Indifferent;
         option_values["modulo-mirror-images"] = Answer::Yes;
         option_values["normal-forms"] = Answer::Yes;
     }
 
     size_t counter = 0;
+    vector<size_t> ones(external, 1);
     KontsevichGraph::graphs(internal, external, option_values["normal-forms"] == Answer::Yes, option_values["modulo-mirror-images"] == Answer::Yes,
         [internal, &counter, &option_values](KontsevichGraph& g)
         {
@@ -106,9 +109,12 @@ int main(int argc, char* argv[])
             cout << "\n";
             cout.flush();
         },
-        [&option_values](KontsevichGraph& g) -> bool
+        [&option_values, &ones](KontsevichGraph& g) -> bool
         {
             bool answer = true;
+            answer &= (option_values["derivation"] == Answer::Indifferent) ||
+                      (option_values["derivation"] == Answer::Yes && g.in_degrees() == ones) ||
+                      (option_values["derivation"] == Answer::No && g.in_degrees() != ones);
             answer &= (option_values["prime"] == Answer::Indifferent) ||
                       (option_values["prime"] == Answer::Yes && g.is_prime()) ||
                       (option_values["prime"] == Answer::No && !g.is_prime());
