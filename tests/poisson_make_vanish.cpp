@@ -103,13 +103,13 @@ void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStr
                 if (result == 0)
                     return;
                 if (!is_a<add>(result))
-                    result = lst(result);
+                    result = lst({ result });
                 for (auto term : result)
                 {
                     ex coefficient = 1;
                     ex derivatives = 1;
                     if (!is_a<mul>(term))
-                        term = lst(term);
+                        term = lst({ term });
                     for (auto factor : term)
                     {
                         if  (is_a<GiNaC::function>(factor) || is_a<fderivative>(factor))

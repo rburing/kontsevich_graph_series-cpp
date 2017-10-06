@@ -248,11 +248,11 @@ int main(int argc, char* argv[])
     for (ex equation : equations)
     {
         if (!is_a<add>(equation))
-            equation = lst(equation);
+            equation = lst({ equation });
         for (ex term : equation)
         {
             if (!is_a<mul>(term))
-                term = lst(term);
+                term = lst({ term });
             double prefactor = 1;
             symbol coefficient("one");
             for (ex factor : term)
