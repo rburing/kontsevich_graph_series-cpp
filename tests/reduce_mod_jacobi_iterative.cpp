@@ -309,10 +309,6 @@ int main(int argc, char* argv[])
                 equations.append(term.first);
             }
 
-
-        // TODO: first Jacobi, then normal form, then Leibniz rule
-
-
         size_t rows = equations.nops();
         size_t cols = coefficient_list.size();
 
