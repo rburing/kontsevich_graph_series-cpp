@@ -25,10 +25,12 @@ int main(int argc, char* argv[])
              << "Accepts only homogeneous power series: graphs with n internal vertices at order n.\n\n"
              << "--max-jac-indegree=k   restricts the number of arrows falling on Jacobiators to be <= k.\n"
              << "--skew-leibniz         skew-symmetrizes each Leibniz graph before subtracting it with an undetermined coefficient.\n"
-             << "--solve                the undetermined variables in the input are added to the linear system to-be-solved.\n";
+             << "--solve                the undetermined variables in the input are added to the linear system to-be-solved.\n"
+             << "--interactive          ask whether to continue to the next iteration, and whether to solve numerically.\n";
         return 1;
     }
 
+    bool interactive = false;
     bool solve = false;
     size_t max_jac_indegree = numeric_limits<size_t>::max();
     bool skew_leibniz = false;
@@ -54,6 +56,8 @@ int main(int argc, char* argv[])
                 skew_leibniz = true;
             else if (argument == "--solve")
                 solve = true;
+            else if (argument == "--interactive")
+                interactive = true;
             else {
                 cout << "Unrecognized option: " << argument << "\n";
                 return 1;
@@ -68,7 +72,8 @@ int main(int argc, char* argv[])
     else
         cout << max_jac_indegree;
     cout << ", solve = " << (solve ? "yes" : "no")
-         << ", skew-leibniz = " << (skew_leibniz ? "yes" : "no") << "\n";
+         << ", skew-leibniz = " << (skew_leibniz ? "yes" : "no")
+         << ", interactive = " << (interactive ? "yes" : "no") << "\n";
 
     // Reading in graph series
     string graph_series_filename(argv[1]);
@@ -310,9 +315,12 @@ int main(int argc, char* argv[])
 
         cout << "Got linear system of size " << rows << " x " << cols << ".\n";
 
-        cerr << "Solve? (Y/N) ";
-        char solve;
-        cin >> solve;
+        char solve = 'N';
+        if (interactive)
+        {
+            cerr << "Solve? (Y/N) ";
+            cin >> solve;
+        }
 
         if (solve == 'Y')
         {
@@ -424,9 +432,12 @@ int main(int argc, char* argv[])
 
         // TODO: the number of graphs in the reduce_mod_skew'ed sum will stabilize; can check this.
 
-        char iterate;
-        cerr << "Next iteration? (Y/N) ";
-        cin >> iterate;
+        char iterate = 'Y';
+        if (interactive)
+        {
+            cerr << "Next iteration? (Y/N) ";
+            cin >> iterate;
+        }
         if (iterate != 'Y')
             break;
 
