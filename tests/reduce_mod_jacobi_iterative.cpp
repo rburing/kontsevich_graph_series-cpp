@@ -1,4 +1,5 @@
 #include "../kontsevich_graph_series.hpp"
+#include "../leibniz_graph.hpp"
 #include <ginac/ginac.h>
 #include <iostream>
 #include <fstream>
@@ -123,7 +124,7 @@ int main(int argc, char* argv[])
 
     vector<symbol> coefficient_list = unknowns_list;
 
-    map< pair<KontsevichGraph, KontsevichGraph::VertexPair>, symbol> kontsevich_jacobi_leibniz_graphs;
+    map<LeibnizGraph, symbol> leibniz_graphs;
 
     KontsevichGraphSeries<ex> leibniz_graph_series = graph_series;
 
@@ -195,7 +196,7 @@ int main(int argc, char* argv[])
                         vector< vector<KontsevichGraph::Vertex> > jacobi_targets_choices({ { a, b, c },
                                                                                            { b, c, a },
                                                                                            { c, a, b } });
-                        vector< pair<KontsevichGraph, KontsevichGraph::VertexPair> > leibniz_graphs;
+                        vector<LeibnizGraph> my_leibniz_graphs;
 
                         vector<KontsevichGraph::Vertex> ground_vertices { 0, 1, 2};
                         do
@@ -242,12 +243,12 @@ int main(int argc, char* argv[])
                                 d_targets = global_minimum;
 
                                 KontsevichGraph leibniz_graph(d_targets.size(), d_external, d_targets, 1, true);
-                                leibniz_graphs.push_back({ leibniz_graph, new_vw });
+                                my_leibniz_graphs.push_back({ leibniz_graph, { new_vw } });
                             }
                         } while (skew_leibniz && std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
-                        pair< KontsevichGraph, KontsevichGraph::VertexPair> leibniz_normal_form = *min_element(leibniz_graphs.begin(), leibniz_graphs.end());
+                        LeibnizGraph leibniz_normal_form = *min_element(my_leibniz_graphs.begin(), my_leibniz_graphs.end());
 
-                        if (kontsevich_jacobi_leibniz_graphs.find(leibniz_normal_form) != kontsevich_jacobi_leibniz_graphs.end())
+                        if (leibniz_graphs.find(leibniz_normal_form) != leibniz_graphs.end())
                             continue;
 
                         KontsevichGraphSum<ex> graph_sum;
@@ -281,7 +282,7 @@ int main(int argc, char* argv[])
                         {
                             ++counter;
                             coefficient_list.push_back(coefficient);
-                            kontsevich_jacobi_leibniz_graphs[leibniz_normal_form] = coefficient;
+                            leibniz_graphs[leibniz_normal_form] = coefficient;
                         }
                         leibniz_graph_series[n] -= graph_sum;
                     }
@@ -289,7 +290,7 @@ int main(int argc, char* argv[])
             }
         }
 
-        cout << "\nNumber of Leibniz graphs: " << kontsevich_jacobi_leibniz_graphs.size() << "\n";
+        cout << "\nNumber of Leibniz graphs: " << leibniz_graphs.size() << "\n";
         cout << "\nNumber of terms (before reducing): " << leibniz_graph_series[order].size() << "\n";
 
         cout.flush();
@@ -423,7 +424,7 @@ int main(int argc, char* argv[])
 
                 if (leibniz_graph_series_copy == 0)
                 {
-                    for (auto pair : kontsevich_jacobi_leibniz_graphs)
+                    for (auto pair : leibniz_graphs)
                         if (pair.second != ex(pair.second).subs(solution_substitution))
                             cout << pair.first.first.encoding() << "    " << pair.second << "==" << ex(pair.second).subs(solution_substitution) << "\n";
                     for (auto var : unknowns_list)
@@ -447,6 +448,8 @@ int main(int argc, char* argv[])
     }
     cout << "\nConverged in " << step << " steps.\n\n";
     cout << "Leibniz graphs:\n";
-    for (auto pair : kontsevich_jacobi_leibniz_graphs)
-        cout << pair.first.first.encoding() << "   " << pair.first.second.first << " " << pair.first.second.second << "    " << pair.second << "\n";
+    for (auto pair : leibniz_graphs)
+    {
+        cout << pair.first.encoding() << "    " << pair.second << "\n";
+    }
 }
