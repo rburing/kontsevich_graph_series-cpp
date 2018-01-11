@@ -2,6 +2,7 @@
 #include <ginac/ginac.h>
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <limits>
 #include "../util/continued_fraction.hpp"
 #include <Eigen/Dense>
@@ -18,20 +19,56 @@ double threshold = 1e-5;
 
 int main(int argc, char* argv[])
 {
-    if (argc != 2 && argc != 3 && argc != 4)
+    if (argc == 1 || (argc == 2 && string(argv[1]) == "--help"))
     {
-        cout << "Usage: " << argv[0] << " <graph-series-filename> [max-jac-indegree] [--solve]\n\n"
-             << "Accepts only homogeneous power series: graphs with n internal vertices at order n.\n"
-             << "The optional arguments [max-jacobiators] and [max-jac-indegree] restrict the types of differential consequences of Jacobi taken into account:\n"
-             << "- [max-jacobiators] restricts the number of Jacobiators per differential consequence, while\n"
-             << "- [max-jac-indegree] restricts the number of arrows falling on Jacobiators.\n"
-             << "When the optional argument [--solve] is specified, the undetermined variables in the input are added to the linear system to-be-solved.\n";
+        cout << "Usage: " << argv[0] << " <graph-series-filename> [--max-jac-indegree=k] [--skew-leibniz] [--solve]\n\n"
+             << "Accepts only homogeneous power series: graphs with n internal vertices at order n.\n\n"
+             << "--max-jac-indegree=k   restricts the number of arrows falling on Jacobiators to be <= k.\n"
+             << "--skew-leibniz         skew-symmetrizes each Leibniz graph before subtracting it with an undetermined coefficient.\n"
+             << "--solve                the undetermined variables in the input are added to the linear system to-be-solved.\n";
         return 1;
     }
 
+    bool solve = false;
     size_t max_jac_indegree = numeric_limits<size_t>::max();
-    if (argc == 3 || argc == 4)
-        max_jac_indegree = stoi(argv[2]);
+    bool skew_leibniz = false;
+
+    // Process arguments
+    for (int idx = 2; idx < argc; ++idx)
+    {
+        string argument = argv[idx];
+        size_t equals_pos = argument.find('=');
+        if (equals_pos != string::npos)
+        {
+            string key = argument.substr(0, equals_pos);
+            if (key == "--max-jac-indegree")
+                max_jac_indegree = stoi(argument.substr(equals_pos+1));
+            else {
+                cout << "Unrecognized option: " << argument << "\n";
+                return 1;
+            }
+        }
+        else
+        {
+            if (argument == "--skew-leibniz")
+                skew_leibniz = true;
+            else if (argument == "--solve")
+                solve = true;
+            else {
+                cout << "Unrecognized option: " << argument << "\n";
+                return 1;
+            }
+        }
+    }
+
+    cout << "Options: "
+         << "max-jac-indegree = ";
+    if (max_jac_indegree == numeric_limits<size_t>::max())
+        cout << "none";
+    else
+        cout << max_jac_indegree;
+    cout << ", solve = " << (solve ? "yes" : "no")
+         << ", skew-leibniz = " << (skew_leibniz ? "yes" : "no") << "\n";
 
     // Reading in graph series
     string graph_series_filename(argv[1]);
@@ -73,7 +110,7 @@ int main(int argc, char* argv[])
     for (auto namevar : coefficient_reader.get_syms())
         unknowns_list.push_back(ex_to<symbol>(namevar.second));
 
-    if (unknowns_list.size() != 0 && !(argc == 4 && string(argv[3]) == "--solve"))
+    if (unknowns_list.size() != 0 && !solve)
     {
         cerr << "Input contains unknowns; remove them or specify --solve to solve for them.\n";
         return 1;
@@ -86,9 +123,6 @@ int main(int argc, char* argv[])
     KontsevichGraphSeries<ex> leibniz_graph_series = graph_series;
 
     set<KontsevichGraph> processed_graphs;
-
-    // TODO: allow to specify this as a command line option
-    bool skew_leibniz = true;
 
     while (true)
     {
