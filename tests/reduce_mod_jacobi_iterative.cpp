@@ -129,8 +129,12 @@ int main(int argc, char* argv[])
 
     set<KontsevichGraph> processed_graphs;
 
-    while (true)
+    bool converged = false;
+    size_t step = 0;
+    while (!converged)
     {
+        ++step;
+        size_t old_counter = counter;
         for (size_t n = 0; n <= order; ++n)
         {
             size_t termcounter = 0;
@@ -305,8 +309,6 @@ int main(int argc, char* argv[])
             }
 
 
-        // TODO: print Leibniz graphs at end (unconditionally)
-        // TODO: don't re-do old graphs
         // TODO: first Jacobi, then normal form, then Leibniz rule
 
 
@@ -430,8 +432,6 @@ int main(int argc, char* argv[])
             }
         }
 
-        // TODO: the number of graphs in the reduce_mod_skew'ed sum will stabilize; can check this.
-
         char iterate = 'Y';
         if (interactive)
         {
@@ -442,5 +442,11 @@ int main(int argc, char* argv[])
             break;
 
         graph_series = leibniz_graph_series;
+
+        converged = counter == old_counter;
     }
+    cout << "\nConverged in " << step << " steps.\n\n";
+    cout << "Leibniz graphs:\n";
+    for (auto pair : kontsevich_jacobi_leibniz_graphs)
+        cout << pair.first.first.encoding() << "   " << pair.first.second.first << " " << pair.first.second.second << "    " << pair.second << "\n";
 }
