@@ -18,13 +18,14 @@ void equations_from_particular_poisson(KontsevichGraphSum<ex> graph_sum, Poisson
         point_substitution.append(poisson.coordinates[i] == point[i]);
     typedef std::vector< std::multiset<size_t> > multi_index;
     map< multi_index, ex > coefficients;
+    size_t count = 0;
     for (auto& term : graph_sum)
     {
         map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term, &point_substitution](multi_index arg_derivatives, GiNaC::ex summand) {
             ex result = (term.first * summand).subs(point_substitution).expand();
             coefficients[arg_derivatives] += result;
         });
-        cerr << ".";
+        cerr << "\r" << ++count << " / " << graph_sum.size();
     }
     for (auto& entry : coefficients)
     {
@@ -51,13 +52,14 @@ void equations_from_polynomial_poisson(KontsevichGraphSum<ex> graph_sum, Poisson
 {
     typedef std::vector< std::multiset<size_t> > multi_index;
     map< multi_index, ex > coefficients;
+    size_t count = 0;
     for (auto& term : graph_sum)
     {
         map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term](multi_index arg_derivatives, GiNaC::ex summand) {
             ex result = (term.first * summand).expand();
             coefficients[arg_derivatives] += result;
         });
-        cerr << ".";
+        cerr << "\r" << ++count << " / " << graph_sum.size();
     }
     for (auto& entry : coefficients)
     {
@@ -96,6 +98,7 @@ void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStr
 {
     typedef std::vector< std::multiset<size_t> > multi_index;
     map< multi_index, map<ex, ex, ex_is_less> > coefficients;
+    size_t count = 0;
     for (auto& term : graph_sum)
     {
         map_operator_coefficients_from_graph(term.second, poisson, [&coefficients, &term](multi_index arg_derivatives, GiNaC::ex summand) {
@@ -131,7 +134,7 @@ void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStr
                     coefficients[arg_derivatives][derivatives] += coefficient;
                 }
         });
-        cerr << ".";
+        cerr << "\r" << ++count << " / " << graph_sum.size();
     }
     for (auto pair : coefficients)
     {
