@@ -85,6 +85,8 @@ int main(int argc, char* argv[])
 
     KontsevichGraphSeries<ex> leibniz_graph_series = graph_series;
 
+    set<KontsevichGraph> processed_graphs;
+
     // TODO: allow to specify this as a command line option
     bool skew_leibniz = true;
 
@@ -92,10 +94,24 @@ int main(int argc, char* argv[])
     {
         for (size_t n = 0; n <= order; ++n)
         {
+            size_t termcounter = 0;
             for (auto& term : graph_series[n])
             {
+                cerr << "\rProcessing term " << ++termcounter << " / " << graph_series[n].size() << ". ";
+                if (skew_leibniz)
+                    cerr << "Skew-";
+                cerr << "Leibniz graphs so far: " << counter;
+
                 KontsevichGraph& graph = term.second;
-                // Note: we ignore the coefficient and sign of the graph
+
+                // Check if this graph has already been processed
+                // TODO: optimization: take minimum of skew symmetrization, if skew_leibniz
+                if (find(processed_graphs.begin(), processed_graphs.end(), graph) != processed_graphs.end())
+                    continue;
+
+                // Use that the graph series is reduced (graphs are in normal form with sign +1)
+                processed_graphs.insert(graph);
+
                 for (KontsevichGraph::Vertex v : graph.internal_vertices())
                 {
                     for (KontsevichGraph::Vertex w : graph.neighbors_in(v))
@@ -220,7 +236,7 @@ int main(int argc, char* argv[])
                         graph_sum.reduce_mod_skew();
                         if (graph_sum.size() != 0)
                         {
-                            cerr << "\r" << ++counter;
+                            ++counter;
                             coefficient_list.push_back(coefficient);
                             kontsevich_jacobi_leibniz_graphs[leibniz_normal_form] = coefficient;
                         }
@@ -231,12 +247,14 @@ int main(int argc, char* argv[])
         }
 
         cout << "\nNumber of Leibniz graphs: " << kontsevich_jacobi_leibniz_graphs.size() << "\n";
-        cout << "\nNumber of terms: " << leibniz_graph_series[order].size() << "\n";
+        cout << "\nNumber of terms (before reducing): " << leibniz_graph_series[order].size() << "\n";
 
         cout.flush();
 
         cerr << "\nReducing...\n";
         leibniz_graph_series.reduce_mod_skew();
+
+        cout << "\nNumber of terms (after reducing): " << leibniz_graph_series[order].size() << "\n";
 
         lst equations;
 
@@ -256,7 +274,7 @@ int main(int argc, char* argv[])
         size_t rows = equations.nops();
         size_t cols = coefficient_list.size();
 
-        cerr << "Got linear system of size " << rows << " x " << cols << ".\n";
+        cout << "Got linear system of size " << rows << " x " << cols << ".\n";
 
         cerr << "Solve? (Y/N) ";
         char solve;
