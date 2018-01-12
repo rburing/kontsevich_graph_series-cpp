@@ -26,6 +26,8 @@ int main(int argc, char* argv[])
              << "Accepts only homogeneous power series: graphs with n internal vertices at order n.\n\n"
              << "--max-jac-indegree=k   restricts the number of arrows falling on Jacobiators to be <= k.\n"
              << "--skew-leibniz         skew-symmetrizes each Leibniz graph before subtracting it with an undetermined coefficient.\n"
+             << "--leibniz-in=filename  input graph series already contains Leibniz graphs, with encodings in filename.\n"
+             << "--coeff-prefix=c       let the coefficients of leibniz graphs be c_n.\n"
              << "--solve                the undetermined variables in the input are added to the linear system to-be-solved.\n"
              << "--interactive          ask whether to continue to the next iteration, and whether to solve numerically.\n";
         return 1;
@@ -35,6 +37,8 @@ int main(int argc, char* argv[])
     bool solve = false;
     size_t max_jac_indegree = numeric_limits<size_t>::max();
     bool skew_leibniz = false;
+    string leibniz_in_filename = "";
+    string coefficient_prefix = "c";
 
     // Process arguments
     for (int idx = 2; idx < argc; ++idx)
@@ -44,8 +48,13 @@ int main(int argc, char* argv[])
         if (equals_pos != string::npos)
         {
             string key = argument.substr(0, equals_pos);
+            string value = argument.substr(equals_pos+1);
             if (key == "--max-jac-indegree")
-                max_jac_indegree = stoi(argument.substr(equals_pos+1));
+                max_jac_indegree = stoi(value);
+            else if (key == "--coeff-prefix")
+                coefficient_prefix = value;
+            else if (key == "--leibniz-in")
+                leibniz_in_filename = value;
             else {
                 cout << "Unrecognized option: " << argument << "\n";
                 return 1;
@@ -74,12 +83,27 @@ int main(int argc, char* argv[])
         cout << max_jac_indegree;
     cout << ", solve = " << (solve ? "yes" : "no")
          << ", skew-leibniz = " << (skew_leibniz ? "yes" : "no")
+         << ", leibniz-in = " << (leibniz_in_filename == "" ? "none" : leibniz_in_filename)
+         << ", coeff-prefix = " << coefficient_prefix
          << ", interactive = " << (interactive ? "yes" : "no") << "\n";
+
+    // Reading in Leibniz graphs
+    parser coefficient_reader;
+    map<LeibnizGraph, symbol> leibniz_graphs;
+
+    if (leibniz_in_filename != "")
+    {
+        ifstream leibniz_in_file(leibniz_in_filename);
+        leibniz_graphs = LeibnizGraph::map_from_istream<symbol>(leibniz_in_file,
+                                                                [&coefficient_reader](string s) -> symbol
+                                                                {
+                                                                    return ex_to<symbol>(coefficient_reader(s));
+                                                                });
+    }
 
     // Reading in graph series
     string graph_series_filename(argv[1]);
     ifstream graph_series_file(graph_series_filename);
-    parser coefficient_reader;
     bool homogeneous = true;
     map<size_t, set< vector<size_t> > > in_degrees;
     KontsevichGraphSeries<ex> graph_series = KontsevichGraphSeries<ex>::from_istream(graph_series_file,
@@ -110,8 +134,6 @@ int main(int argc, char* argv[])
     }
     graph_series.reduce_mod_skew();
 
-    size_t counter = 0;
-
     vector<symbol> unknowns_list;
     for (auto namevar : coefficient_reader.get_syms())
         unknowns_list.push_back(ex_to<symbol>(namevar.second));
@@ -124,12 +146,11 @@ int main(int argc, char* argv[])
 
     vector<symbol> coefficient_list = unknowns_list;
 
-    map<LeibnizGraph, symbol> leibniz_graphs;
-
     KontsevichGraphSeries<ex> leibniz_graph_series = graph_series;
 
     set<KontsevichGraph> processed_graphs;
 
+    size_t counter = 0;
     bool converged = false;
     size_t step = 0;
     while (!converged)
@@ -188,7 +209,7 @@ int main(int argc, char* argv[])
                         if (bad_targets.size() > max_jac_indegree)
                             continue;
 
-                        symbol coefficient("c_" + to_string(counter));
+                        symbol coefficient(coefficient_prefix + "_" + to_string(counter));
 
                         // Normal form of Leibniz graph (three permutations of Jacobi, take minimal encoding, remember where Jacobiator is)
                         for (auto& bad_target : bad_targets)
