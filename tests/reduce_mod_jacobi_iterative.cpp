@@ -463,7 +463,8 @@ int main(int argc, char* argv[])
 
         converged = counter == old_counter;
     }
-    cout << "\nConverged in " << step << " steps.\n\n";
+    if (converged)
+        cout << "\nConverged in " << step << " steps.\n\n";
     if (skew_leibniz)
         cout << "Skew-";
     cout << "Leibniz graphs:\n";
