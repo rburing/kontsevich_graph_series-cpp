@@ -100,6 +100,9 @@ int main(int argc, char* argv[])
                                                                     return ex_to<symbol>(coefficient_reader(s));
                                                                 });
     }
+    std::vector<symbol> leibniz_coeffs;
+    for (auto const& pair : leibniz_graphs)
+        leibniz_coeffs.push_back(pair.second);
 
     // Reading in graph series
     string graph_series_filename(argv[1]);
@@ -136,7 +139,8 @@ int main(int argc, char* argv[])
 
     vector<symbol> unknowns_list;
     for (auto const& namevar : coefficient_reader.get_syms())
-        unknowns_list.push_back(ex_to<symbol>(namevar.second));
+        if (find(leibniz_coeffs.begin(), leibniz_coeffs.end(), namevar.second) == leibniz_coeffs.end())
+            unknowns_list.push_back(ex_to<symbol>(namevar.second));
 
     if (unknowns_list.size() != 0 && !solve)
     {
@@ -145,6 +149,8 @@ int main(int argc, char* argv[])
     }
 
     vector<symbol> coefficient_list = unknowns_list;
+    coefficient_list.reserve(leibniz_coeffs.size());
+    coefficient_list.insert(coefficient_list.end(), leibniz_coeffs.begin(), leibniz_coeffs.end());
 
     KontsevichGraphSeries<ex> leibniz_graph_series = graph_series;
 
