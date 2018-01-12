@@ -4,7 +4,8 @@
 #include "kontsevich_graph.hpp"
 #include <vector>
 #include <string>
-#include <sstream>
+#include <map>
+#include <istream>
 
 class LeibnizGraph : public std::pair<KontsevichGraph, std::vector<KontsevichGraph::VertexPair> >
 {
@@ -12,6 +13,9 @@ class LeibnizGraph : public std::pair<KontsevichGraph, std::vector<KontsevichGra
 
 public:
     std::string encoding() const;
+    template<class T> static std::map<LeibnizGraph, T> map_from_istream(std::istream& is, std::function<T(std::string)> const& parser = nullptr);
+private:
+    friend std::istream& operator>>(std::istream& is, LeibnizGraph& g);
 };
 
 #include "leibniz_graph.tpp"
