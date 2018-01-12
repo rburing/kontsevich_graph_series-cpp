@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
     graph_series.reduce_mod_skew();
 
     vector<symbol> unknowns_list;
-    for (auto namevar : coefficient_reader.get_syms())
+    for (auto const& namevar : coefficient_reader.get_syms())
         unknowns_list.push_back(ex_to<symbol>(namevar.second));
 
     if (unknowns_list.size() != 0 && !solve)
@@ -219,7 +219,8 @@ int main(int argc, char* argv[])
                                                                                            { c, a, b } });
                         vector<LeibnizGraph> my_leibniz_graphs;
 
-                        vector<KontsevichGraph::Vertex> ground_vertices { 0, 1, 2};
+                        vector<KontsevichGraph::Vertex> ground_vertices(external);
+                        std::iota(ground_vertices.begin(), ground_vertices.end(), 0);
                         do
                         {
                             for (auto jacobi_targets_choice : jacobi_targets_choices)
@@ -231,13 +232,12 @@ int main(int argc, char* argv[])
 
                                 vector<KontsevichGraph::VertexPair> d_targets = targets_template;
 
-                                size_t idx = 0;
                                 for (KontsevichGraph::VertexPair& target_pair : d_targets)
                                 {
                                     if ((size_t)target_pair.first < graph.external())
-                                        target_pair.first = ground_vertices[idx++];
+                                        target_pair.first = ground_vertices[target_pair.first];
                                     if ((size_t)target_pair.second < graph.external())
-                                        target_pair.second = ground_vertices[idx++];
+                                        target_pair.second = ground_vertices[target_pair.second];
                                 }
 
                                 // Find permutation of vertex labels such that the list of targets is minimal with respect to the defined ordering
