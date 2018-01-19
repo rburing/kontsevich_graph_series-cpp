@@ -27,6 +27,7 @@ int main(int argc, char* argv[])
              << "--max-jac-indegree=k   restricts the number of arrows falling on Jacobiators to be <= k.\n"
              << "--skew-leibniz         skew-symmetrizes each Leibniz graph before subtracting it with an undetermined coefficient.\n"
              << "--leibniz-in=filename  input graph series already contains Leibniz graphs, with encodings in filename.\n"
+             << "--leibniz-out=filename store Leibniz graph encodings in filename.\n"
              << "--coeff-prefix=c       let the coefficients of leibniz graphs be c_n.\n"
              << "--solve                the undetermined variables in the input are added to the linear system to-be-solved.\n"
              << "--interactive          ask whether to continue to the next iteration, and whether to solve numerically.\n";
@@ -38,6 +39,7 @@ int main(int argc, char* argv[])
     size_t max_jac_indegree = numeric_limits<size_t>::max();
     bool skew_leibniz = false;
     string leibniz_in_filename = "";
+    string leibniz_out_filename = "";
     string coefficient_prefix = "c";
 
     // Process arguments
@@ -55,6 +57,8 @@ int main(int argc, char* argv[])
                 coefficient_prefix = value;
             else if (key == "--leibniz-in")
                 leibniz_in_filename = value;
+            else if (key == "--leibniz-out")
+                leibniz_out_filename = value;
             else {
                 cout << "Unrecognized option: " << argument << "\n";
                 return 1;
@@ -473,9 +477,20 @@ int main(int argc, char* argv[])
         cout << "\nConverged in " << step << " steps.\n\n";
     if (skew_leibniz)
         cout << "Skew-";
-    cout << "Leibniz graphs:\n";
+    cout << "Leibniz graphs:";
+    ostream* leibniz_out_stream = &cout;
+    ofstream leibniz_out_fstream;
+    if (leibniz_out_filename != "")
+    {
+        cout << " writing to " << leibniz_out_filename << "\n";
+        leibniz_out_fstream.open(leibniz_out_filename);
+        leibniz_out_stream = &leibniz_out_fstream;
+    }
+    else
+        cout << "\n";
     for (auto pair : leibniz_graphs)
     {
-        cout << pair.first.encoding() << "    " << pair.second << "\n";
+        (*leibniz_out_stream) << pair.first.encoding() << "    " << pair.second << "\n";
     }
+    leibniz_out_fstream.close();
 }
