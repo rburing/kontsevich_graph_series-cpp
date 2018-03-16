@@ -31,12 +31,14 @@ int main(int argc, char* argv[])
              << "--leibniz-out=filename store Leibniz graph encodings in filename.\n"
              << "--coeff-prefix=c       let the coefficients of leibniz graphs be c_n.\n"
              << "--solve                the undetermined variables in the input are added to the linear system to-be-solved.\n"
+             << "--solve-numerically    try to solve the linear system using Eigen.\n"
              << "--interactive          ask whether to continue to the next iteration, and whether to solve numerically.\n";
         return 1;
     }
 
     bool interactive = false;
     bool solve = false;
+    bool solve_numerically = false;
     size_t max_jac_indegree = numeric_limits<size_t>::max();
     size_t max_iterations = numeric_limits<size_t>::max();
     bool skew_leibniz = false;
@@ -74,6 +76,8 @@ int main(int argc, char* argv[])
                 skew_leibniz = true;
             else if (argument == "--solve")
                 solve = true;
+            else if (argument == "--solve-numerically")
+                solve_numerically = true;
             else if (argument == "--interactive")
                 interactive = true;
             else {
@@ -95,6 +99,7 @@ int main(int argc, char* argv[])
     else
         cout << max_jac_indegree;
     cout << ", solve = " << (solve ? "yes" : "no")
+         << ", solve-numerically = " << (solve_numerically ? "yes" : "no")
          << ", skew-leibniz = " << (skew_leibniz ? "yes" : "no")
          << ", leibniz-in = " << (leibniz_in_filename == "" ? "none" : leibniz_in_filename)
          << ", coeff-prefix = " << coefficient_prefix
@@ -358,10 +363,10 @@ int main(int argc, char* argv[])
         {
             cerr << "Solve? (Y/N) ";
             cin >> solve_input;
-            solve = solve_input == 'Y';
+            solve_numerically = solve_input == 'Y';
         }
 
-        if (solve)
+        if (solve_numerically)
         {
             // Set up sparse matrix linear system
 
