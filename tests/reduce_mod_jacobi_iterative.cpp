@@ -345,14 +345,15 @@ int main(int argc, char* argv[])
 
         cout << "Got linear system of size " << rows << " x " << cols << ".\n";
 
-        char solve = 'N';
+        char solve_input = 'N';
         if (interactive)
         {
             cerr << "Solve? (Y/N) ";
-            cin >> solve;
+            cin >> solve_input;
+            solve = solve_input == 'Y';
         }
 
-        if (solve == 'Y')
+        if (solve)
         {
             // Set up sparse matrix linear system
 
