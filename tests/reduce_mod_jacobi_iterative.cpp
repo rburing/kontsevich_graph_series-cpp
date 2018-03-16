@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
     {
         cout << "Usage: " << argv[0] << " <graph-series-filename> [--max-jac-indegree=k] [--skew-leibniz] [--solve]\n\n"
              << "Accepts only homogeneous power series: graphs with n internal vertices at order n.\n\n"
+             << "--max-iterations=i     perform at most i iterations.\n"
              << "--max-jac-indegree=k   restricts the number of arrows falling on Jacobiators to be <= k.\n"
              << "--skew-leibniz         skew-symmetrizes each Leibniz graph before subtracting it with an undetermined coefficient.\n"
              << "--leibniz-in=filename  input graph series already contains Leibniz graphs, with encodings in filename.\n"
@@ -37,6 +38,7 @@ int main(int argc, char* argv[])
     bool interactive = false;
     bool solve = false;
     size_t max_jac_indegree = numeric_limits<size_t>::max();
+    size_t max_iterations = numeric_limits<size_t>::max();
     bool skew_leibniz = false;
     string leibniz_in_filename = "";
     string leibniz_out_filename = "";
@@ -51,7 +53,9 @@ int main(int argc, char* argv[])
         {
             string key = argument.substr(0, equals_pos);
             string value = argument.substr(equals_pos+1);
-            if (key == "--max-jac-indegree")
+            if (key == "--max-iterations")
+                max_iterations = stoi(value);
+            else if (key == "--max-jac-indegree")
                 max_jac_indegree = stoi(value);
             else if (key == "--coeff-prefix")
                 coefficient_prefix = value;
@@ -80,7 +84,12 @@ int main(int argc, char* argv[])
     }
 
     cout << "Options: "
-         << "max-jac-indegree = ";
+         << "max-iterations = ";
+    if (max_iterations == numeric_limits<size_t>::max())
+        cout << "none";
+    else
+        cout << max_iterations;
+    cout << ", max-jac-indegree = ";
     if (max_jac_indegree == numeric_limits<size_t>::max())
         cout << "none";
     else
@@ -163,9 +172,8 @@ int main(int argc, char* argv[])
     size_t counter = 0;
     bool converged = false;
     size_t step = 0;
-    while (!converged)
+    while (!converged && ++step <= max_iterations)
     {
-        ++step;
         size_t old_counter = counter;
         for (size_t n = 0; n <= order; ++n)
         {
