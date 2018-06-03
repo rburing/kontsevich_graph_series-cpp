@@ -1,6 +1,11 @@
 #include "leibniz_graph.hpp"
 #include <sstream>
 
+LeibnizGraph::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::VertexPair> jacobiators, bool skew_leibniz)
+: std::pair<KontsevichGraph, std::vector<KontsevichGraph::VertexPair> >::pair(graph, jacobiators), skew(skew_leibniz)
+{
+}
+
 std::string LeibnizGraph::encoding() const
 {
     std::stringstream ss;
