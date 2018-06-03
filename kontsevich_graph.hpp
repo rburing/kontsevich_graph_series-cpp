@@ -11,6 +11,7 @@
 
 class KontsevichGraph
 {
+    protected:
     size_t d_internal = 0;
     size_t d_external = 0;
     std::vector< std::pair<char, char> > d_targets;
