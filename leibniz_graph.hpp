@@ -8,9 +8,8 @@
 #include <set>
 #include <istream>
 
-class LeibnizGraph
+class LeibnizGraph : KontsevichGraph
 {
-    KontsevichGraph d_graph;
     std::vector<KontsevichGraph::VertexPair> d_jacobiators;
     bool d_skew;
     size_t d_max_jac_indegree;
