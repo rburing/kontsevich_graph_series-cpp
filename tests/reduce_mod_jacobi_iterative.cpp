@@ -287,7 +287,7 @@ int main(int argc, char* argv[])
                                 d_targets = global_minimum;
 
                                 KontsevichGraph leibniz_graph(d_targets.size(), d_external, d_targets, 1, true);
-                                my_leibniz_graphs.push_back({ leibniz_graph, { new_vw } });
+                                my_leibniz_graphs.push_back(LeibnizGraph(leibniz_graph, { new_vw }, skew_leibniz));
                             }
                         } while (skew_leibniz && std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
                         LeibnizGraph leibniz_normal_form = *min_element(my_leibniz_graphs.begin(), my_leibniz_graphs.end());
@@ -467,7 +467,7 @@ int main(int argc, char* argv[])
                 {
                     for (auto pair : leibniz_graphs)
                         if (pair.second != ex(pair.second).subs(solution_substitution))
-                            cout << pair.first.first.encoding() << "    " << pair.second << "==" << ex(pair.second).subs(solution_substitution) << "\n";
+                            cout << pair.first.encoding() << "    " << pair.second << "==" << ex(pair.second).subs(solution_substitution) << "\n";
                     for (auto var : unknowns_list)
                         cout << var << "==" << ex(var).subs(solution_substitution) << "\n";
                 }

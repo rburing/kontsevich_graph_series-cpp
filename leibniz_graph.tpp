@@ -1,17 +1,18 @@
 #include "leibniz_graph.hpp"
 #include <sstream>
+#include <tuple>
 
 LeibnizGraph::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::VertexPair> jacobiators, bool skew)
-: std::pair<KontsevichGraph, std::vector<KontsevichGraph::VertexPair> >::pair(graph, jacobiators), d_skew(skew)
+: d_graph(graph), d_jacobiators(jacobiators), d_skew(skew)
 {
-    size_t external = first.external();
-    std::vector<KontsevichGraph::VertexPair> targets = first.targets();
+    size_t external = d_graph.external();
+    std::vector<KontsevichGraph::VertexPair> targets = d_graph.targets();
 
     std::map<KontsevichGraph::Vertex, size_t> which_jacobiator;
-    for (size_t j = 0; j != second.size(); ++j)
+    for (size_t j = 0; j != d_jacobiators.size(); ++j)
     {
-        which_jacobiator[second[j].first]  = j;
-        which_jacobiator[second[j].second] = j;
+        which_jacobiator[d_jacobiators[j].first]  = j;
+        which_jacobiator[d_jacobiators[j].second] = j;
     }
 
     // Start building the sets of references to Leibniz targets (incoming edges on Jacobiator vertices)
@@ -30,7 +31,7 @@ LeibnizGraph::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::V
     d_jacobiator_targets.resize(jacobiators.size());
     d_max_jac_indegree = 0;
     size_t j = 0;
-    for (KontsevichGraph::VertexPair& jacobiator : second)
+    for (KontsevichGraph::VertexPair& jacobiator : d_jacobiators)
     {
         KontsevichGraph::Vertex v = jacobiator.first;
         KontsevichGraph::Vertex w = jacobiator.second;
@@ -50,6 +51,11 @@ LeibnizGraph::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::V
     }
 }
 
+bool LeibnizGraph::operator<(const LeibnizGraph& rhs) const
+{
+    return std::tie(this->d_skew, this->d_graph, this->d_jacobiators) < std::tie(rhs.d_skew, rhs.d_graph, rhs.d_jacobiators);
+}
+
 size_t LeibnizGraph::max_jac_indegree() const
 {
     return d_max_jac_indegree;
@@ -58,11 +64,11 @@ size_t LeibnizGraph::max_jac_indegree() const
 std::string LeibnizGraph::encoding() const
 {
     std::stringstream ss;
-    ss << this->second.size();
+    ss << this->d_jacobiators.size();
     ss << "   ";
-    ss << this->first.encoding();
+    ss << this->d_graph.encoding();
     ss << "   ";
-    for (KontsevichGraph::VertexPair jacobiator : this->second)
+    for (KontsevichGraph::VertexPair jacobiator : this->d_jacobiators)
         ss << jacobiator.first << " " << jacobiator.second;
     return ss.str();
 }
@@ -71,12 +77,12 @@ std::istream& operator>>(std::istream& is, LeibnizGraph& g)
 {
     size_t jacobiators;
     is >> jacobiators;
-    is >> g.first;
-    g.second.clear();
+    is >> g.d_graph;
+    g.d_jacobiators.clear();
     std::pair<size_t, size_t> jacobiator;
     size_t jacobiator_count = 0;
     while (jacobiator_count++ < jacobiators && is >> jacobiator.first >> jacobiator.second)
-        g.second.push_back(jacobiator);
+        g.d_jacobiators.push_back(jacobiator);
     return is;
 }
 
