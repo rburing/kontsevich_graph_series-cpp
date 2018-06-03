@@ -14,7 +14,7 @@ class LeibnizGraph : KontsevichGraph
     bool d_skew;
     size_t d_max_jac_indegree;
     std::vector< std::set<KontsevichGraph::Vertex*> > d_jacobiator_targets;
-    std::vector< std::set<KontsevichGraph::Vertex*> > d_leibniz_targets;
+    std::map<KontsevichGraph::Vertex*, size_t> d_leibniz_targets;
 
 public:
     LeibnizGraph() {};

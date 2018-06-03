@@ -14,16 +14,26 @@ LeibnizGraph::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::V
     }
 
     // Start building the sets of references to Leibniz targets (incoming edges on Jacobiator vertices)
-    d_leibniz_targets.resize(jacobiators.size());
+    std::map<size_t, size_t> jac_indegree;
     for (KontsevichGraph::VertexPair& target_pair : d_targets)
     {
         auto it1 = which_jacobiator.find(target_pair.first);
         if (it1 != which_jacobiator.end())
-            d_leibniz_targets[it1->second].insert(&target_pair.first);
+        {
+            d_leibniz_targets[&target_pair.first] = it1->second;
+            ++jac_indegree[it1->second];
+        }
         auto it2 = which_jacobiator.find(target_pair.second);
         if (it2 != which_jacobiator.end())
-            d_leibniz_targets[it2->second].insert(&target_pair.second);
+        {
+            d_leibniz_targets[&target_pair.second] = it2->second;
+            ++jac_indegree[it2->second];
+        }
     }
+    d_max_jac_indegree = 0;
+    for (auto indegree : jac_indegree)
+        if (indegree.second - 1 > d_max_jac_indegree)
+            d_max_jac_indegree = indegree.second - 1;
 
     // Build the sets of three Jacobiator targets each
     d_jacobiator_targets.resize(jacobiators.size());
@@ -39,11 +49,7 @@ LeibnizGraph::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::V
         KontsevichGraph::Vertex* b = &target_pair_v.second;
         KontsevichGraph::Vertex* c = (target_pair_w.first == v) ? &target_pair_w.second : &target_pair_w.first;
         // Remove internal Jacobiator edge from Leibniz targets
-        d_leibniz_targets[j].erase(target_pair_w.first == v ? &target_pair_w.first : &target_pair_w.second);
-        // Update maximum Jacobiator indegree
-        size_t jac_indegree = d_leibniz_targets[j].size();
-        if (jac_indegree > d_max_jac_indegree)
-            d_max_jac_indegree = jac_indegree;
+        d_leibniz_targets.erase(target_pair_w.first == v ? &target_pair_w.first : &target_pair_w.second);
         // Set Jacobiator targets
         d_jacobiator_targets[j++] = { a, b, c };
     }
@@ -142,9 +148,8 @@ void LeibnizGraph::normalize()
     // TODO: construct LeibnizGraph (call the constructor) only once; let the intermediates be tuples or something
 
     // Set Leibniz targets to "bottom" vertex in Jacobiator, i.e. v in { v, w } (the Jacobiator edge is v <-- w)
-    for (size_t j = 0; j != d_jacobiators.size(); ++j)
-        for (KontsevichGraph::Vertex* leibniz_target : d_leibniz_targets[j])
-            *leibniz_target = d_jacobiators[j].first;
+    for (auto& leibniz_target : d_leibniz_targets)
+        *leibniz_target.first = d_jacobiators[leibniz_target.second].first;
 
     // Fix some ordering of Jacobiator arguments (as a vector, instead of a set)
     std::vector< std::vector<KontsevichGraph::Vertex> > jacobiator_arguments(d_jacobiators.size());
