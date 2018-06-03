@@ -1,8 +1,8 @@
 #include "leibniz_graph.hpp"
 #include <sstream>
 
-LeibnizGraph::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::VertexPair> jacobiators, bool skew_leibniz)
-: std::pair<KontsevichGraph, std::vector<KontsevichGraph::VertexPair> >::pair(graph, jacobiators), skew(skew_leibniz)
+LeibnizGraph::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::VertexPair> jacobiators, bool skew)
+: std::pair<KontsevichGraph, std::vector<KontsevichGraph::VertexPair> >::pair(graph, jacobiators), d_skew(skew)
 {
     size_t external = first.external();
     std::vector<KontsevichGraph::VertexPair> targets = first.targets();

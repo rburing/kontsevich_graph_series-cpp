@@ -10,13 +10,13 @@
 
 class LeibnizGraph : public std::pair<KontsevichGraph, std::vector<KontsevichGraph::VertexPair> >
 {
-    bool skew;
+    bool d_skew;
     std::vector< std::set<KontsevichGraph::Vertex*> > d_jacobiator_targets;
     std::vector< std::set<KontsevichGraph::Vertex*> > d_leibniz_targets;
 
 public:
     LeibnizGraph() {};
-    LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::VertexPair> jacobiators, bool skew_leibniz = false);
+    LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::VertexPair> jacobiators, bool skew = false);
     std::string encoding() const;
     template<class T> static std::map<LeibnizGraph, T> map_from_istream(std::istream& is, std::function<T(std::string)> const& parser = nullptr);
     static std::set<LeibnizGraph> those_yielding_kontsevich_graph(KontsevichGraph& graph, bool skew_leibniz = false);
