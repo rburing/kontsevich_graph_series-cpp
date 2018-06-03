@@ -24,6 +24,7 @@ public:
     static std::set<LeibnizGraph> those_yielding_kontsevich_graph(KontsevichGraph& graph, bool skew_leibniz = false);
     size_t max_jac_indegree() const;
     bool operator<(const LeibnizGraph& rhs) const;
+    void normalize();
 private:
     friend std::istream& operator>>(std::istream& is, LeibnizGraph& g);
 };

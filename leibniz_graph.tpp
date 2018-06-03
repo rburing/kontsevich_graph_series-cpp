@@ -1,4 +1,5 @@
 #include "leibniz_graph.hpp"
+#include "util/cartesian_product.hpp"
 #include <sstream>
 #include <tuple>
 
@@ -130,4 +131,88 @@ std::set<LeibnizGraph> LeibnizGraph::those_yielding_kontsevich_graph(KontsevichG
         }
     }
     return leibniz_graphs;
+}
+
+void LeibnizGraph::normalize()
+{
+    // Normal form of Leibniz graph (three permutations of each Jacobiator, take minimal encoding, remember where Jacobiators are)
+
+    // TODO: remember sign?
+    // TODO: save partial expansion?
+    // TODO: construct LeibnizGraph (call the constructor) only once; let the intermediates be tuples or something
+
+    // Set Leibniz targets to "bottom" vertex in Jacobiator, i.e. v in { v, w } (the Jacobiator edge is v <-- w)
+    for (size_t j = 0; j != d_jacobiators.size(); ++j)
+        for (KontsevichGraph::Vertex* leibniz_target : d_leibniz_targets[j])
+            *leibniz_target = d_jacobiators[j].first;
+
+    // Fix some ordering of Jacobiator arguments (as a vector, instead of a set)
+    std::vector< std::vector<KontsevichGraph::Vertex> > jacobiator_arguments(d_jacobiators.size());
+    for (size_t j = 0; j != d_jacobiators.size(); ++j)
+    {
+        jacobiator_arguments[j].resize(3);
+        size_t k = 0;
+        for (auto it = d_jacobiator_targets[j].begin(); it != d_jacobiator_targets[j].end(); ++it)
+            jacobiator_arguments[j][k++] = **it;
+    }
+
+    std::vector<LeibnizGraph> leibniz_graphs;
+
+    std::vector<KontsevichGraph::Vertex> ground_vertices(d_external);
+    std::iota(ground_vertices.begin(), ground_vertices.end(), 0);
+    do
+    {
+        // Choose shifts (by 0, 1, or 2) in Jacobiator arguments
+        std::vector<size_t> shifts_max(d_jacobiators.size(), 3);
+        CartesianProduct all_shifts(shifts_max);
+
+        for (CartesianProduct shifts = all_shifts.begin(); shifts != all_shifts.end(); ++shifts)
+        {
+            // Set Jacobiator arguments
+            for (size_t j = 0; j != d_jacobiators.size(); ++j)
+            {
+                size_t k = 0;
+                for (auto it = d_jacobiator_targets[j].begin(); it != d_jacobiator_targets[j].end(); ++it)
+                    **it = jacobiator_arguments[j][(k++ + (*shifts)[j]) % 3];
+            }
+
+            // Permute ground vertices (if skew)
+            for (KontsevichGraph::VertexPair& target_pair : d_targets)
+            {
+                if ((size_t)target_pair.first < d_external)
+                    target_pair.first = ground_vertices[target_pair.first];
+                if ((size_t)target_pair.second < d_external)
+                    target_pair.second = ground_vertices[target_pair.second];
+            }
+
+            // Find permutation of vertex labels such that the list of targets is minimal with respect to the defined ordering
+            std::vector<KontsevichGraph::VertexPair> global_minimum = d_targets;
+
+            sort_pairs(global_minimum.begin(), global_minimum.end());
+
+            std::vector<KontsevichGraph::VertexPair> new_jacobiators = d_jacobiators;
+
+            std::vector<KontsevichGraph::Vertex> vertices(d_external + d_internal);
+            std::iota(vertices.begin(), vertices.end(), 0);
+
+            while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
+            {
+                std::vector<KontsevichGraph::VertexPair> local_minimum = d_targets;
+                apply_permutation(d_internal, d_external, local_minimum, vertices);
+                if (local_minimum < global_minimum)
+                {
+                    global_minimum = local_minimum;
+                    // Find where Jacobiators are
+                    for (KontsevichGraph::VertexPair& new_jacobiator : new_jacobiators)
+                        new_jacobiator = { vertices[(size_t)new_jacobiator.first], vertices[(size_t)new_jacobiator.second] };
+                }
+            }
+            d_targets = global_minimum;
+
+            KontsevichGraph leibniz_graph(d_targets.size(), d_external, d_targets, 1, true);
+            leibniz_graphs.push_back(LeibnizGraph(leibniz_graph, new_jacobiators, d_skew));
+        }
+    } while (d_skew && std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
+    LeibnizGraph leibniz_normal_form = *min_element(leibniz_graphs.begin(), leibniz_graphs.end());
+    std::swap(leibniz_normal_form, *this);
 }
