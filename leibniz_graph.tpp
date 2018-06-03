@@ -28,6 +28,7 @@ LeibnizGraph::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::V
 
     // Build the sets of three Jacobiator targets each
     d_jacobiator_targets.resize(jacobiators.size());
+    d_max_jac_indegree = 0;
     size_t j = 0;
     for (KontsevichGraph::VertexPair& jacobiator : second)
     {
@@ -40,9 +41,18 @@ LeibnizGraph::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::V
         KontsevichGraph::Vertex* c = (target_pair_w.first == v) ? &target_pair_w.second : &target_pair_w.first;
         // Remove internal Jacobiator edge from Leibniz targets
         d_leibniz_targets[j].erase(target_pair_w.first == v ? &target_pair_w.first : &target_pair_w.second);
+        // Update maximum Jacobiator indegree
+        size_t jac_indegree = d_leibniz_targets[j].size();
+        if (jac_indegree > d_max_jac_indegree)
+            d_max_jac_indegree = jac_indegree;
         // Set Jacobiator targets
         d_jacobiator_targets[j++] = { a, b, c };
     }
+}
+
+size_t LeibnizGraph::max_jac_indegree() const
+{
+    return d_max_jac_indegree;
 }
 
 std::string LeibnizGraph::encoding() const
