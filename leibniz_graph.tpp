@@ -51,3 +51,30 @@ std::map<LeibnizGraph, T> LeibnizGraph::map_from_istream(std::istream& is, std::
     }
     return result;
 }
+
+std::set<LeibnizGraph> LeibnizGraph::those_yielding_kontsevich_graph(KontsevichGraph& graph, bool skew_leibniz)
+{
+    // TODO: multiple Jacobiators
+    std::set<LeibnizGraph> leibniz_graphs;
+    size_t external = graph.external();
+    for (KontsevichGraph::Vertex v : graph.internal_vertices())
+    {
+        for (KontsevichGraph::Vertex w : graph.neighbors_in(v))
+        {
+            std::vector<KontsevichGraph::VertexPair> targets = graph.targets();
+            KontsevichGraph::VertexPair& target_pair_v = targets[(size_t)v - external];
+            // Check that there is no loop between v and w
+            if (target_pair_v.first == w || target_pair_v.second == w)
+                continue;
+            KontsevichGraph::VertexPair& target_pair_w = targets[(size_t)w - external];
+            // Check that the "Jacobiator" consisting of v and w falls on 3 distinct targets
+            KontsevichGraph::Vertex& a = target_pair_v.first;
+            KontsevichGraph::Vertex& b = target_pair_v.second;
+            KontsevichGraph::Vertex& c = (target_pair_w.first == v) ? target_pair_w.second : target_pair_w.first;
+            if (c == a || c == b)
+                continue;
+            leibniz_graphs.insert(LeibnizGraph(graph, { { v, w } }, skew_leibniz));
+        }
+    }
+    return leibniz_graphs;
+}
