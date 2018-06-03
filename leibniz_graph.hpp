@@ -11,6 +11,8 @@
 class LeibnizGraph : public std::pair<KontsevichGraph, std::vector<KontsevichGraph::VertexPair> >
 {
     bool skew;
+    std::vector< std::set<KontsevichGraph::Vertex*> > d_jacobiator_targets;
+    std::vector< std::set<KontsevichGraph::Vertex*> > d_leibniz_targets;
 
 public:
     LeibnizGraph() {};

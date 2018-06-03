@@ -4,6 +4,45 @@
 LeibnizGraph::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::VertexPair> jacobiators, bool skew_leibniz)
 : std::pair<KontsevichGraph, std::vector<KontsevichGraph::VertexPair> >::pair(graph, jacobiators), skew(skew_leibniz)
 {
+    size_t external = first.external();
+    std::vector<KontsevichGraph::VertexPair> targets = first.targets();
+
+    std::map<KontsevichGraph::Vertex, size_t> which_jacobiator;
+    for (size_t j = 0; j != second.size(); ++j)
+    {
+        which_jacobiator[second[j].first]  = j;
+        which_jacobiator[second[j].second] = j;
+    }
+
+    // Start building the sets of references to Leibniz targets (incoming edges on Jacobiator vertices)
+    d_leibniz_targets.resize(jacobiators.size());
+    for (KontsevichGraph::VertexPair& target_pair : targets)
+    {
+        auto it1 = which_jacobiator.find(target_pair.first);
+        if (it1 != which_jacobiator.end())
+            d_leibniz_targets[it1->second].insert(&target_pair.first);
+        auto it2 = which_jacobiator.find(target_pair.second);
+        if (it2 != which_jacobiator.end())
+            d_leibniz_targets[it2->second].insert(&target_pair.second);
+    }
+
+    // Build the sets of three Jacobiator targets each
+    d_jacobiator_targets.resize(jacobiators.size());
+    size_t j = 0;
+    for (KontsevichGraph::VertexPair& jacobiator : second)
+    {
+        KontsevichGraph::Vertex v = jacobiator.first;
+        KontsevichGraph::Vertex w = jacobiator.second;
+        KontsevichGraph::VertexPair& target_pair_v = targets[(size_t)v - external];
+        KontsevichGraph::VertexPair& target_pair_w = targets[(size_t)w - external];
+        KontsevichGraph::Vertex* a = &target_pair_v.first;
+        KontsevichGraph::Vertex* b = &target_pair_v.second;
+        KontsevichGraph::Vertex* c = (target_pair_w.first == v) ? &target_pair_w.second : &target_pair_w.first;
+        // Remove internal Jacobiator edge from Leibniz targets
+        d_leibniz_targets[j].erase(target_pair_w.first == v ? &target_pair_w.first : &target_pair_w.second);
+        // Set Jacobiator targets
+        d_jacobiator_targets[j++] = { a, b, c };
+    }
 }
 
 std::string LeibnizGraph::encoding() const
