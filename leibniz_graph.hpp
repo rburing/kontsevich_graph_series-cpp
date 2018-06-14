@@ -31,6 +31,7 @@ public:
     void normalize();
 
 private:
+    void set_jacobiator_and_leibniz_targets();
     friend std::istream& operator>> <>(std::istream& is, LeibnizGraph<T>& g);
 };
 

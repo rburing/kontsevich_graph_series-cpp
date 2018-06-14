@@ -7,6 +7,12 @@ template<class T>
 LeibnizGraph<T>::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::VertexPair> jacobiators, bool skew)
 : KontsevichGraph(graph), d_jacobiators(jacobiators), d_skew(skew)
 {
+    set_jacobiator_and_leibniz_targets();
+}
+
+template<class T>
+void LeibnizGraph<T>::set_jacobiator_and_leibniz_targets()
+{
     std::map<KontsevichGraph::Vertex, size_t> which_jacobiator;
     for (size_t j = 0; j != d_jacobiators.size(); ++j)
     {
@@ -37,7 +43,7 @@ LeibnizGraph<T>::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph
             d_max_jac_indegree = indegree.second - 1;
 
     // Build the sets of three Jacobiator targets each
-    d_jacobiator_targets.resize(jacobiators.size());
+    d_jacobiator_targets.resize(d_jacobiators.size());
     d_max_jac_indegree = 0;
     size_t j = 0;
     for (KontsevichGraph::VertexPair& jacobiator : d_jacobiators)
