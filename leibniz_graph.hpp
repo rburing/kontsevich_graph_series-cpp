@@ -29,7 +29,7 @@ public:
     static std::map< LeibnizGraph<T>, T> map_from_istream(std::istream& is, std::function<T(std::string)> const& parser = nullptr);
     static std::set< LeibnizGraph<T> > those_yielding_kontsevich_graph(KontsevichGraph& graph, bool skew_leibniz = false);
     size_t max_jac_indegree() const;
-    bool operator<(const LeibnizGraph& rhs) const;
+    bool operator<(const LeibnizGraph<T>& rhs) const;
     void normalize();
 
 private:
