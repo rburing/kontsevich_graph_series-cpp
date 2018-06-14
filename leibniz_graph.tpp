@@ -217,6 +217,6 @@ void LeibnizGraph::normalize()
             leibniz_graphs.push_back(LeibnizGraph(leibniz_graph, new_jacobiators, d_skew));
         }
     } while (d_skew && std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
-    LeibnizGraph leibniz_normal_form = *min_element(leibniz_graphs.begin(), leibniz_graphs.end());
+    LeibnizGraph& leibniz_normal_form = *min_element(leibniz_graphs.begin(), leibniz_graphs.end());
     std::swap(leibniz_normal_form, *this);
 }
