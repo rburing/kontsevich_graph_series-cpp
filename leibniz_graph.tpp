@@ -212,9 +212,8 @@ void LeibnizGraph::normalize()
                         new_jacobiator = { vertices[(size_t)new_jacobiator.first], vertices[(size_t)new_jacobiator.second] };
                 }
             }
-            d_targets = global_minimum;
 
-            KontsevichGraph leibniz_graph(d_targets.size(), d_external, d_targets, 1, true);
+            KontsevichGraph leibniz_graph(d_internal, d_external, global_minimum, 1, true);
             leibniz_graphs.push_back(LeibnizGraph(leibniz_graph, new_jacobiators, d_skew));
         }
     } while (d_skew && std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
