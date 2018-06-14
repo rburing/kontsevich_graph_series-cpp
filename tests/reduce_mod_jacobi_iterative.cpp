@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
                                 my_leibniz_graphs.push_back(LeibnizGraph(leibniz_graph, { new_vw }, skew_leibniz));
                             }
                         } while (skew_leibniz && std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
-                        LeibnizGraph leibniz_normal_form = *min_element(my_leibniz_graphs.begin(), my_leibniz_graphs.end());
+                        LeibnizGraph& leibniz_normal_form = *min_element(my_leibniz_graphs.begin(), my_leibniz_graphs.end());
 
                         if (leibniz_graphs.find(leibniz_normal_form) != leibniz_graphs.end())
                             continue;
@@ -465,7 +465,7 @@ int main(int argc, char* argv[])
 
                 if (leibniz_graph_series_copy == 0)
                 {
-                    for (auto pair : leibniz_graphs)
+                    for (auto& pair : leibniz_graphs)
                         if (pair.second != ex(pair.second).subs(solution_substitution))
                             cout << pair.first.encoding() << "    " << pair.second << "==" << ex(pair.second).subs(solution_substitution) << "\n";
                     for (auto var : unknowns_list)
@@ -502,7 +502,7 @@ int main(int argc, char* argv[])
     }
     else
         cout << "\n";
-    for (auto pair : leibniz_graphs)
+    for (auto& pair : leibniz_graphs)
     {
         (*leibniz_out_stream) << pair.first.encoding() << "    " << pair.second << "\n";
     }
