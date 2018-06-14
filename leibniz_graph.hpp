@@ -23,6 +23,8 @@ class LeibnizGraph : KontsevichGraph
 public:
     LeibnizGraph() {};
     LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::VertexPair> jacobiators, bool skew = false);
+    LeibnizGraph(const LeibnizGraph<T>& other);
+    LeibnizGraph& operator=(const LeibnizGraph<T>& other);
     std::string encoding() const;
     static std::map< LeibnizGraph<T>, T> map_from_istream(std::istream& is, std::function<T(std::string)> const& parser = nullptr);
     static std::set< LeibnizGraph<T> > those_yielding_kontsevich_graph(KontsevichGraph& graph, bool skew_leibniz = false);

@@ -11,6 +11,23 @@ LeibnizGraph<T>::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph
 }
 
 template<class T>
+LeibnizGraph<T>::LeibnizGraph(const LeibnizGraph<T>& other)
+: KontsevichGraph(other), d_jacobiators(other.d_jacobiators), d_skew(other.d_skew)
+{
+    set_jacobiator_and_leibniz_targets();
+}
+
+template<class T>
+LeibnizGraph<T>& LeibnizGraph<T>::operator=(const LeibnizGraph<T>& other)
+{
+    KontsevichGraph::operator=(other);
+    d_jacobiators = other.d_jacobiators;
+    d_skew = other.d_skew;
+    set_jacobiator_and_leibniz_targets();
+    return *this;
+}
+
+template<class T>
 void LeibnizGraph<T>::set_jacobiator_and_leibniz_targets()
 {
     std::map<KontsevichGraph::Vertex, size_t> which_jacobiator;
