@@ -107,18 +107,18 @@ int main(int argc, char* argv[])
 
     // Reading in Leibniz graphs
     parser coefficient_reader;
-    map<LeibnizGraph, symbol> leibniz_graphs;
+    map< LeibnizGraph<ex>, ex> leibniz_graphs;
 
     if (leibniz_in_filename != "")
     {
         ifstream leibniz_in_file(leibniz_in_filename);
-        leibniz_graphs = LeibnizGraph::map_from_istream<symbol>(leibniz_in_file,
-                                                                [&coefficient_reader](string s) -> symbol
+        leibniz_graphs = LeibnizGraph<ex>::map_from_istream(leibniz_in_file,
+                                                                [&coefficient_reader](string s) -> ex
                                                                 {
-                                                                    return ex_to<symbol>(coefficient_reader(s));
+                                                                    return coefficient_reader(s);
                                                                 });
     }
-    std::vector<symbol> leibniz_coeffs;
+    std::vector<ex> leibniz_coeffs;
     for (auto const& pair : leibniz_graphs)
         leibniz_coeffs.push_back(pair.second);
 
@@ -168,7 +168,8 @@ int main(int argc, char* argv[])
 
     vector<symbol> coefficient_list = unknowns_list;
     coefficient_list.reserve(leibniz_coeffs.size());
-    coefficient_list.insert(coefficient_list.end(), leibniz_coeffs.begin(), leibniz_coeffs.end());
+    for (auto& leibniz_coeff : leibniz_coeffs)
+        coefficient_list.push_back(ex_to<symbol>(leibniz_coeff));
 
     KontsevichGraphSeries<ex> leibniz_graph_series = graph_series;
 
@@ -240,7 +241,7 @@ int main(int argc, char* argv[])
                         vector< vector<KontsevichGraph::Vertex> > jacobi_targets_choices({ { a, b, c },
                                                                                            { b, c, a },
                                                                                            { c, a, b } });
-                        vector<LeibnizGraph> my_leibniz_graphs;
+                        vector< LeibnizGraph<ex> > my_leibniz_graphs;
 
                         vector<KontsevichGraph::Vertex> ground_vertices(external);
                         std::iota(ground_vertices.begin(), ground_vertices.end(), 0);
@@ -287,16 +288,15 @@ int main(int argc, char* argv[])
                                 d_targets = global_minimum;
 
                                 KontsevichGraph leibniz_graph(d_targets.size(), d_external, d_targets, 1, true);
-                                my_leibniz_graphs.push_back(LeibnizGraph(leibniz_graph, { new_vw }, skew_leibniz));
+                                my_leibniz_graphs.push_back(LeibnizGraph<ex>(leibniz_graph, { new_vw }, skew_leibniz));
                             }
                         } while (skew_leibniz && std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
-                        LeibnizGraph& leibniz_normal_form = *min_element(my_leibniz_graphs.begin(), my_leibniz_graphs.end());
+                        LeibnizGraph<ex>& leibniz_normal_form = *min_element(my_leibniz_graphs.begin(), my_leibniz_graphs.end());
 
                         if (leibniz_graphs.find(leibniz_normal_form) != leibniz_graphs.end())
                             continue;
 
                         KontsevichGraphSum<ex> graph_sum;
-
                         // Replace bad targets by Leibniz rule:
                         vector<size_t> leibniz_sizes(bad_targets.size(), 2);
                         CartesianProduct leibniz_indices(leibniz_sizes);

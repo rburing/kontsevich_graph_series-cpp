@@ -3,7 +3,8 @@
 #include <sstream>
 #include <tuple>
 
-LeibnizGraph::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::VertexPair> jacobiators, bool skew)
+template<class T>
+LeibnizGraph<T>::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::VertexPair> jacobiators, bool skew)
 : KontsevichGraph(graph), d_jacobiators(jacobiators), d_skew(skew)
 {
     std::map<KontsevichGraph::Vertex, size_t> which_jacobiator;
@@ -55,18 +56,21 @@ LeibnizGraph::LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::V
     }
 }
 
-bool LeibnizGraph::operator<(const LeibnizGraph& rhs) const
+template<class T>
+bool LeibnizGraph<T>::operator<(const LeibnizGraph<T>& rhs) const
 {
     return std::tie(this->d_skew, this->d_external, this->d_internal, this->d_targets, this->d_jacobiators, this->d_sign) < \
            std::tie(rhs.d_skew, rhs.d_external, rhs.d_internal, rhs.d_targets, rhs.d_jacobiators, rhs.d_sign);
 }
 
-size_t LeibnizGraph::max_jac_indegree() const
+template<class T>
+size_t LeibnizGraph<T>::max_jac_indegree() const
 {
     return d_max_jac_indegree;
 }
 
-std::string LeibnizGraph::encoding() const
+template<class T>
+std::string LeibnizGraph<T>::encoding() const
 {
     std::stringstream ss;
     ss << this->d_jacobiators.size();
@@ -78,7 +82,8 @@ std::string LeibnizGraph::encoding() const
     return ss.str();
 }
 
-std::istream& operator>>(std::istream& is, LeibnizGraph& g)
+template<class T>
+std::istream& operator>>(std::istream& is, LeibnizGraph<T>& g)
 {
     size_t jacobiators;
     is >> jacobiators;
@@ -92,9 +97,9 @@ std::istream& operator>>(std::istream& is, LeibnizGraph& g)
 }
 
 template<class T>
-std::map<LeibnizGraph, T> LeibnizGraph::map_from_istream(std::istream& is, std::function<T(std::string)> const& parser)
+std::map< LeibnizGraph<T>, T> LeibnizGraph<T>::map_from_istream(std::istream& is, std::function<T(std::string)> const& parser)
 {
-    std::map<LeibnizGraph, T> result;
+    std::map< LeibnizGraph<T>, T> result;
     if (parser == nullptr)
         return result;
     for (std::string line; getline(is, line);)
@@ -102,7 +107,7 @@ std::map<LeibnizGraph, T> LeibnizGraph::map_from_istream(std::istream& is, std::
         if (line.length() == 0 || line[0] == '#') // also skip comments
             continue;
         std::stringstream ss(line);
-        LeibnizGraph g;
+        LeibnizGraph<T> g;
         ss >> g;
         std::string coefficient_str;
         ss >> coefficient_str;
@@ -112,10 +117,11 @@ std::map<LeibnizGraph, T> LeibnizGraph::map_from_istream(std::istream& is, std::
     return result;
 }
 
-std::set<LeibnizGraph> LeibnizGraph::those_yielding_kontsevich_graph(KontsevichGraph& graph, bool skew_leibniz)
+template<class T>
+std::set< LeibnizGraph<T> > LeibnizGraph<T>::those_yielding_kontsevich_graph(KontsevichGraph& graph, bool skew_leibniz)
 {
     // TODO: multiple Jacobiators
-    std::set<LeibnizGraph> leibniz_graphs;
+    std::set< LeibnizGraph<T> > leibniz_graphs;
     size_t external = graph.external();
     std::vector<KontsevichGraph::VertexPair> targets = graph.targets();
     for (KontsevichGraph::Vertex v : graph.internal_vertices())
@@ -133,13 +139,14 @@ std::set<LeibnizGraph> LeibnizGraph::those_yielding_kontsevich_graph(KontsevichG
             KontsevichGraph::Vertex& c = (target_pair_w.first == v) ? target_pair_w.second : target_pair_w.first;
             if (c == a || c == b)
                 continue;
-            leibniz_graphs.insert(LeibnizGraph(graph, { { v, w } }, skew_leibniz));
+            leibniz_graphs.insert(LeibnizGraph<T>(graph, { { v, w } }, skew_leibniz));
         }
     }
     return leibniz_graphs;
 }
 
-void LeibnizGraph::normalize()
+template<class T>
+void LeibnizGraph<T>::normalize()
 {
     // Normal form of Leibniz graph (three permutations of each Jacobiator, take minimal encoding, remember where Jacobiators are)
 
@@ -161,7 +168,7 @@ void LeibnizGraph::normalize()
             jacobiator_arguments[j][k++] = **it;
     }
 
-    std::vector<LeibnizGraph> leibniz_graphs;
+    std::vector< LeibnizGraph<T> > leibniz_graphs;
 
     std::vector<KontsevichGraph::Vertex> ground_vertices(d_external);
     std::iota(ground_vertices.begin(), ground_vertices.end(), 0);
@@ -214,9 +221,9 @@ void LeibnizGraph::normalize()
             }
 
             KontsevichGraph leibniz_graph(d_internal, d_external, global_minimum, 1, true);
-            leibniz_graphs.push_back(LeibnizGraph(leibniz_graph, new_jacobiators, d_skew));
+            leibniz_graphs.push_back(LeibnizGraph<T>(leibniz_graph, new_jacobiators, d_skew));
         }
     } while (d_skew && std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
-    LeibnizGraph& leibniz_normal_form = *min_element(leibniz_graphs.begin(), leibniz_graphs.end());
+    LeibnizGraph<T>& leibniz_normal_form = *min_element(leibniz_graphs.begin(), leibniz_graphs.end());
     std::swap(leibniz_normal_form, *this);
 }
