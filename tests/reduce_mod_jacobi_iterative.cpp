@@ -190,6 +190,7 @@ int main(int argc, char* argv[])
                 // Use that the graph series is reduced (graphs are in normal form with sign +1)
                 processed_graphs.insert(graph);
 
+                // Subtract Leibniz graphs that yield this Kontsevich graph
                 for (LeibnizGraph<ex> leibniz_graph : LeibnizGraph<ex>::those_yielding_kontsevich_graph(graph, skew_leibniz))
                 {
                     leibniz_graph.normalize();
@@ -197,14 +198,13 @@ int main(int argc, char* argv[])
                         continue;
                     symbol coefficient(coefficient_prefix + "_" + to_string(counter));
                     KontsevichGraphSum<ex> graph_sum = leibniz_graph.expansion(coefficient);
-                    graph_sum.reduce_mod_skew();
                     if (graph_sum.size() != 0)
                     {
                         coefficient_list.push_back(coefficient);
                         leibniz_graphs[leibniz_graph] = coefficient;
                         ++counter;
+                        leibniz_graph_series[n] -= graph_sum;
                     }
-                    leibniz_graph_series[n] -= graph_sum;
                 }
             }
         }
