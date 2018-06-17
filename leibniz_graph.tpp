@@ -38,6 +38,7 @@ void LeibnizGraph<T>::set_jacobiator_and_leibniz_targets()
     }
 
     // Start building the sets of references to Leibniz targets (incoming edges on Jacobiator vertices)
+    d_leibniz_targets.clear();
     std::map<size_t, size_t> jac_indegree;
     for (KontsevichGraph::VertexPair& target_pair : d_targets)
     {
@@ -60,6 +61,7 @@ void LeibnizGraph<T>::set_jacobiator_and_leibniz_targets()
             d_max_jac_indegree = indegree.second - 1;
 
     // Build the sets of three Jacobiator targets each
+    d_jacobiator_targets.clear();
     d_jacobiator_targets.resize(d_jacobiators.size());
     d_max_jac_indegree = 0;
     size_t j = 0;
@@ -175,7 +177,6 @@ void LeibnizGraph<T>::normalize()
 
     // TODO: remember sign?
     // TODO: save partial expansion?
-    // TODO: construct LeibnizGraph (call the constructor) only once; let the intermediates be tuples or something
 
     // Set Leibniz targets to "bottom" vertex in Jacobiator, i.e. v in { v, w } (the Jacobiator edge is v <-- w)
     for (auto& leibniz_target : d_leibniz_targets)
@@ -191,7 +192,7 @@ void LeibnizGraph<T>::normalize()
             jacobiator_arguments[j][k++] = **it;
     }
 
-    std::vector< LeibnizGraph<T> > leibniz_graphs;
+    std::vector< std::pair< std::vector<KontsevichGraph::VertexPair>, std::vector<KontsevichGraph::VertexPair> > > leibniz_graphs;
 
     std::vector<KontsevichGraph::Vertex> ground_vertices(d_external);
     std::iota(ground_vertices.begin(), ground_vertices.end(), 0);
@@ -246,10 +247,11 @@ void LeibnizGraph<T>::normalize()
                 }
             }
 
-            KontsevichGraph leibniz_graph(d_internal, d_external, global_minimum, 1, true);
-            leibniz_graphs.push_back(LeibnizGraph<T>(leibniz_graph, new_jacobiators, d_skew));
+            leibniz_graphs.push_back({ global_minimum, new_jacobiators });
         }
     } while (d_skew && std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
-    LeibnizGraph<T>& leibniz_normal_form = *min_element(leibniz_graphs.begin(), leibniz_graphs.end());
-    std::swap(leibniz_normal_form, *this);
+    auto& leibniz_normal_form = *min_element(leibniz_graphs.begin(), leibniz_graphs.end());
+    d_targets = leibniz_normal_form.first;
+    d_jacobiators = leibniz_normal_form.second;
+    set_jacobiator_and_leibniz_targets();
 }
