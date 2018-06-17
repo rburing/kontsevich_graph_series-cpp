@@ -142,17 +142,6 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // Find number of external vertices
-    // TODO: move to method in KontsevichGraphSum / KontsevichGraphSeries?
-    size_t external = 0;
-    for (size_t n = 0; n <= order; ++n)
-    {
-        if (graph_series[n].size() != 0)
-        {
-            external = graph_series[n].front().second.external();
-            break;
-        }
-    }
     graph_series.reduce_mod_skew();
 
     vector<symbol> unknowns_list;
@@ -201,135 +190,21 @@ int main(int argc, char* argv[])
                 // Use that the graph series is reduced (graphs are in normal form with sign +1)
                 processed_graphs.insert(graph);
 
-                for (KontsevichGraph::Vertex v : graph.internal_vertices())
+                for (LeibnizGraph<ex> leibniz_graph : LeibnizGraph<ex>::those_yielding_kontsevich_graph(graph, skew_leibniz))
                 {
-                    for (KontsevichGraph::Vertex w : graph.neighbors_in(v))
+                    leibniz_graph.normalize();
+                    if (leibniz_graphs.find(leibniz_graph) != leibniz_graphs.end())
+                        continue;
+                    symbol coefficient(coefficient_prefix + "_" + to_string(counter));
+                    KontsevichGraphSum<ex> graph_sum = leibniz_graph.expansion(coefficient);
+                    graph_sum.reduce_mod_skew();
+                    if (graph_sum.size() != 0)
                     {
-                        vector<KontsevichGraph::VertexPair> targets_template = graph.targets();
-                        KontsevichGraph::VertexPair& target_pair_v = targets_template[(size_t)v - external];
-                        // Check that there is no loop between v and w
-                        if (target_pair_v.first == w || target_pair_v.second == w)
-                            continue;
-                        KontsevichGraph::VertexPair& target_pair_w = targets_template[(size_t)w - external];
-                        // Check that the "Jacobiator" consisting of v and w falls on 3 distinct targets
-                        KontsevichGraph::Vertex& a = target_pair_v.first;
-                        KontsevichGraph::Vertex& b = target_pair_v.second;
-                        KontsevichGraph::Vertex& c = (target_pair_w.first == v) ? target_pair_w.second : target_pair_w.first;
-                        if (c == a || c == b)
-                            continue;
-                        
-                        // Build the list of references to bad targets (incoming edges on v or w, except the edge w -> v)
-                        set<KontsevichGraph::Vertex*> bad_targets;
-                        for (KontsevichGraph::Vertex u : graph.internal_vertices())
-                        {
-                            if (u == w)
-                                continue;
-                            KontsevichGraph::VertexPair& target_pair = targets_template[(size_t)u - external];
-                            if (target_pair.first == v || target_pair.first == w)
-                                bad_targets.insert(&target_pair.first);
-                            if (target_pair.second == v || target_pair.second == w)
-                                bad_targets.insert(&target_pair.second);
-                        }
-                        if (bad_targets.size() > max_jac_indegree)
-                            continue;
-
-                        symbol coefficient(coefficient_prefix + "_" + to_string(counter));
-
-                        // Normal form of Leibniz graph (three permutations of Jacobi, take minimal encoding, remember where Jacobiator is)
-                        for (auto& bad_target : bad_targets)
-                            *bad_target = v;
-                        vector< vector<KontsevichGraph::Vertex> > jacobi_targets_choices({ { a, b, c },
-                                                                                           { b, c, a },
-                                                                                           { c, a, b } });
-                        vector< LeibnizGraph<ex> > my_leibniz_graphs;
-
-                        vector<KontsevichGraph::Vertex> ground_vertices(external);
-                        std::iota(ground_vertices.begin(), ground_vertices.end(), 0);
-                        do
-                        {
-                            for (auto jacobi_targets_choice : jacobi_targets_choices)
-                            {
-                                // Set Jacobiator targets to one of the three permutatations
-                                a = jacobi_targets_choice[0];
-                                b = jacobi_targets_choice[1];
-                                c = jacobi_targets_choice[2];
-
-                                vector<KontsevichGraph::VertexPair> d_targets = targets_template;
-
-                                for (KontsevichGraph::VertexPair& target_pair : d_targets)
-                                {
-                                    if ((size_t)target_pair.first < graph.external())
-                                        target_pair.first = ground_vertices[target_pair.first];
-                                    if ((size_t)target_pair.second < graph.external())
-                                        target_pair.second = ground_vertices[target_pair.second];
-                                }
-
-                                // Find permutation of vertex labels such that the list of targets is minimal with respect to the defined ordering
-                                std::vector<KontsevichGraph::VertexPair> global_minimum = d_targets;
-                                sort_pairs(global_minimum.begin(), global_minimum.end());
-
-                                size_t d_internal = graph.internal();
-                                size_t d_external = graph.external();
-
-                                KontsevichGraph::VertexPair new_vw = {v, w};
-                                std::vector<KontsevichGraph::Vertex> vertices(d_external + d_internal);
-                                std::iota(vertices.begin(), vertices.end(), 0);
-                                while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
-                                {
-                                    std::vector<KontsevichGraph::VertexPair> local_minimum = d_targets;
-                                    apply_permutation(d_internal, d_external, local_minimum, vertices);
-                                    if (local_minimum < global_minimum)
-                                    {
-                                        global_minimum = local_minimum;
-                                        // Find where Jacobiator is
-                                        new_vw = { vertices[(size_t)v], vertices[(size_t)w] };
-                                    }
-                                }
-                                d_targets = global_minimum;
-
-                                KontsevichGraph leibniz_graph(d_targets.size(), d_external, d_targets, 1, true);
-                                my_leibniz_graphs.push_back(LeibnizGraph<ex>(leibniz_graph, { new_vw }, skew_leibniz));
-                            }
-                        } while (skew_leibniz && std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
-                        LeibnizGraph<ex>& leibniz_normal_form = *min_element(my_leibniz_graphs.begin(), my_leibniz_graphs.end());
-
-                        if (leibniz_graphs.find(leibniz_normal_form) != leibniz_graphs.end())
-                            continue;
-
-                        KontsevichGraphSum<ex> graph_sum;
-                        // Replace bad targets by Leibniz rule:
-                        vector<size_t> leibniz_sizes(bad_targets.size(), 2);
-                        CartesianProduct leibniz_indices(leibniz_sizes);
-                        for (auto leibniz_index = leibniz_indices.begin(); leibniz_index != leibniz_indices.end(); ++leibniz_index)
-                        {
-                            size_t idx = 0;
-                            for (auto& bad_target : bad_targets)
-                                *bad_target = (*leibniz_index)[idx++] == 0 ? v : w;
-                            for (auto jacobi_targets_choice : jacobi_targets_choices)
-                            {
-                                // Set Jacobiator targets to one of the three permutatations
-                                a = jacobi_targets_choice[0];
-                                b = jacobi_targets_choice[1];
-                                c = jacobi_targets_choice[2];
-
-                                KontsevichGraph new_graph(targets_template.size(), external, targets_template, graph.sign());
-
-                                graph_sum += KontsevichGraphSum<ex>({ { coefficient, new_graph } });
-                            }
-                        }
-
-                        if (skew_leibniz)
-                            graph_sum = graph_sum.skew_symmetrization();
-
-                        graph_sum.reduce_mod_skew();
-                        if (graph_sum.size() != 0)
-                        {
-                            ++counter;
-                            coefficient_list.push_back(coefficient);
-                            leibniz_graphs[leibniz_normal_form] = coefficient;
-                        }
-                        leibniz_graph_series[n] -= graph_sum;
+                        coefficient_list.push_back(coefficient);
+                        leibniz_graphs[leibniz_graph] = coefficient;
+                        ++counter;
                     }
+                    leibniz_graph_series[n] -= graph_sum;
                 }
             }
         }
