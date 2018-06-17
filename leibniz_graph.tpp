@@ -211,8 +211,10 @@ void LeibnizGraph<T>::normalize()
                     **it = jacobiator_arguments[j][(k++ + (*shifts)[j]) % 3];
             }
 
+            std::vector<KontsevichGraph::VertexPair> d_targets_template = d_targets;
+
             // Permute ground vertices (if skew)
-            for (KontsevichGraph::VertexPair& target_pair : d_targets)
+            for (KontsevichGraph::VertexPair& target_pair : d_targets_template)
             {
                 if ((size_t)target_pair.first < d_external)
                     target_pair.first = ground_vertices[target_pair.first];
@@ -221,7 +223,7 @@ void LeibnizGraph<T>::normalize()
             }
 
             // Find permutation of vertex labels such that the list of targets is minimal with respect to the defined ordering
-            std::vector<KontsevichGraph::VertexPair> global_minimum = d_targets;
+            std::vector<KontsevichGraph::VertexPair> global_minimum = d_targets_template;
 
             sort_pairs(global_minimum.begin(), global_minimum.end());
 
@@ -232,12 +234,13 @@ void LeibnizGraph<T>::normalize()
 
             while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
             {
-                std::vector<KontsevichGraph::VertexPair> local_minimum = d_targets;
+                std::vector<KontsevichGraph::VertexPair> local_minimum = d_targets_template;
                 apply_permutation(d_internal, d_external, local_minimum, vertices);
                 if (local_minimum < global_minimum)
                 {
                     global_minimum = local_minimum;
                     // Find where Jacobiators are
+                    new_jacobiators = d_jacobiators;
                     for (KontsevichGraph::VertexPair& new_jacobiator : new_jacobiators)
                         new_jacobiator = { vertices[(size_t)new_jacobiator.first], vertices[(size_t)new_jacobiator.second] };
                 }
