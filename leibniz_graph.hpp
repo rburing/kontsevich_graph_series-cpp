@@ -2,6 +2,7 @@
 #define INCLUDED_LEIBNIZ_GRAPH_H_
 
 #include "kontsevich_graph.hpp"
+#include "kontsevich_graph_sum.hpp"
 #include <vector>
 #include <string>
 #include <map>
