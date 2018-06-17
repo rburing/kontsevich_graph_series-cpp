@@ -30,6 +30,7 @@ public:
     static std::set< LeibnizGraph<T> > those_yielding_kontsevich_graph(KontsevichGraph& graph, bool skew_leibniz = false);
     size_t max_jac_indegree() const;
     bool operator<(const LeibnizGraph<T>& rhs) const;
+    KontsevichGraphSum<T> expansion(T prefactor = 1);
     void normalize();
 
 private:

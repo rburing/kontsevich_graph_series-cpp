@@ -255,3 +255,61 @@ void LeibnizGraph<T>::normalize()
     d_jacobiators = leibniz_normal_form.second;
     set_jacobiator_and_leibniz_targets();
 }
+
+template<class T>
+KontsevichGraphSum<T> LeibnizGraph<T>::expansion(T prefactor)
+{
+    // Back-up d_targets:
+    std::vector<KontsevichGraph::VertexPair> d_targets_values = d_targets;
+
+    KontsevichGraphSum<T> graph_sum;
+
+    // Fix some ordering of Jacobiator arguments (as a vector, instead of a set)
+    std::vector< std::vector<KontsevichGraph::Vertex> > jacobiator_arguments(d_jacobiators.size());
+    for (size_t j = 0; j != d_jacobiators.size(); ++j)
+    {
+        jacobiator_arguments[j].resize(3);
+        size_t k = 0;
+        for (auto it = d_jacobiator_targets[j].begin(); it != d_jacobiator_targets[j].end(); ++it)
+            jacobiator_arguments[j][k++] = **it;
+    }
+
+    std::vector<size_t> leibniz_sizes(d_leibniz_targets.size(), 2);
+    CartesianProduct leibniz_indices(leibniz_sizes);
+    for (CartesianProduct leibniz_index = leibniz_indices.begin(); leibniz_index != leibniz_indices.end(); ++leibniz_index)
+    {
+        // Leibniz rule
+        size_t idx = 0;
+        for (auto& leibniz_target : d_leibniz_targets)
+            *(leibniz_target.first) = (*leibniz_index)[idx++] == 0 ? d_jacobiators[leibniz_target.second].first : d_jacobiators[leibniz_target.second].second;
+
+        // Choose shifts (by 0, 1, or 2) in Jacobiator arguments
+        std::vector<size_t> shifts_max(d_jacobiators.size(), 3);
+        CartesianProduct all_shifts(shifts_max);
+
+        for (CartesianProduct shifts = all_shifts.begin(); shifts != all_shifts.end(); ++shifts)
+        {
+            // Set Jacobiator arguments
+            for (size_t j = 0; j != d_jacobiators.size(); ++j)
+            {
+                size_t k = 0;
+                for (auto it = d_jacobiator_targets[j].begin(); it != d_jacobiator_targets[j].end(); ++it)
+                    **it = jacobiator_arguments[j][(k++ + (*shifts)[j]) % 3];
+            }
+
+            KontsevichGraph new_graph(d_internal, d_external, d_targets, d_sign);
+            graph_sum += KontsevichGraphSum<T>({ { prefactor, new_graph } });
+        }
+    }
+
+    if (d_skew)
+        graph_sum = graph_sum.skew_symmetrization();
+
+    graph_sum.reduce_mod_skew();
+
+    // Restore back-up of d_targets:
+    for (size_t j = 0; j != d_internal; ++j)
+        d_targets[j] = d_targets_values[j];
+
+    return graph_sum;
+}
