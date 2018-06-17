@@ -82,6 +82,19 @@ void LeibnizGraph<T>::set_jacobiator_and_leibniz_targets()
 }
 
 template<class T>
+bool LeibnizGraph<T>::skew() const
+{
+    return d_skew;
+}
+
+template<class T>
+bool LeibnizGraph<T>::skew(bool new_skew)
+{
+    d_skew = new_skew;
+    return d_skew;
+}
+
+template<class T>
 bool LeibnizGraph<T>::operator<(const LeibnizGraph<T>& rhs) const
 {
     return std::tie(this->d_skew, this->d_external, this->d_internal, this->d_targets, this->d_jacobiators, this->d_sign) < \
