@@ -24,7 +24,8 @@ all: bin \
   bin/schouten_bracket \
   bin/operator_latex \
   bin/reduce_mod_jacobi_iterative \
-  bin/reduce_mod_coboundary
+  bin/reduce_mod_coboundary \
+  bin/leibniz_expand
 
 bin:
 	mkdir bin
