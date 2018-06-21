@@ -131,6 +131,7 @@ std::istream& operator>>(std::istream& is, LeibnizGraph<T>& g)
     size_t jacobiator_count = 0;
     while (jacobiator_count++ < jacobiators && is >> jacobiator.first >> jacobiator.second)
         g.d_jacobiators.push_back(jacobiator);
+    g.set_jacobiator_and_leibniz_targets();
     return is;
 }
 
