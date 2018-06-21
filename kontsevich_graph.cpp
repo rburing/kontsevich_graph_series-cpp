@@ -358,7 +358,6 @@ std::istream& operator>>(std::istream& is, KontsevichGraph& g)
     while (pair_count++ < g.d_internal && is >> target_pair.first >> target_pair.second)
         g.d_targets.push_back(target_pair);
     g.d_internal = g.d_targets.size();
-    g.normalize();
     return is;
 }
 

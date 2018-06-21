@@ -190,6 +190,7 @@ KontsevichGraphSeries<T> KontsevichGraphSeries<T>::from_istream(std::istream& is
             KontsevichGraph graph;
             std::stringstream ss(line);
             ss >> graph;
+            graph.normalize();
             if (filter && !filter(graph, order))
                 continue;
             std::string coefficient_str;

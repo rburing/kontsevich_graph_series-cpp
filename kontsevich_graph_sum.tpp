@@ -62,6 +62,7 @@ std::istream& operator>>(std::istream& is, KontsevichGraphSum<T>& sum)
 {
     typename KontsevichGraphSum<T>::Term term;
     while (is >> term.first >> term.second) {
+        term.second.normalize();
         sum.push_back(term);
     }
     return is;
