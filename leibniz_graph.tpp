@@ -148,10 +148,13 @@ std::map< LeibnizGraph<T>, T> LeibnizGraph<T>::map_from_istream(std::istream& is
         std::stringstream ss(line);
         LeibnizGraph<T> g;
         ss >> g;
+        g.normalize();
         std::string coefficient_str;
         ss >> coefficient_str;
         T coefficient = parser(coefficient_str);
-        result[g] = coefficient;
+        coefficient *= g.sign();
+        g.sign(1);
+        result[g] += coefficient;
     }
     return result;
 }
