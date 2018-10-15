@@ -22,6 +22,7 @@ class LeibnizGraph : KontsevichGraph
     std::map<KontsevichGraph::Vertex*, size_t> d_leibniz_targets;
 
 public:
+    using KontsevichGraph::sign;
     LeibnizGraph() {};
     LeibnizGraph(KontsevichGraph graph, std::vector<KontsevichGraph::VertexPair> jacobiators, bool skew = false);
     LeibnizGraph(const LeibnizGraph<T>& other);
