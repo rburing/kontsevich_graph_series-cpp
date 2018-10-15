@@ -148,6 +148,7 @@ std::map< LeibnizGraph<T>, T> LeibnizGraph<T>::map_from_istream(std::istream& is
         std::stringstream ss(line);
         LeibnizGraph<T> g;
         ss >> g;
+        g.skew(true); // XXX: temporary
         g.normalize();
         std::string coefficient_str;
         ss >> coefficient_str;
