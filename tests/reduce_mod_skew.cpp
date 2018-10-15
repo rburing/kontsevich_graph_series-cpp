@@ -8,14 +8,15 @@ using namespace GiNaC;
 
 int main(int argc, char* argv[])
 {
-    if (argc != 2 && argc != 3 && argc != 4)
+    if (argc != 2 && argc != 3 && argc != 4 && argc != 5)
     {
-        cout << "Usage: " << argv[0] << " <graph-series-filename> [--print-differential-orders] [--modulo-reversion]\n";
+        cout << "Usage: " << argv[0] << " <graph-series-filename> [--print-differential-orders] [--modulo-reversion] [--print-variables]\n";
         return 1;
     }
 
     bool print_differential_orders = false;
     bool modulo_reversion = false;
+    bool print_variables = false;
     if (argc >= 3)
         for (int j = 2; j < argc; ++j)
         {
@@ -24,6 +25,8 @@ int main(int argc, char* argv[])
                 print_differential_orders = true;
             else if (argument == "--modulo-reversion")
                 modulo_reversion = true;
+            else if (argument == "--print-variables")
+                print_variables = true;
         }
     
     // Reading in graph series:
@@ -58,5 +61,18 @@ int main(int argc, char* argv[])
                 cout << term.second.encoding() << "    " << term.first << "\n";
             }
         }
+    }
+    if (print_variables)
+    {
+        cerr << "Number of variables: " << coefficient_reader.get_syms().size() << "\n";
+        cerr << "Variables: {";
+        size_t cnt = 0;
+        for (auto pair: coefficient_reader.get_syms())
+        {
+            cerr << pair.first;
+            if (++cnt != coefficient_reader.get_syms().size())
+                cerr << ", ";
+        }
+        cerr << "}\n";
     }
 }
