@@ -2,20 +2,29 @@
 #include <ginac/ginac.h>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 using namespace std;
 using namespace GiNaC;
 
 int main(int argc, char* argv[])
 {
-    if (argc != 2 && argc != 3)
+    if (argc != 2 && argc != 3 && argc != 4)
     {
-        cout << "Usage: " << argv[0] << " <graph-series-filename> [--print-differential-orders]\n";
+        cout << "Usage: " << argv[0] << " <graph-series-filename> [--print-differential-orders] [--modulo-reversion]\n";
         return 1;
     }
 
     bool print_differential_orders = false;
-    if (argc == 3 && string(argv[2]) == "--print-differential-orders")
-        print_differential_orders = true;
+    bool modulo_reversion = false;
+    if (argc >= 3)
+        for (int j = 2; j < argc; ++j)
+        {
+            string argument(argv[j]);
+            if (argument == "--print-differential-orders")
+                print_differential_orders = true;
+            else if (argument == "--modulo-reversion")
+                modulo_reversion = true;
+        }
     
     // Reading in graph series:
     string graph_series_filename(argv[1]);
@@ -30,6 +39,13 @@ int main(int argc, char* argv[])
             cout << "h^" << n << ":\n";
         for (auto& indegree : graph_series[n].in_degrees(true))
         {
+            if (modulo_reversion)
+            {
+                auto reversed_indegree = indegree;
+                reverse(reversed_indegree.begin(), reversed_indegree.end());
+                if (reversed_indegree < indegree)
+                    continue;
+            }
             if (print_differential_orders)
             {
                 cout << "# ";
