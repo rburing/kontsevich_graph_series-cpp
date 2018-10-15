@@ -32,14 +32,7 @@ void equations_from_particular_poisson(KontsevichGraphSum<ex> graph_sum, Poisson
         if (entry.second == 0)
             continue;
         ex result = entry.second;
-        for (ex var : unknowns)
-        {
-            if (result.coeff(var) != 0) // first weight variable occurring in expression
-            {
-                result /= result.coeff(var); // divide by its coefficient
-                break;
-            }
-        }
+        // TODO: normalize equation
         pair< set<ex,ex_is_less>::const_iterator, bool > insertion = linear_system.insert(result == 0);
         if (insertion.second) // new equation
             cout << result << "==0\n";
@@ -77,14 +70,7 @@ void equations_from_polynomial_poisson(KontsevichGraphSum<ex> graph_sum, Poisson
                 result2 = result2.coeff(poisson.coordinates[i], (*monomialdegrees)[i]).expand();
             if (result2 == 0)
                 continue;
-            for (ex var : unknowns)
-            {
-                if (result2.coeff(var) != 0) // first weight variable occurring in expression
-                {
-                    result2 /= result2.coeff(var); // divide by its coefficient
-                    break;
-                }
-            }
+            // TODO: normalize equation
             pair< set<ex,ex_is_less>::const_iterator, bool > insertion = linear_system.insert(result2 == 0);
             if (insertion.second) // new equation
                 cout << result2 << "==0\n";
@@ -143,14 +129,7 @@ void equations_from_generic_poisson(KontsevichGraphSum<ex> graph_sum, PoissonStr
             ex result2 = pair2.second;
             if (result2 == 0)
                 continue;
-            for (ex var : unknowns)
-            {
-                if (result2.coeff(var) != 0) // first weight variable occurring in expression
-                {
-                    result2 /= result2.coeff(var); // divide by its coefficient
-                    break;
-                }
-            }
+            // TODO: normalize equation
             auto insertion = linear_system.insert(result2 == 0);
             if (insertion.second) // new equation
                 cout << result2 << "==0\n";
