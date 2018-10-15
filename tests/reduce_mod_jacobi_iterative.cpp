@@ -194,6 +194,7 @@ int main(int argc, char* argv[])
                 for (LeibnizGraph<ex> leibniz_graph : LeibnizGraph<ex>::those_yielding_kontsevich_graph(graph, skew_leibniz))
                 {
                     leibniz_graph.normalize();
+                    leibniz_graph.sign(1);
                     if (leibniz_graphs.find(leibniz_graph) != leibniz_graphs.end())
                         continue;
                     symbol coefficient(coefficient_prefix + "_" + to_string(counter));
