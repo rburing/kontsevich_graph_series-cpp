@@ -1,5 +1,6 @@
 #include "leibniz_graph.hpp"
 #include "util/cartesian_product.hpp"
+#include "util/permutations.hpp"
 #include <sstream>
 #include <tuple>
 
@@ -264,8 +265,10 @@ void LeibnizGraph<T>::normalize()
                         new_jacobiator = { vertices[(size_t)new_jacobiator.first], vertices[(size_t)new_jacobiator.second] };
                 }
             }
-
-            leibniz_graphs.push_back(std::make_tuple(global_minimum, new_jacobiators, exchanges % 2 == 0 ? 1 : -1));
+            int sign = exchanges % 2 == 0 ? 1 : -1;
+            if (d_skew)
+                sign *= parity(ground_vertices); // skew-symmetrization sign
+            leibniz_graphs.push_back(std::make_tuple(global_minimum, new_jacobiators, sign));
         }
     } while (d_skew && std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
     auto& leibniz_normal_form = *min_element(leibniz_graphs.begin(), leibniz_graphs.end());
