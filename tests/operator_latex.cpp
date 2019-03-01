@@ -9,11 +9,13 @@ using namespace GiNaC;
 
 int main(int argc, char* argv[])
 {
-    if (argc != 2)
+    if (argc != 2 && argc != 3)
     {
-        cerr << "Usage: " << argv[0] << " <graph-series-filename>\n";
+        cerr << "Usage: " << argv[0] << " <graph-series-filename> [--derivatives-as-subscripts]\n";
         return 1;
     }
+
+    bool derivatives_as_subscripts = argc == 3 && std::string(argv[2]) == "--derivatives-as-subscripts";
 
     // Reading in graph series:
     string graph_series_filename(argv[1]);
@@ -50,9 +52,10 @@ int main(int argc, char* argv[])
                     coefficient_string = "+" + coefficient_string;
                 cout << coefficient_string << " ";
             }
-            vector< vector<string> > indices = { { "i", "j" }, { "k", "\\ell" }, { "m", "n" }, { "p", "q" }, { "r", "s" }, { "t", "v"} };
+            vector< vector<string> > indices = { { "i", "j" }, { "k", "{\\ell}" }, { "m", "n" }, { "p", "q" }, { "r", "s" }, { "t", "v"} };
             vector<string> functions = { "f", "g", "h"};
             vector<string> factors(graph.vertices());
+            vector<bool> is_differentiated(graph.vertices(), false);
             for (size_t idx = 0; idx != graph.external(); ++idx)
                 factors[idx] = functions[idx];
             for (size_t idx = 0; idx != graph.internal(); ++idx)
@@ -61,8 +64,37 @@ int main(int argc, char* argv[])
             {
                 size_t idx = (size_t)v - graph.external();
                 KontsevichGraph::VertexPair targets = graph.targets(v);
-                factors[targets.first]  = "\\partial_{" + indices[idx][0] + "} " + factors[targets.first];
-                factors[targets.second] = "\\partial_{" + indices[idx][1] + "} " + factors[targets.second];
+                // start writing subscripts (if applicable)
+                if (derivatives_as_subscripts && !is_differentiated[targets.first])
+                {
+                    factors[targets.first] += "_{";
+                    is_differentiated[targets.first] = true;
+                }
+                if (derivatives_as_subscripts && !is_differentiated[targets.second])
+                {
+                    factors[targets.second] += "_{";
+                    is_differentiated[targets.second] = true;
+                }
+                // update the factors
+                if (derivatives_as_subscripts)
+                {
+                    factors[targets.first]  += indices[idx][0];
+                    factors[targets.second] += indices[idx][1];
+                }
+                else
+                {
+                    factors[targets.first]  = "\\partial_{" + indices[idx][0] + "} " + factors[targets.first];
+                    factors[targets.second] = "\\partial_{" + indices[idx][1] + "} " + factors[targets.second];
+                }
+            }
+            // finish writing subscripts (if applicable)
+            if (derivatives_as_subscripts)
+            {
+                for (size_t v = 0; v != graph.vertices(); ++v)
+                {
+                    if (is_differentiated[v])
+                        factors[v] += "}";
+                }
             }
             for (size_t idx = 0; idx != graph.internal(); ++idx)
                 cout << factors[graph.external() + idx] << " ";
