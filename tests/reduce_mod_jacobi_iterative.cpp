@@ -22,8 +22,8 @@ int main(int argc, char* argv[])
 {
     if (argc == 1 || (argc == 2 && string(argv[1]) == "--help"))
     {
-        cout << "Usage: " << argv[0] << " <graph-series-filename> [--max-jac-indegree=k] [--skew-leibniz] [--solve]\n\n"
-             << "Accepts only homogeneous power series: graphs with n internal vertices at order n.\n\n"
+        cout << "Usage: " << argv[0] << " <graph-series-filename> [optional-arguments]\n\n"
+             << "Available optional arguments:\n"
              << "--max-iterations=i     perform at most i iterations.\n"
              << "--max-jac-indegree=k   restricts the number of arrows falling on Jacobiators to be <= k.\n"
              << "--skew-leibniz         skew-symmetrizes each Leibniz graph before subtracting it with an undetermined coefficient.\n"
@@ -125,22 +125,16 @@ int main(int argc, char* argv[])
     // Reading in graph series
     string graph_series_filename(argv[1]);
     ifstream graph_series_file(graph_series_filename);
-    bool homogeneous = true;
     map<size_t, set< vector<size_t> > > in_degrees;
     KontsevichGraphSeries<ex> graph_series = KontsevichGraphSeries<ex>::from_istream(graph_series_file,
         [&coefficient_reader](string s) -> ex { return coefficient_reader(s); },
-        [&homogeneous, &in_degrees](KontsevichGraph graph, size_t order) -> bool
+        [&in_degrees](KontsevichGraph graph, size_t order) -> bool
                                    {
                                        in_degrees[order].insert(graph.in_degrees());
-                                       return homogeneous &= graph.internal() == order;
+                                       return true;
                                    }
     );
     size_t order = graph_series.precision();
-    if (!homogeneous)
-    {
-        cerr << "Only accepting homogeneous power series: graphs with n internal vertices at order n.\n";
-        return 1;
-    }
 
     graph_series.reduce_mod_skew();
 
