@@ -43,9 +43,6 @@ bin/%: tests/%.o kontsevich_graph.o
 tests/reduce_mod_jacobi.o: tests/reduce_mod_jacobi.cpp
 	$(CC) $(CFLAGS) $(EIGEN_CFLAGS) -c tests/reduce_mod_jacobi.cpp -o tests/reduce_mod_jacobi.o
 
-tests/reduce_mod_jacobi_iterative.o: tests/reduce_mod_jacobi_iterative.cpp
-	$(CC) $(CFLAGS) $(EIGEN_CFLAGS) -c tests/reduce_mod_jacobi_iterative.cpp -o tests/reduce_mod_jacobi_iterative.o
-
 .PHONY: clean
 clean:
 	rm -f kontsevich_graph.o
