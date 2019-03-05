@@ -20,6 +20,7 @@ int main(int argc, char* argv[])
              << "--leibniz-in=filename  input graph series already contains Leibniz graphs, with encodings in filename.\n"
              << "--leibniz-out=filename store Leibniz graph encodings in filename (default: standard output).\n"
              << "--linsys-out=filename  store linear system in filename (default: standard output).\n"
+             << "--linsys-format=format write the linear system in this format (options: kgs, ginac, maple).\n"
              << "--coeff-prefix=c       let the coefficients of leibniz graphs be c_n.\n"
              << "--solve                the undetermined variables in the input are added to the linear system to-be-solved.\n"
              << "--interactive          ask whether to continue to the next iteration.\n";
@@ -34,6 +35,7 @@ int main(int argc, char* argv[])
     string leibniz_in_filename = "";
     string leibniz_out_filename = "";
     string linsys_out_filename = "";
+    string linsys_format = "kgs";
     string coefficient_prefix = "c";
 
     // Process arguments
@@ -57,6 +59,8 @@ int main(int argc, char* argv[])
                 leibniz_out_filename = value;
             else if (key == "--linsys-out")
                 linsys_out_filename = value;
+            else if (key == "--linsys-format" && (value == "kgs" || value == "ginac" || value == "maple"))
+                linsys_format = value;
             else {
                 cout << "Unrecognized option: " << argument << "\n";
                 return 1;
@@ -93,6 +97,7 @@ int main(int argc, char* argv[])
          << ", leibniz-in = " << (leibniz_in_filename == "" ? "none" : leibniz_in_filename)
          << ", leibniz-out = " << (leibniz_out_filename == "" ? "stdout" : leibniz_out_filename)
          << ", linsys-out = " << (linsys_out_filename == "" ? "stdout" : linsys_out_filename)
+         << ", linsys-format = " << linsys_format
          << ", coeff-prefix = " << coefficient_prefix
          << ", interactive = " << (interactive ? "yes" : "no") << "\n";
 
@@ -215,12 +220,30 @@ int main(int argc, char* argv[])
             linsys_out_fstream.open(linsys_out_filename);
             linsys_out_stream = &linsys_out_fstream;
         }
+        if (linsys_format == "maple")
+            (*linsys_out_stream) << "solve({";
         for (size_t n = 0; n <= order; ++n)
+        {
+            size_t term_no = 0;
             for (auto& term : leibniz_graph_series[n])
             {
-                (*linsys_out_stream) << term.second.encoding() << "    " << term.first << "==0\n";
+                if (linsys_format == "kgs")
+                    (*linsys_out_stream) << term.second.encoding() << "    " << term.first << "==0\n";
+                else if (linsys_format == "ginac")
+                    (*linsys_out_stream) << term.first << "==0\n";
+                else if (linsys_format == "maple")
+                {
+                    (*linsys_out_stream) << term.first << "=0";
+                    if (term_no != leibniz_graph_series[n].size() - 1)
+                        (*linsys_out_stream) << ",";
+                    (*linsys_out_stream) << "\n";
+                }
                 equations.append(term.first);
+                ++term_no;
             }
+        }
+        if (linsys_format == "maple")
+            (*linsys_out_stream) << "});\n";
 
         size_t rows = equations.nops();
         size_t cols = coefficient_list.size();
