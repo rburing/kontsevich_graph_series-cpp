@@ -18,7 +18,8 @@ int main(int argc, char* argv[])
              << "--max-jac-indegree=k   restricts the number of arrows falling on Jacobiators to be <= k.\n"
              << "--skew-leibniz         skew-symmetrizes each Leibniz graph before subtracting it with an undetermined coefficient.\n"
              << "--leibniz-in=filename  input graph series already contains Leibniz graphs, with encodings in filename.\n"
-             << "--leibniz-out=filename store Leibniz graph encodings in filename.\n"
+             << "--leibniz-out=filename store Leibniz graph encodings in filename (default: standard output).\n"
+             << "--linsys-out=filename  store linear system in filename (default: standard output).\n"
              << "--coeff-prefix=c       let the coefficients of leibniz graphs be c_n.\n"
              << "--solve                the undetermined variables in the input are added to the linear system to-be-solved.\n"
              << "--interactive          ask whether to continue to the next iteration.\n";
@@ -32,6 +33,7 @@ int main(int argc, char* argv[])
     bool skew_leibniz = false;
     string leibniz_in_filename = "";
     string leibniz_out_filename = "";
+    string linsys_out_filename = "";
     string coefficient_prefix = "c";
 
     // Process arguments
@@ -53,6 +55,8 @@ int main(int argc, char* argv[])
                 leibniz_in_filename = value;
             else if (key == "--leibniz-out")
                 leibniz_out_filename = value;
+            else if (key == "--linsys-out")
+                linsys_out_filename = value;
             else {
                 cout << "Unrecognized option: " << argument << "\n";
                 return 1;
@@ -87,6 +91,8 @@ int main(int argc, char* argv[])
     cout << ", solve = " << (solve ? "yes" : "no")
          << ", skew-leibniz = " << (skew_leibniz ? "yes" : "no")
          << ", leibniz-in = " << (leibniz_in_filename == "" ? "none" : leibniz_in_filename)
+         << ", leibniz-out = " << (leibniz_out_filename == "" ? "stdout" : leibniz_out_filename)
+         << ", linsys-out = " << (linsys_out_filename == "" ? "stdout" : linsys_out_filename)
          << ", coeff-prefix = " << coefficient_prefix
          << ", interactive = " << (interactive ? "yes" : "no") << "\n";
 
@@ -201,10 +207,18 @@ int main(int argc, char* argv[])
 
         lst equations;
 
+        ostream* linsys_out_stream = &cout;
+        ofstream linsys_out_fstream;
+        if (linsys_out_filename != "")
+        {
+            cout << "Writing linear system to " << linsys_out_filename << "\n";
+            linsys_out_fstream.open(linsys_out_filename);
+            linsys_out_stream = &linsys_out_fstream;
+        }
         for (size_t n = 0; n <= order; ++n)
             for (auto& term : leibniz_graph_series[n])
             {
-                cout << term.second.encoding() << "    " << term.first << "==0\n";
+                (*linsys_out_stream) << term.second.encoding() << "    " << term.first << "==0\n";
                 equations.append(term.first);
             }
 
