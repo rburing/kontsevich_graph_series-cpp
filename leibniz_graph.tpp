@@ -242,33 +242,30 @@ void LeibnizGraph<T>::normalize()
             }
 
             // Find permutation of vertex labels such that the list of targets is minimal with respect to the defined ordering
-            std::vector<KontsevichGraph::VertexPair> global_minimum = d_targets_template;
-            size_t exchanges = sort_pairs(global_minimum.begin(), global_minimum.end());
-
-            std::vector<KontsevichGraph::VertexPair> new_jacobiators = d_jacobiators;
+            // AND the Jacobiators are minimal (needed because there can be automorphisms that move the Jacobiators)
+            std::pair< std::vector<KontsevichGraph::VertexPair>, std::vector<KontsevichGraph::VertexPair> > global_minimum = { d_targets_template, d_jacobiators };
+            size_t exchanges = sort_pairs(global_minimum.first.begin(), global_minimum.first.end());
 
             std::vector<KontsevichGraph::Vertex> vertices(d_external + d_internal);
             std::iota(vertices.begin(), vertices.end(), 0);
 
             while (std::next_permutation(vertices.begin() + d_external, vertices.end()))
             {
-                std::vector<KontsevichGraph::VertexPair> local_minimum = d_targets_template;
-                size_t local_exchanges = apply_permutation(d_internal, d_external, local_minimum, vertices);
+                std::pair< std::vector<KontsevichGraph::VertexPair>, std::vector<KontsevichGraph::VertexPair> > local_minimum = { d_targets_template, d_jacobiators };
+                size_t local_exchanges = apply_permutation(d_internal, d_external, local_minimum.first, vertices);
+                // Find where Jacobiators are
+                for (KontsevichGraph::VertexPair& new_jacobiator : local_minimum.second)
+                    new_jacobiator = { vertices[(size_t)new_jacobiator.first], vertices[(size_t)new_jacobiator.second] };
                 if (local_minimum < global_minimum)
                 {
                     global_minimum = local_minimum;
                     exchanges = local_exchanges;
-
-                    // Find where Jacobiators are
-                    new_jacobiators = d_jacobiators;
-                    for (KontsevichGraph::VertexPair& new_jacobiator : new_jacobiators)
-                        new_jacobiator = { vertices[(size_t)new_jacobiator.first], vertices[(size_t)new_jacobiator.second] };
                 }
             }
             int sign = exchanges % 2 == 0 ? 1 : -1;
             if (d_skew)
                 sign *= parity(ground_vertices); // skew-symmetrization sign
-            leibniz_graphs.push_back(std::make_tuple(global_minimum, new_jacobiators, sign));
+            leibniz_graphs.push_back(std::make_tuple(global_minimum.first, global_minimum.second, sign));
         }
     } while (d_skew && std::next_permutation(ground_vertices.begin(), ground_vertices.end()));
     auto& leibniz_normal_form = *min_element(leibniz_graphs.begin(), leibniz_graphs.end());
