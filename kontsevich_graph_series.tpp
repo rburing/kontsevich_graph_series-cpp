@@ -21,10 +21,7 @@ void KontsevichGraphSeries<T>::reduce_mod_skew()
     while (current_term != this->end())
     {
         current_term->second.reduce_mod_skew();
-        if (current_term->second.size() == 0)
-            current_term = this->erase(current_term);
-        else
-            ++current_term;
+        ++current_term;
     }
 }
 
@@ -160,7 +157,12 @@ bool KontsevichGraphSeries<T>::operator==(int other) const
         return false;
     KontsevichGraphSeries<T> difference = *this;
     difference.reduce_mod_skew();
-    return difference.size() == 0;
+    for (auto term = this->begin(); term != this->end(); term++)
+    {
+        if (term->second.size() != 0)
+            return false;
+    }
+    return true;
 }
 
 template <class T>
