@@ -241,9 +241,7 @@ KontsevichGraphSeries<T> schouten_bracket(const KontsevichGraphSeries<T>& left, 
         for (size_t k = 0; k <= n; ++k)
         {
             try {
-                result[n] += schouten_bracket(left.at(n), right.at(n-k));
-                if (n != n - k)
-                    result[n] += schouten_bracket(left.at(n-k), right.at(n));
+                result[n] += schouten_bracket(left.at(k), right.at(n-k));
             }
             catch (std::out_of_range) {}
         }
