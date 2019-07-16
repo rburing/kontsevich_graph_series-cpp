@@ -336,7 +336,7 @@ KontsevichGraphSum<T> gerstenhaber_bracket(const KontsevichGraphSum<T>& left, co
     }
     for (size_t i = 0; i != l; ++i)
     {
-        T coefficient = (i*(k-1) % 2 == 0) ? -1 : 1;
+        T coefficient = (i*(k-1) % 2 == 0) ? 1 : -1;
         coefficient *= ((k-1)*(l-1) % 2 == 0) ? -1 : 1;
         std::vector< KontsevichGraphSum<T> > arguments(l, dot);
         arguments[i] = left;
