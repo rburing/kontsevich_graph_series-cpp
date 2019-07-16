@@ -21,6 +21,7 @@ all: bin \
   bin/skew_symmetrize \
   bin/weight_integrands \
   bin/extract_coefficient \
+  bin/gerstenhaber_bracket \
   bin/schouten_bracket \
   bin/operator_latex \
   bin/reduce_mod_jacobi_iterative \
