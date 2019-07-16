@@ -39,6 +39,8 @@ KontsevichGraphSeries<T> operator+(KontsevichGraphSeries<T> lhs, const Kontsevic
 template <class T>
 KontsevichGraphSeries<T> operator-(KontsevichGraphSeries<T> lhs, const KontsevichGraphSeries<T>& rhs);
 template <class T>
+KontsevichGraphSeries<T> gerstenhaber_bracket(const KontsevichGraphSeries<T>& left, const KontsevichGraphSeries<T>& right);
+template <class T>
 KontsevichGraphSeries<T> schouten_bracket(const KontsevichGraphSeries<T>& left, const KontsevichGraphSeries<T>& right);
 
 #include "kontsevich_graph_series.tpp"

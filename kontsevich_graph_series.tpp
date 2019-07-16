@@ -226,6 +226,30 @@ std::ostream& operator<<(std::ostream& os, const KontsevichGraphSeries<T>& serie
 }
 
 template <class T>
+KontsevichGraphSeries<T> gerstenhaber_bracket(const KontsevichGraphSeries<T>& left, const KontsevichGraphSeries<T>& right)
+{
+    KontsevichGraphSeries<T> result;
+    size_t new_precision = std::min(left.precision(), right.precision());
+    result.precision(new_precision);
+
+    if (left.empty() || right.empty())
+        return result;
+
+    size_t practical_precision = std::min(left.rbegin()->first, new_precision);
+    for (size_t n = 0; n <= practical_precision; ++n)
+    {
+        for (size_t k = 0; k <= n; ++k)
+        {
+            try {
+                result[n] += gerstenhaber_bracket(left.at(k), right.at(n-k));
+            }
+            catch (std::out_of_range) {}
+        }
+    }
+    return result;
+}
+
+template <class T>
 KontsevichGraphSeries<T> schouten_bracket(const KontsevichGraphSeries<T>& left, const KontsevichGraphSeries<T>& right)
 {
     KontsevichGraphSeries<T> result;

@@ -319,6 +319,33 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::skew_symmetrization() const
 }
 
 template <class T>
+KontsevichGraphSum<T> gerstenhaber_bracket(const KontsevichGraphSum<T>& left, const KontsevichGraphSum<T>& right)
+{
+    KontsevichGraphSum<T> result;
+    if (left.size() == 0 || right.size() == 0)
+        return result;
+    size_t k = left.at(0).second.external();
+    size_t l = right.at(0).second.external();
+    KontsevichGraphSum<T> dot = { { 1, KontsevichGraph(0, 1, {}) } };
+    for (size_t i = 0; i != k; ++i)
+    {
+        T coefficient = (i*(l-1) % 2 == 0) ? 1 : -1;
+        std::vector< KontsevichGraphSum<T> > arguments(k, dot);
+        arguments[i] = right;
+        result += coefficient * left(arguments);
+    }
+    for (size_t i = 0; i != l; ++i)
+    {
+        T coefficient = (i*(k-1) % 2 == 0) ? -1 : 1;
+        coefficient *= ((k-1)*(l-1) % 2 == 0) ? -1 : 1;
+        std::vector< KontsevichGraphSum<T> > arguments(l, dot);
+        arguments[i] = left;
+        result += coefficient * right(arguments);
+    }
+    return result;
+}
+
+template <class T>
 KontsevichGraphSum<T> schouten_bracket(const KontsevichGraphSum<T>& left, const KontsevichGraphSum<T>& right)
 {
     // TODO check if inputs are polyvectors (indegree = 1 for each ground vertex)
