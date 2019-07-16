@@ -18,6 +18,7 @@ GiNaC::symbol a("a"), b("b"), l("l");
 GiNaC::symbol b01("b01"), b02("b02"), b03("b03"), b12("b12"), b13("b13"), b23("b23");
 GiNaC::symbol x11("x11"), x12("x12"), x13("x13"), x21("x21"), x22("x22"), x23("x23"), x31("x31"), x32("x32"), x33("x33");
 GiNaC::symbol x1("x1"), x2("x2"), x3("x3"), x4("x4");
+GiNaC::symbol u1("u1"), u2("u2"), v1("v1"), v2("v2");
 DECLARE_FUNCTION_4P(f1)
 REGISTER_FUNCTION(f1, dummy())
 DECLARE_FUNCTION_4P(f2)
@@ -63,6 +64,11 @@ std::map<std::string, PoissonStructure> poisson_structures {
                                          { -b01*x*y, 0, b12*y*z, b13*w*y },
                                          { -b02*x*z, -b12*y*z, 0, b23*w*z },
                                          { -b03*w*x, -b13*w*y, -b23*w*z, 0} },
+                       PoissonStructure::Type::Polynomial, {} } },
+    {"4d-pv", { { u1, u2, v1, v2 }, { { 0, 0, 2*v1*v2 - u1*v1*v1, v2*v2 - u2*v1*v1 },
+                                      { 0, 0, v2*v2 - u2*v1*v1, u1*v2*v2 - 2*u2*v1*v2 },
+                                      { -2*v1*v2 + u1*v1*v1, -v2*v2 + u2*v1*v1, 0, 0 },
+                                      { -v2*v2 + u2*v1*v1, -u1*v2*v2 + 2*u2*v1*v2, 0, 0 } },
                        PoissonStructure::Type::Polynomial, {} } },
     {"9d-rank6", { { x11, x12, x13, x21, x22, x23, x31, x32, x33 }, { 
 {0, x11*x11*x12 + x12*x12*x21, x11*x11*x13 + 2*x12*x13*x21 + x13*x13*x31, x11*x11*x21 + x12*x21*x21, 2*x11*x12*x21 + 2*x12*x21*x22, 2*x11*x13*x21 + 2*x13*x21*x22 + x12*x21*x23 + x13*x23*x31, x13*x31*x31 + (x11*x11 + 2*x12*x21)*x31, 2*(x11*x12 + x12*x22)*x31 + (x12*x21 + x13*x31)*x32, 2*x13*x21*x32 + 2*x13*x31*x33 + 2*(x11*x13 + x12*x23)*x31},
