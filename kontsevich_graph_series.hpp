@@ -22,6 +22,7 @@ class KontsevichGraphSeries : public std::map< size_t, KontsevichGraphSum<T> >
     KontsevichGraphSeries<T> operator()(std::vector< KontsevichGraphSeries<T> > arguments) const;
     KontsevichGraphSeries<T>& operator+=(const KontsevichGraphSeries<T>& rhs);
     KontsevichGraphSeries<T>& operator-=(const KontsevichGraphSeries<T>& rhs);
+    KontsevichGraphSeries<T> symmetrization() const;
     KontsevichGraphSeries<T> skew_symmetrization() const;
     KontsevichGraphSeries<T> inverse() const;
     KontsevichGraphSeries<T> gauge_transform(const KontsevichGraphSeries<T>& gauge);

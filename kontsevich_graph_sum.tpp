@@ -303,6 +303,19 @@ KontsevichGraphSum<T> KontsevichGraphSum<T>::operator()(std::vector< KontsevichG
     return total;
 }
 
+template <class T> 
+KontsevichGraphSum<T> KontsevichGraphSum<T>::symmetrization() const
+{
+    KontsevichGraphSum<T> total;
+    for (auto& term : *this)
+    {
+        for (auto& permutation : term.second.permutations())
+        {
+            total += KontsevichGraphSum<T>({ { term.first * std::get<1>(permutation), std::get<0>(permutation) } });
+        }
+    }
+    return total;
+}
 
 template <class T> 
 KontsevichGraphSum<T> KontsevichGraphSum<T>::skew_symmetrization() const
