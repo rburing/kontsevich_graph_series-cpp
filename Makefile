@@ -18,6 +18,7 @@ all: bin \
   bin/gauge \
   bin/star_product_associator \
   bin/reduce_mod_jacobi \
+  bin/symmetrize \
   bin/skew_symmetrize \
   bin/weight_integrands \
   bin/extract_coefficient \
