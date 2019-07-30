@@ -193,7 +193,7 @@ KontsevichGraphSeries<T> KontsevichGraphSeries<T>::from_istream(std::istream& is
             continue;
         if (line[0] == 'h')
         {
-            graph_series[order] = term;
+            graph_series[order] += term;
             term = KontsevichGraphSum<T>({ });
             order = stoi(line.substr(2));
         }
@@ -211,7 +211,7 @@ KontsevichGraphSeries<T> KontsevichGraphSeries<T>::from_istream(std::istream& is
             term += KontsevichGraphSum<T>({ { coefficient, graph } });
         }
     }
-    graph_series[order] = term; // the last one
+    graph_series[order] += term; // the last one
     graph_series.precision(order);
     return graph_series;
 }
